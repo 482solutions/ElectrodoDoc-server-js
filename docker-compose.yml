@@ -1,0 +1,74 @@
+version: '3'
+services:
+  backend:
+    container_name: backends
+    build: .
+    depends_on:
+        - postgres
+#    ports:
+#      - 8080:8080
+    network_mode: "service:postgres"
+    environment:
+        DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}:5432/${DB_NAME}
+        NODE_ENV: development
+        PORT: 8080
+        FABRIC_HOST: '167.71.49.240'
+        FABRIC_PORT: 7054
+    command: sh -c "sleep 5 && npm start"
+    volumes:
+        - .:/app/
+        - /app/node_modules
+
+  postgres:
+     image: postgres:latest
+     container_name: postgress
+     restart: always
+     environment:
+       - POSTGRES_USER=${DB_USER}
+       - POSTGRES_PASSWORD=${DB_PASSWORD}
+       - POSTGRES_DB=${DB_NAME}
+       - DATABASE_HOST=${DB_HOST}
+     ports:
+       - 8080:8080
+       - '5432:5432'
+     volumes:
+       - database_postgres:/var/lib/postgresql
+     networks:
+       - woden
+    
+  pgadmin:
+     image: dpage/pgadmin4
+     container_name: pgadmins
+     environment:
+       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+     depends_on:
+       - postgres
+     ports:
+       - "5050:80"
+     networks:
+       - woden
+     restart: unless-stopped
+
+  redis:
+    image: redis
+    container_name: rediss
+    network_mode: service:backend
+    volumes:
+      - ./storage/redis:/data
+    entrypoint: redis-server --appendonly yes
+
+volumes:
+  api:
+  database_postgres:
+  conf:
+
+#configs:
+#  my_config:
+#    file: ./networkConnection.yaml
+
+# Networks to be created to facilitate communication between containers
+networks:
+  woden:
+    driver: bridge
+

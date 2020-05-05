@@ -1,0 +1,146 @@
+---
+swagger: "2.0"
+info:
+  description: "Specification for Woden REST API"
+  version: "1.0.0"
+  title: "Woden"
+host: "localhost"
+basePath: "/api/v1"
+schemes:
+  - "https"
+  - "http"
+paths:
+  /user:
+    post:
+      tags:
+        - "user"
+      summary: "Create user"
+      description: "After registration user receive Certificate for Fabric CA"
+      operationId: "CreateUser"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "login"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "email"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "password"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "CSR"
+          in: "formData"
+          description: "The CSR to upload."
+          required: true
+          type: "string"
+      responses:
+        "201":
+          description: "Certificate"
+        "409":
+          description: "User already exist"
+        "422":
+          description: "Invalid user data"
+      x-swagger-router-controller: "User"
+    put:
+      tags:
+        - "user"
+      summary: "Update user password"
+      description: "Changing user credentials"
+      operationId: "ChangeUser"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/body"
+      responses:
+        "200":
+          description: "Successfully"
+        "401":
+          description: "Unauthorized"
+        "422":
+          description: "Invalid entity"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "User"
+  /user/auth:
+    post:
+      tags:
+        - "user"
+      summary: "Login user into the system"
+      description: "Authentication for users to get in to the system and receive JWT token"
+      operationId: "Login"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "login"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "password"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "certificate"
+          in: "formData"
+          description: "The certificate to upload."
+          required: true
+          type: "string"
+        - name: "privateKey"
+          in: "formData"
+          description: "The private key to upload."
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "JWT token"
+        "400":
+          description: "Incorrect password"
+        "403":
+          description: "Bad certificate"
+        "404":
+          description: "User not fount"
+        "422":
+          description: "Required Email or Username"
+      x-swagger-router-controller: "User"
+  /user/logout:
+    delete:
+      tags:
+        - "user"
+      summary: "Logout user from the system"
+      description: "Manualy exit from the system"
+      operationId: "Logout"
+      produces:
+        - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Successfuly"
+        "203":
+          description: "Not Authorized"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "User"
+securityDefinitions:
+   Bearer:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+definitions:
+  body:
+    type: "object"
+    properties:
+      oldPassword:
+        type: "string"
+      newPassword:
+        type: "string"

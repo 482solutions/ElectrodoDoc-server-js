@@ -1,0 +1,15 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "projectId": "mxxwps",
+  "video": false,
+  "viewportWidth": 1280,
+  "viewportHeight": 800,
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "mochawesome-report",
+    "overwrite": true,
+    "html": true,
+    "json": true
+  }
+}
+

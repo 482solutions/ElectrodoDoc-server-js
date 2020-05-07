@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "mocha \"src/files/test/files.test.js\""
   },
   "keywords": [
     "swagger"
@@ -19,6 +20,8 @@
     "fabric-ca-client": "^1.4.8",
     "fabric-client": "^1.4.5",
     "fabric-network": "^1.4.5",
+    "ipfs": "^0.43.3",
+    "ipfs-http-client": "^44.0.3",
     "js-yaml": "^3.3.0",
     "jsonwebtoken": "^8.5.1",
     "oas3-tools": "^2.0.2",
@@ -26,5 +29,9 @@
     "redis": "^3.0.2",
     "swagger-tools": "^0.10.4",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2"
   }
 }

@@ -64,8 +64,8 @@ paths:
       responses:
         "200":
           description: "Successfully"
-        "401":
-          description: "Unauthorized"
+        "203":
+          description: "Not Authorized"
         "422":
           description: "Invalid entity"
       security:
@@ -76,7 +76,8 @@ paths:
       tags:
         - "user"
       summary: "Login user into the system"
-      description: "Authentication for users to get in to the system and receive JWT token"
+      description: "Authentication for users to get in to the system and receive JWT\
+        \ token"
       operationId: "Login"
       consumes:
         - "multipart/form-data"
@@ -131,8 +132,121 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "User"
+  /folder:
+    get:
+      tags:
+        - "file_system"
+      summary: "Get folder"
+      description: "Geting folder means that user will receive the contents of the\
+        \ folder (files and folders)"
+      operationId: "getFolder"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/body_1"
+      responses:
+        "200":
+          description: "Сontents of the folder"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "Folder not found"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
+    post:
+      tags:
+        - "file_system"
+      summary: "Create folder"
+      description: "Creating folder by user"
+      operationId: "createFolder"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/body_2"
+      responses:
+        "201":
+          description: "Created folder"
+        "203":
+          description: "Not Authorized"
+        "409":
+          description: "Folder with this name already exist"
+        "422":
+          description: "Invalid folder/parent folder name suplied"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
+  /file:
+    get:
+      tags:
+        - "file_system"
+      summary: "Download file"
+      description: "Downloading file from current folder"
+      operationId: "downloadFile"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/body_3"
+      responses:
+        "200":
+          description: "File to download"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "File not found"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
+    post:
+      tags:
+        - "file_system"
+      summary: "Upload file"
+      description: "Uploading file in current folder"
+      operationId: "uploadFile"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "name"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "parentFolder"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "file"
+          in: "formData"
+          description: "The file to upload."
+          required: true
+          type: "file"
+      responses:
+        "200":
+          description: "Updated folder with this file"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "Folder not exist"
+        "422":
+          description: "Invalid file/parent folder name suplied"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
 securityDefinitions:
-   Bearer:
+  Bearer:
     type: "apiKey"
     name: "Authorization"
     in: "header"
@@ -143,4 +257,18 @@ definitions:
       oldPassword:
         type: "string"
       newPassword:
+        type: "string"
+  body_1:
+    properties:
+      hash:
+        type: "string"
+  body_2:
+    properties:
+      name:
+        type: "string"
+      parentFolder:
+        type: "string"
+  body_3:
+    properties:
+      hash:
         type: "string"

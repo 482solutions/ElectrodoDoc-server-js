@@ -12,26 +12,20 @@ describe('[FILES]', function () {
     api = await spawnIpfsDaemon();
   });
 
-  it('should connect to local ipfs node', async () => {
+  it.only('should connect to local ipfs node', async () => {
     files = new Files(api);
     const { version } = await files.node.version();
     expect(version).not.null;
   });
 
-  it('should create a new folder', async () => {
-    const filePath = '/root';
-    const content = 'Hello IPFS';
-    await files.upload(filePath, content);
-    const chunks = [];
-    for await (const chunk of files.node.files.read(filePath)) {
-      chunks.push(chunk);
-    }
-    expect(Buffer.concat(chunks).toString()).equal(content);
-  });
-
-  after('stop the daemon', async () => {
-    await shutDownIpfsDaemon();
+  it.only('should upload file ', async () => {
+    let content = 'Hello';
+    const path = await files.upload(content);
+    expect(await files.getFileByHash(path)).equal(content);
   });
 });
 
+after('stop the daemon', async () => {
+  await shutDownIpfsDaemon();
+});
 

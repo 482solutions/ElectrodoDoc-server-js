@@ -35,7 +35,7 @@ exports.changeUser = async (oldPassword, newPassword, token) => {
         return {code: 203, payload: "Not Authorized"};
     }
 
-    if (oldPassword === newPassword){
+    if (oldPassword === newPassword) {
         return {code: 422, payload: "You cannot change the password to the same"};
     }
 
@@ -145,7 +145,7 @@ exports.createUser = async (login, email, password, csr) => {
         gateway.disconnect();
         const folder = sha256(login)
         await DB.insertUser(conn, login, password, email, folder);
-        await  DB.insertFolder(conn, login, folder, null)
+        await DB.insertFolder(conn, login, folder, null)
         await DB.insertCertData(conn, login, userData.certificate);
         return {code: 201, payload: {cert: userData.certificate}};
 
@@ -181,9 +181,12 @@ exports.login = async (login, password, certificate, privateKey) => {
         return {code: 422, payload: 'Private Key is not correct'};
     }
 
-    const users = await DB.getUser(conn, login);
+    let users = await DB.getUser(conn, login);
     if (users.length === 0) {
-        return {code: 404, payload: 'User not found.'};
+        users = await DB.getUserByEmail(conn, login)
+        if (users.length === 0) {
+            return {code: 404, payload: 'User not found.'};
+        }
     }
 
     // Check if password matches

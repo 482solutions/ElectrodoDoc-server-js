@@ -106,7 +106,7 @@ exports.getFolder = async (hash, token) => {
  * @param {string|Buffer} contents file data
  * @param {} token
  * 
- * @returns
+ * @returns {object} parent updated parent folder
  **/
 exports.uploadFile = async (name, parentName, contents, token) => {
   const blackToken = await redisGet(token);
@@ -120,5 +120,6 @@ exports.uploadFile = async (name, parentName, contents, token) => {
   const { files } = parentFolder;
   files.push({ name, hash: cid });
   await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
+  return { code: 200, payload: { ...parentFolder, files } };
 }
 

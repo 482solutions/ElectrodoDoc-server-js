@@ -11,22 +11,32 @@ class Files {
     this.node = ipfsClient(uri);
   }
 
-  async upload(content) {
-    let path;
-    for await (let chunk of this.node.add(content)) {
-      ({ path } = chunk)
+  /**
+   * Uploads contents of a single file
+   * 
+   * @param {String|Buffer} contents 
+   */
+  async upload(contents) {
+    let cid;
+    for await (let chunk of this.node.add(contents)) {
+      ({ cid } = chunk)
     }
-    return path;
+    return cid;
   }
 
+  /**
+   * Retrieves the contents of a single file
+   * 
+   * @param {String|CID} hash 
+   */
   async getFileByHash(hash) {
     let total = '';
     for await (const file of this.node.get(`/ipfs/${hash}`)) {
-      const content = new BufferList();
+      const contents = new BufferList();
       for await (const chunk of file.content) {
-        content.append(chunk);
+        contents.append(chunk);
       }
-      total += content.toString();
+      total += contents.toString();
     }
     return total;
   }

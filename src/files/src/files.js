@@ -15,6 +15,8 @@ class Files {
    * Uploads contents of a single file
    * 
    * @param {String|Buffer} contents 
+   * 
+   * @returns {CID}
    */
   async upload(contents) {
     let cid;
@@ -27,7 +29,9 @@ class Files {
   /**
    * Retrieves contents of a single file
    * 
-   * @param {String|CID} cid 
+   * @param {String|CID} cid
+   * 
+   * @returns {String}
    */
   async getFileByHash(cid) {
     let total = '';

@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node src/index.js",
-    "test": "mocha \"src/files/test/files.test.js\""
+    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\""
   },
   "keywords": [
     "swagger"
@@ -17,6 +17,7 @@
     "bl": "^4.0.2",
     "connect": "^3.2.0",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fabric-ca-client": "^1.4.8",
     "fabric-client": "^1.4.5",

@@ -1,27 +1,27 @@
 const { expect } = require('chai');
-const { shutDownIpfsDaemon, spawnIpfsDaemon } = require('./testIpfsDaemon');
-const { Files } = require('../src');
+const { shutDownIpfsDaemon, spawnIpfsDaemon } = require('../../../test/IpfsDaemon');
+const { FileStorage } = require('../src');
 
-describe('[FILES]', function () {
+describe('[FILE STORAGE]', function () {
   this.timeout(0);
-  let files;
+  let fileStorage;
   let api;
 
   before('start ipfs daemon', async function () {
     // api = '/ip4/127.0.0.1/tcp/5001'; // connect to existed node API
     api = await spawnIpfsDaemon();
-    files = new Files(api);
+    fileStorage = new FileStorage(api);
   });
 
   it('should connect to local ipfs node', async () => {
-    const { version } = await files.node.version();
+    const { version } = await fileStorage.node.version();
     expect(version).not.null;
   });
 
   it('should upload file ', async () => {
     let content = 'Hello';
-    const cid = await files.upload(content);
-    expect(await files.getFileByHash(cid)).equal(content);
+    const cid = await fileStorage.upload(content);
+    expect(await fileStorage.getFileByHash(cid)).equal(content);
   });
 });
 

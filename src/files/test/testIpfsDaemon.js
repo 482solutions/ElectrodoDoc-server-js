@@ -16,4 +16,4 @@ async function shutDownIpfsDaemon() {
   return ipfsd && ipfsd.stop();
 }
 
-module.exports = { spawnIpfsDaemon, shutDownIpfsDaemon };
+module.exports = { spawnIpfsDaemon, shutDownIpfsDaemon }

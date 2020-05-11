@@ -14,6 +14,7 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
+    "bl": "^4.0.2",
     "connect": "^3.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "ipfsd-ctl": "^4.1.0",
     "mocha": "^7.1.2"
   }
 }

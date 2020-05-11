@@ -1,29 +1,31 @@
-/* eslint-disable func-names */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 const { expect } = require('chai');
-const fs = require('fs');
 const { shutDownIpfsDaemon, spawnIpfsDaemon } = require('./testIpfsDaemon');
 const { Files } = require('../src');
 
 describe('[FILES]', function () {
   this.timeout(0);
-  let api;
   let files;
+  let api;
 
   before('start ipfs daemon', async function () {
-    // api = '/ip4/127.0.0.1/tcp/5001';
+    // api = '/ip4/127.0.0.1/tcp/5001'; // connect to existed node API
     api = await spawnIpfsDaemon();
+    files = new Files(api);
   });
 
-  it.only('should connect to ipfs api', async () => {
-    files = new Files(api);
+  it('should connect to local ipfs node', async () => {
     const { version } = await files.node.version();
     expect(version).not.null;
-  })
+  });
 
-  after('stop the daemon', async () => {
-    await shutDownIpfsDaemon();
+  it('should upload file ', async () => {
+    let content = 'Hello';
+    const cid = await files.upload(content);
+    expect(await files.getFileByHash(cid)).equal(content);
   });
 });
 
+after('stop the daemon', async () => {
+  await shutDownIpfsDaemon();
+});
 

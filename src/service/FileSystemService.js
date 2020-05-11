@@ -8,7 +8,7 @@ const validator = require('../helpers/auth')
 const { redis } = require('../adapter/redis')
 
 const DB = require('../database/utils');
-const { FileStorage } = require('../FileStorage/src');
+const { FileStorage } = require('../FileStorage');
 const redisGet = promisify(redis.get).bind(redis);
 const conn = connection(configDB);
 
@@ -61,19 +61,20 @@ exports.createFolder = async (name, parentFolderHash, token) => {
   return { code: 201, payload: { folder: folderListAfter[0] } };
 }
 
-
 /**
- * Download file
- * Downloading file from current folder
- *
- * body Body_3
- * no response value expected for this operation
- **/
-exports.downloadFile = async (hash, token) => {
+ * Retrieves file's contents as a string
+ * 
+ * @param {string|CID} cid - IPFS identifier of the file
+ * @param {string} token
+ * 
+ * @returns {string} file contents
+ */
+exports.downloadFile = async (cid, token) => {
   const blackToken = await redisGet(token);
   if (blackToken != null) {
     return { code: 203, payload: "Not Authorized" };
   }
+  return fileStorage.getFileByHash(cid);
 }
 
 

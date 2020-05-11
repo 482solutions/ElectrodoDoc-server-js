@@ -5,7 +5,7 @@ const ipfsHttpModule = require('ipfs-http-client');
 let ipfsd;
 
 async function spawnIpfsDaemon() {
-  const ipfsBin = path.resolve(__dirname, '../../../', 'node_modules/.bin', 'jsipfs');
+  const ipfsBin = path.resolve(__dirname, '../', 'node_modules/.bin', 'jsipfs');
   ipfsd = await Ctl.createController({
     type: 'js', disposable: true, test: true, ipfsBin, ipfsHttpModule,
   });

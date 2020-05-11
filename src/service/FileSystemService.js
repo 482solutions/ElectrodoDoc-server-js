@@ -8,7 +8,7 @@ const validator = require('../helpers/auth')
 const { redis } = require('../adapter/redis')
 
 const DB = require('../database/utils');
-const { Files: FileStorage } = require('../FileStorage/src');
+const { FileStorage } = require('../FileStorage/src');
 const redisGet = promisify(redis.get).bind(redis);
 const conn = connection(configDB);
 

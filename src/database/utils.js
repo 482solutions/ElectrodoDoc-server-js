@@ -7,6 +7,11 @@ module.exports.getUser = async function getUser(conn, name) {
   const result = await query(conn, `SELECT * FROM public.Users WHERE username = '${name}'`);
   return result.rows;
 }
+module.exports.getUserByEmail = async function getUser(conn, email) {
+  console.log('getUserByEmail ', email);
+  const result = await query(conn, `SELECT * FROM public.Users WHERE email = '${email}'`);
+  return result.rows;
+}
 
 module.exports.getFolder = async function getFolder(conn, hash) {
   console.log('getFolder ', hash);

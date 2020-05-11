@@ -74,7 +74,12 @@ exports.downloadFile = async (cid, token) => {
   if (blackToken != null) {
     return { code: 203, payload: "Not Authorized" };
   }
-  return fileStorage.getFileByHash(cid);
+  const file = fileStorage.getFileByHash(cid);
+  if(file === null){
+    return { code: 404, payload: 'File not found.' };
+  }
+
+  return { code: 200, payload: file };
 }
 
 
@@ -114,13 +119,26 @@ exports.uploadFile = async (name, parentName, contents, token) => {
   if (blackToken != null) {
     return { code: 203, payload: "Not Authorized" };
   }
+
+  if (!name) {
+    return { code: 422, payload: 'Name is not specified' };
+  }
+  if (!parentName) {
+    return { code: 422, payload: 'Cant create folder without parent folder' };
+  }
+
   // Add validation
   const cid = await fileStorage.upload(contents);
   /* Get list of files in parent folder */
-  const parentFolder = (await DB.getFolderByName(conn, parentName))[0];
+  const parentFolder = (await DB.getFolder(conn, parentName))[0];
+
+  if(parentFolder === null){
+    return { code: 404, payload: 'Parent folder not found.' };
+  }
   const { files } = parentFolder;
   files.push({ name, hash: cid });
   await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
-  return { code: 200, payload: { ...parentFolder, files } };
+  const folderListAfter = await DB.getFolder(conn, parentName)[0];
+  return { code: 200, payload: { folderListAfter } };
 }
 

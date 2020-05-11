@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { shutDownIpfsDaemon, spawnIpfsDaemon } = require('../../../test/IpfsDaemon');
-const { FileStorage } = require('../src');
+const { FileStorage } = require('..');
 
 describe('[FILE STORAGE]', function () {
   this.timeout(0);

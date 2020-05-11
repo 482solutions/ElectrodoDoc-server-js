@@ -34,6 +34,15 @@ exports.changeUser = async (oldPassword, newPassword, token) => {
     if (blackToken != null) {
         return {code: 203, payload: "Not Authorized"};
     }
+
+    if (oldPassword === newPassword){
+        return {code: 422, payload: "You cannot change the password to the same"};
+    }
+
+    if (!newPassword) {
+        return {code: 203, payload: "New password is empty"};
+    }
+
     let users;
     try {
         users = await DB.getUser(conn, username);

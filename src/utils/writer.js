@@ -10,12 +10,10 @@ exports.respondWithCode = function (code, payload) {
 const writeJson = exports.writeJson = function (response, arg1, arg2) {
     let code;
     let payload;
-    console.log("1 | Arg1:", arg1, "Arg2:", arg2);
     if (arg1 && !arg2 && 'code' in arg1 && 'payload' in arg1) {
         writeJson(response, arg1.payload, arg1.code);
         return;
     }
-    console.log("2 | Arg1:", arg1, "Arg2:", arg2);
     if (arg2 && Number.isInteger(arg2)) {
         code = arg2;
     } else {
@@ -28,7 +26,6 @@ const writeJson = exports.writeJson = function (response, arg1, arg2) {
     } else if (arg1) {
         payload = arg1;
     }
-    console.log(code)
     if (!code) {
         // if no response code given, we default to 200
         code = 200;

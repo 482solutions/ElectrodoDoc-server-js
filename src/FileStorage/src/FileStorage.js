@@ -2,7 +2,7 @@
 const ipfsClient = require('ipfs-http-client');
 const BufferList = require('bl');
 
-class Files {
+class FileStorage {
 
   /**
    * @param uri {string|object} - IPFS API server
@@ -46,4 +46,4 @@ class Files {
   }
 }
 
-module.exports.Files = Files;
+module.exports.FileStorage = FileStorage;

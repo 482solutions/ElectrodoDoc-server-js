@@ -1,15 +1,19 @@
 'use strict';
 const sha256 = require('sha256');
-const {promisify} = require("util");
+const { promisify } = require("util");
 
 const configDB = require('../database/configDB');
 const connection = require('../database/connect');
 const validator = require('../helpers/auth')
-const {redis} = require('../adapter/redis')
+const { redis } = require('../adapter/redis')
 
 const DB = require('../database/utils');
+const { Files: FileStorage } = require('../files/src');
 const redisGet = promisify(redis.get).bind(redis);
 const conn = connection(configDB);
+
+const { IPFS_API_URL } = process.env;
+const fileStorage = new FileStorage(IPFS_API_URL);
 
 /**
  * Create folder
@@ -20,41 +24,41 @@ const conn = connection(configDB);
  * no response value expected for this operation
  **/
 exports.createFolder = async (name, parentFolderHash, token) => {
-    const folderHash = sha256(name.concat(parentFolderHash))
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
-    }
+  const folderHash = sha256(name.concat(parentFolderHash))
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: "Not Authorized" };
+  }
 
-    if (!name) {
-        return {code: 422, payload: 'Name is not specified'};
-    }
-    if (!parentFolderHash) {
-        return {code: 422, payload: 'Cant create folder without parent folder'};
-    }
+  if (!name) {
+    return { code: 422, payload: 'Name is not specified' };
+  }
+  if (!parentFolderHash) {
+    return { code: 422, payload: 'Cant create folder without parent folder' };
+  }
 
-    const folderList = await DB.getFolder(conn, parentFolderHash);
-    if (folderList.length === 0) {
-        return {code: 404, payload: 'Parent folder not found.'};
-    }
+  const folderList = await DB.getFolder(conn, parentFolderHash);
+  if (folderList.length === 0) {
+    return { code: 404, payload: 'Parent folder not found.' };
+  }
 
-    const childrenFolders = JSON.parse(folderList[0].folders);
-    console.log("from database", childrenFolders)
-    for (let item in childrenFolders) {
-        if (childrenFolders[item].name === name) {
-            return {code: 409, payload: 'Folder with the same already exist'};
-        }
+  const childrenFolders = JSON.parse(folderList[0].folders);
+  console.log("from database", childrenFolders)
+  for (let item in childrenFolders) {
+    if (childrenFolders[item].name === name) {
+      return { code: 409, payload: 'Folder with the same already exist' };
     }
-    const child = {
-        name: name, hash: folderHash
-    }
-    childrenFolders.push(child);
-    console.log("result child:", childrenFolders);
-    await DB.insertFolder(conn, name, folderHash, parentFolderHash);
-    await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders))
+  }
+  const child = {
+    name: name, hash: folderHash
+  }
+  childrenFolders.push(child);
+  console.log("result child:", childrenFolders);
+  await DB.insertFolder(conn, name, folderHash, parentFolderHash);
+  await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders))
 
-    const folderListAfter = await DB.getFolder(conn, parentFolderHash);
-    return {code: 201, payload: {folder: folderListAfter[0]}};
+  const folderListAfter = await DB.getFolder(conn, parentFolderHash);
+  return { code: 201, payload: { folder: folderListAfter[0] } };
 }
 
 
@@ -66,10 +70,10 @@ exports.createFolder = async (name, parentFolderHash, token) => {
  * no response value expected for this operation
  **/
 exports.downloadFile = async (hash, token) => {
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
-    }
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: "Not Authorized" };
+  }
 }
 
 
@@ -81,32 +85,40 @@ exports.downloadFile = async (hash, token) => {
  * no response value expected for this operation
  **/
 exports.getFolder = async (hash, token) => {
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
-    }
-    const folderList = await DB.getFolder(conn, hash);
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: "Not Authorized" };
+  }
+  const folderList = await DB.getFolder(conn, hash);
 
-    if (folderList.length === 0) {
-        return {code: 404, payload: 'Parent folder not found.'};
-    }
-    return {code: 200, payload: {folder: folderList[0]}};
+  if (folderList.length === 0) {
+    return { code: 404, payload: 'Parent folder not found.' };
+  }
+  return { code: 200, payload: { folder: folderList[0] } };
 }
 
 
 /**
- * Upload file
- * Uploading file in current folder
+ * Saves file to IPFS and adds returned `cid` to parent folder's `files` list
  *
- * name String
- * parentFolder String
- * file File The file to upload.
- * no response value expected for this operation
+ * @param {string} name
+ * @param {string} parentName
+ * @param {string|Buffer} contents file data
+ * @param {} token
+ * 
+ * @returns
  **/
-exports.uploadFile = async (name, parentFolder, file, token) => {
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
-    }
+exports.uploadFile = async (name, parentName, contents, token) => {
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: "Not Authorized" };
+  }
+  // Add validation
+  const cid = await fileStorage.upload(contents);
+  /* Get list of files in parent folder */
+  const parentFolder = (await DB.getFolderByName(conn, parentName))[0];
+  const { files } = parentFolder;
+  files.push({ name, hash: cid });
+  await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
 }
 

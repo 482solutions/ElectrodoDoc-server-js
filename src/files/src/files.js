@@ -25,13 +25,13 @@ class Files {
   }
 
   /**
-   * Retrieves the contents of a single file
+   * Retrieves contents of a single file
    * 
-   * @param {String|CID} hash 
+   * @param {String|CID} cid 
    */
-  async getFileByHash(hash) {
+  async getFileByHash(cid) {
     let total = '';
-    for await (const file of this.node.get(`/ipfs/${hash}`)) {
+    for await (const file of this.node.get(`/ipfs/${cid}`)) {
       const contents = new BufferList();
       for await (const chunk of file.content) {
         contents.append(chunk);

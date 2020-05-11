@@ -20,8 +20,8 @@ describe('[FILES]', function () {
 
   it('should upload file ', async () => {
     let content = 'Hello';
-    const path = await files.upload(content);
-    expect(await files.getFileByHash(path)).equal(content);
+    const cid = await files.upload(content);
+    expect(await files.getFileByHash(cid)).equal(content);
   });
 });
 

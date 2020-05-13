@@ -58,7 +58,7 @@ exports.createFolder = async (name, parentFolderHash, token) => {
     await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders))
 
     const folderListAfter = await DB.getFolder(conn, parentFolderHash);
-    return {code: 201, payload: {folder: JSON.parse(folderListAfter[0])}};
+    return {code: 201, payload: {folder: folderListAfter[0]}};
 }
 
 /**
@@ -98,9 +98,9 @@ exports.getFolder = async (hash, token) => {
     const folderList = await DB.getFolder(conn, hash);
 
     if (folderList.length === 0) {
-        return {code: 404, payload: 'Parent folder not found.'};
+        return {code: 404, payload: 'folder not found.'};
     }
-    return {code: 200, payload: {folder: JSON.parse(folderList[0])}};
+    return {code: 200, payload: {folder: folderList[0]}};
 }
 
 
@@ -137,9 +137,10 @@ exports.uploadFile = async (name, parentName, contents, token) => {
     }
     const {files} = parentFolder;
     files.push({name, hash: cid});
+    await DB.insertFile(conn, name, cid, parentFolder.hash)
     await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
     const folderListAfter = await DB.getFolder(conn, parentName)[0];
-    return {code: 200, payload: JSON.parse(folderListAfter)};
+    return {code: 200, payload: folderListAfter};
 }
 
 /**
@@ -149,9 +150,19 @@ exports.uploadFile = async (name, parentName, contents, token) => {
  * name String The folder or file name
  * no response value expected for this operation
  **/
-exports.search = function(name) {
-    return new Promise(function(resolve, reject) {
-        resolve();
-    });
+exports.search = async (name, token) => {
+    const blackToken = await redisGet(token);
+    if (blackToken != null) {
+        return {code: 203, payload: "Not Authorized"};
+    }
+    if (!name) {
+        return {code: 422, payload: 'File name is not specified'};
+    }
+    const folders = await DB.getFolderByName(conn, name)
+    const files = await DB.getFileByName(conn, name)
+    if(files.length === 0 && folders.length === 0){
+        return {code: 404, payload: "Files or folders does not exist"};
+    }
+    return {code: 200, payload: {folders: folders, files: files}};
 }
 

@@ -40,8 +40,9 @@ module.exports.getFolder = function getFolder(req, res, next) {
 };
 
 module.exports.uploadFile = function uploadFile(req, res, next) {
+    const token = req.headers['authorization']
     const body = req.headers['body']
-    FileSystem.uploadFile(body.name, body.parentFolder, body.file, body.token)
+    FileSystem.uploadFile(body.name, body.parentFolder, body.file, token)
         .then(function (response) {
             utils.writeJson(res, response);
         })
@@ -51,8 +52,9 @@ module.exports.uploadFile = function uploadFile(req, res, next) {
 };
 
 module.exports.search = function search (req, res, next) {
+    const token = req.headers['authorization']
     const name = req.swagger.params['name'].value;
-    FileSystem.search(name)
+    FileSystem.search(name, token)
         .then(function (response) {
             utils.writeJson(res, response);
         })

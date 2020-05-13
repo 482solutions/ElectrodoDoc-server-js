@@ -84,6 +84,7 @@ exports.createUser = async (login, email, password, csr) => {
     if (!password) {
         return {code: 422, payload: 'Password is not specified'};
     }
+
     if (!validator.validationCSR(csr)) {
         return {code: 422, payload: 'CSR is not correct'};
     }
@@ -217,6 +218,7 @@ exports.logout = async (token) => {
         return {code: 203, payload: {message: 'Not Authorized'}};
     }
     const user = validator.getUserFromToken(token)
+
     await redis.set(token, user, 'EX', 60 * 60);
     return {code: 200, payload: {message: 'User successfully logout.'}};
 }

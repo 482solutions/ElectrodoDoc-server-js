@@ -4,10 +4,9 @@ info:
   description: "Specification for Woden REST API"
   version: "1.0.0"
   title: "Woden"
-host: "localhost"
+host: "localhost:8080"
 basePath: "/api/v1"
 schemes:
-  - "https"
   - "http"
 paths:
   /user:
@@ -17,28 +16,14 @@ paths:
       summary: "Create user"
       description: "After registration user receive Certificate for Fabric CA"
       operationId: "CreateUser"
-      consumes:
-        - "multipart/form-data"
       produces:
         - "application/json"
       parameters:
-        - name: "login"
-          in: "formData"
+        - in: "body"
+          name: "body"
           required: true
-          type: "string"
-        - name: "email"
-          in: "formData"
-          required: true
-          type: "string"
-        - name: "password"
-          in: "formData"
-          required: true
-          type: "string"
-        - name: "CSR"
-          in: "formData"
-          description: "The CSR to upload."
-          required: true
-          type: "string"
+          schema:
+            $ref: "#/definitions/createUser"
       responses:
         "201":
           description: "Certificate"
@@ -60,7 +45,7 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/body"
+            $ref: "#/definitions/changePassword"
       responses:
         "200":
           description: "Successfully"
@@ -79,29 +64,14 @@ paths:
       description: "Authentication for users to get in to the system and receive JWT\
         \ token"
       operationId: "Login"
-      consumes:
-        - "multipart/form-data"
       produces:
         - "application/json"
       parameters:
-        - name: "login"
-          in: "formData"
+        - in: "body"
+          name: "body"
           required: true
-          type: "string"
-        - name: "password"
-          in: "formData"
-          required: true
-          type: "string"
-        - name: "certificate"
-          in: "formData"
-          description: "The certificate to upload."
-          required: true
-          type: "string"
-        - name: "privateKey"
-          in: "formData"
-          description: "The private key to upload."
-          required: true
-          type: "string"
+          schema:
+            $ref: "#/definitions/login"
       responses:
         "200":
           description: "JWT token"
@@ -132,7 +102,7 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "User"
-  /folder:
+  /folder/{hash}:
     get:
       tags:
         - "file_system"
@@ -140,14 +110,12 @@ paths:
       description: "Geting folder means that user will receive the contents of the\
         \ folder (files and folders)"
       operationId: "getFolder"
-      produces:
-        - "application/json"
       parameters:
-        - in: "body"
-          name: "body"
+        - name: "hash"
+          in: "path"
+          description: "The folder hash"
           required: true
-          schema:
-            $ref: "#/definitions/body_1"
+          type: "string"
       responses:
         "200":
           description: "Сontents of the folder"
@@ -158,6 +126,7 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+  /folder:
     post:
       tags:
         - "file_system"
@@ -171,7 +140,7 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/body_2"
+            $ref: "#/definitions/createFolder"
       responses:
         "201":
           description: "Created folder"
@@ -184,21 +153,19 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
-  /file:
+  /file/{hash}:
     get:
       tags:
         - "file_system"
       summary: "Download file"
       description: "Downloading file from current folder"
       operationId: "downloadFile"
-      produces:
-        - "application/json"
       parameters:
-        - in: "body"
-          name: "body"
+        - name: "hash"
+          in: "path"
+          description: "The file hash"
           required: true
-          schema:
-            $ref: "#/definitions/body_3"
+          type: "string"
       responses:
         "200":
           description: "File to download"
@@ -209,30 +176,21 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+  /file:
     post:
       tags:
         - "file_system"
       summary: "Upload file"
       description: "Uploading file in current folder"
       operationId: "uploadFile"
-      consumes:
-        - "multipart/form-data"
       produces:
         - "application/json"
       parameters:
-        - name: "name"
-          in: "formData"
+        - in: "body"
+          name: "body"
           required: true
-          type: "string"
-        - name: "parentFolder"
-          in: "formData"
-          required: true
-          type: "string"
-        - name: "file"
-          in: "formData"
-          description: "The file to upload."
-          required: true
-          type: "file"
+          schema:
+            $ref: "#/definitions/uploadFile"
       responses:
         "200":
           description: "Updated folder with this file"
@@ -245,30 +203,75 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+  /search/{name}:
+    get:
+      tags:
+        - "file_system"
+      summary: "Search"
+      description: "Search folders and files means that user will receive folder or\
+        \ file if exist"
+      operationId: "search"
+      parameters:
+        - name: "name"
+          in: "path"
+          description: "The folder or file name"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Hash of the folder or file"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "Folder not found"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
 securityDefinitions:
   Bearer:
     type: "apiKey"
     name: "Authorization"
     in: "header"
 definitions:
-  body:
+  changePassword:
     type: "object"
     properties:
       oldPassword:
         type: "string"
       newPassword:
         type: "string"
-  body_1:
-    properties:
-      hash:
-        type: "string"
-  body_2:
+  createFolder:
     properties:
       name:
         type: "string"
       parentFolder:
         type: "string"
-  body_3:
+  createUser:
     properties:
-      hash:
+      login:
         type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      CSR:
+        type: "string"
+  login:
+    properties:
+      login:
+        type: "string"
+      password:
+        type: "string"
+      certificate:
+        type: "string"
+      privateKey:
+        type: "string"
+  uploadFile:
+    properties:
+      name:
+        type: "string"
+      parentFolder:
+        type: "string"
+      file:
+        type: "object"
+        properties: {}

@@ -11,7 +11,7 @@ exports.verifyToken = function (req, authOrSecDef, token, callback) {
     if (token && token.indexOf("Bearer ") === 0) {
         const tokenString = token.split(" ")[1];
         jwt.verify(tokenString, "482solutions", function (verificationError, decodedToken) {
-            if (verificationError == null && decodedToken) {
+            if (verificationError === null && decodedToken) {
                 const issuerMatch = decodedToken.issuer === issuer;
                 if (issuerMatch) {
                     req.auth = decodedToken;
@@ -49,6 +49,7 @@ exports.getUserFromToken = (token) => {
     if (token && token.indexOf("Bearer ") === 0) {
         const tokenString = token.split(" ")[1];
         const decodedToken = jwt.verify(tokenString, "482solutions")
+
         return decodedToken.data
     }
 }

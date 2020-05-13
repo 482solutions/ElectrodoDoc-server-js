@@ -35,18 +35,19 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
   // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
   app.use(middleware.swaggerMetadata());
-  app.use(
-    middleware.swaggerSecurity({
-      //manage token function in the 'auth' module
-      Bearer: auth.verifyToken
-    })
-  );
+
   // Validate Swagger requests
   app.use(middleware.swaggerValidator());
   // Route validated requests to appropriate controller
   app.use(middleware.swaggerRouter(options));
   // Serve the Swagger documents and Swagger UI
   app.use(middleware.swaggerUi());
+  app.use(
+      middleware.swaggerSecurity({
+        //manage token function in the 'auth' module
+        Bearer: auth.verifyToken
+      })
+  );
   // Start the server
   http.createServer(app).listen(serverPort, function () {
     console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);

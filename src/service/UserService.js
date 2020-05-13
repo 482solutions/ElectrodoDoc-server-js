@@ -34,6 +34,15 @@ exports.changeUser = async (oldPassword, newPassword, token) => {
     if (blackToken != null) {
         return {code: 203, payload: "Not Authorized"};
     }
+
+    if (oldPassword === newPassword) {
+        return {code: 422, payload: "You cannot change the password to the same"};
+    }
+
+    if (!newPassword) {
+        return {code: 203, payload: "New password is empty"};
+    }
+
     let users;
     try {
         users = await DB.getUser(conn, username);
@@ -75,6 +84,7 @@ exports.createUser = async (login, email, password, csr) => {
     if (!password) {
         return {code: 422, payload: 'Password is not specified'};
     }
+
     if (!validator.validationCSR(csr)) {
         return {code: 422, payload: 'CSR is not correct'};
     }
@@ -136,7 +146,7 @@ exports.createUser = async (login, email, password, csr) => {
         gateway.disconnect();
         const folder = sha256(login)
         await DB.insertUser(conn, login, password, email, folder);
-        await  DB.insertFolder(conn, login, folder, null)
+        await DB.insertFolder(conn, login, folder, null)
         await DB.insertCertData(conn, login, userData.certificate);
         return {code: 201, payload: {cert: userData.certificate}};
 
@@ -172,9 +182,12 @@ exports.login = async (login, password, certificate, privateKey) => {
         return {code: 422, payload: 'Private Key is not correct'};
     }
 
-    const users = await DB.getUser(conn, login);
+    let users = await DB.getUser(conn, login);
     if (users.length === 0) {
-        return {code: 404, payload: 'User not found.'};
+        users = await DB.getUserByEmail(conn, login)
+        if (users.length === 0) {
+            return {code: 404, payload: 'User not found.'};
+        }
     }
 
     // Check if password matches
@@ -205,6 +218,7 @@ exports.logout = async (token) => {
         return {code: 203, payload: {message: 'Not Authorized'}};
     }
     const user = validator.getUserFromToken(token)
+
     await redis.set(token, user, 'EX', 60 * 60);
     return {code: 200, payload: {message: 'User successfully logout.'}};
 }

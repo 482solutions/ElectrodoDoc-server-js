@@ -19,6 +19,12 @@ module.exports.getFolder = async function getFolder(conn, hash) {
     return result.rows;
 }
 
+module.exports.getFile = async function getFile(conn, hash) {
+    console.log('getFile ', hash);
+    const result = await query(conn, `SELECT * FROM public.Files WHERE hash = '${hash}'`);
+    return result.rows;
+}
+
 module.exports.getFolderByName = async function getFolderByName(conn, name) {
     console.log('getFolder by name', name);
     const result = await query(conn, `SELECT * FROM public.Folders WHERE name = '${name}'`);
@@ -49,9 +55,9 @@ module.exports.insertFolder = async function insertFolder(conn, name, hash, pare
     return true;
 }
 
-module.exports.insertFile = async function insertFile(conn, name, hash, parentHash) {
+module.exports.insertFile = async function insertFile(conn, name, hash, parentHash, type) {
     console.log('insertFile ', name, hash, parentHash);
-    await query(conn, `INSERT INTO public.Files (name, hash, parentHash) VALUES ('${name}', '${hash}', '${parentHash}' ) `);
+    await query(conn, `INSERT INTO public.Files (name, hash, parentHash, type) VALUES ('${name}', '${hash}', '${parentHash}' , '${type}') `);
     return true;
 }
 

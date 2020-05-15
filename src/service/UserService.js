@@ -81,7 +81,7 @@ exports.createUser = async (login, email, password, csr) => {
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g)) {
         return {code: 422, payload: {message: 'Email is not specified'}};
     }
-    if (!password && password.length > 64) {
+    if ( password.length !== 64) {
         return {code: 422, payload: {message: 'Password is invalid'}};
     }
 
@@ -172,7 +172,7 @@ exports.login = async (login, password, certificate, privateKey) => {
     if (!login) {
         return {code: 422, payload: {message: 'Invalid username/email supplied.'}};
     }
-    if (!password) {
+    if (password.length !== 64) {
         return {code: 422, payload: {message: 'Invalid password supplied.'}};
     }
     if (!validator.validationCertificate(certificate)) {

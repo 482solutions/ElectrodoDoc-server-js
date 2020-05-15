@@ -102,8 +102,7 @@ Given(/^I send request for getting JWT token with username$/, () => {
   })
 })
 
-Then(/^Response body contains valid JWT token$/,  () => {
-  console.log(token)
+Then(/^Response body contains valid JWT token$/, () => {
   let header = decode(token, 0)
   expect('HS256').to.equal(header.alg)
   expect('JWT').to.equal(header.typ)
@@ -111,13 +110,8 @@ Then(/^Response body contains valid JWT token$/,  () => {
   let payload = decode(token, 1)
   expect(login).to.equal(payload.data)
 
-  //  TODO verify signature
-  jwt.verify(token, '482solution', (err, decoded) => {
-    console.log(decoded)
-    console.log(err)
-    let verify = jwt.decode(token, {complete: true});
-    expect(token.split('.')[2]).to.equal(verify.signature)
-  });
+  let verify = jwt.decode(token, { complete: true })
+  expect(token.split('.')[2]).to.equal(verify.signature)
 })
 
 Given(/^I send request for getting JWT token with email$/, () => {

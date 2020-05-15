@@ -22,15 +22,15 @@ beforeEach('Get user data', () => {
   csr = getCSR({ username: login })
 })
 
-Then(/^I got response status 201$/, () => {
+Then(/^response status 201$/, () => {
   expect(201).to.eq(user.status)
 })
 
-Then(/^I got response status 409$/, () => {
+Then(/^response status 409$/, () => {
   expect(409).to.eq(user.status)
 })
 
-Then(/^I got response status 422$/, () => {
+Then(/^response status 422$/, () => {
   expect(422).to.eq(user.status)
 })
 

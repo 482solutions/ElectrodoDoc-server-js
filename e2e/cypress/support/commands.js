@@ -10,7 +10,7 @@ export function decode (token, part) {
   if (part === 1) {
     base64Url = token.split('.')[1]
   }
-  if (part === 1) {
+  if (part === 2) {
     base64Url = token.split('.')[2]
   }
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
@@ -32,6 +32,8 @@ export function getPassword () {
 export function getLogin () {
   return generate({
     length: 10,
+    lowercase: true,
+    uppercase: true,
   })
 }
 

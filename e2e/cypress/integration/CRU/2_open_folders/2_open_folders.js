@@ -16,9 +16,10 @@ let password
 let cert
 let csr
 let privateKey
+let parseResp
 
 before('Get user data', () => {
-  login = getLogin() + 'JWT'
+  login = getLogin() + 'OpenFolder'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
@@ -29,10 +30,10 @@ before('Get user data', () => {
       expect(text).to.include('-----END PRIVATE KEY-----')
     })
 })
+
 When(/^Response status 200$/, () => {
   expect(200).to.eq(user.status)
 })
-
 When(/^Response status 201$/, () => {
   expect(201).to.eq(user.status)
 })
@@ -41,17 +42,13 @@ Then(/^Response status 203$/, () => {
   expect(203).to.eq(user.status)
 });
 
-Then(/^Response status 409$/, () => {
-  expect(409).to.eq(user.status)
-});
-
-Then(/^Response status 422$/, () => {
-  expect(422).to.eq(user.status)
+Then(/^Response status 404$/, () => {
+  expect(404).to.eq(user.status)
 });
 
 //------------------------------------------------------------------------------------------
 
-Given(/^Send request for create user and get token$/, () => {
+Given(/^Send request for create user$/, () => {
   cy.request({
     method: 'POST',
     url: basic + '/user',
@@ -64,6 +61,7 @@ Given(/^Send request for create user and get token$/, () => {
     },
   }).then((resp) => {
     user = resp
+    expect(201).to.eq(user.status)
     cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
       .then(() => {
         cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
@@ -91,110 +89,128 @@ Given(/^Send request for create user and get token$/, () => {
   })
 });
 
-Given(/^User send request for create folder in root folder with name (.*) from list$/, (foldersName) => {
+When(/^The user sent a request to create a folder in the root folder with the name (.*)$/, (Names) => {
   headers.Authorization = 'Bearer ' + token
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
-      'name': foldersName,
+      'name': Names,
       'parentFolder':  sha256(login)
     },
   }).then((resp) => {
+    parseResp = JSON.parse(resp.body.folder.folders)
     user = resp
   })
 });
 
-Given(/^User send request for create folder in user's folder with name (.*) from list$/,  (names) => {
+Given(/^The user sent a request to receive a folder in the root folder with the name F$/, () => {
+  expect('F').to.eq(parseResp[0].name)
+
   headers.Authorization = 'Bearer ' + token
   cy.request({
-    method: 'POST',
-    url: basic + '/folder',
+    method: 'GET',
+    url: basic + `/folder/${parseResp[0].hash}`,
     headers: headers,
-    body: {
-      //TODO
-      'name': names,
-      'parentFolder': ''//хеш созданной ранее папки sha256('Folder-1')
-    },
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name Folder-1$/, () => {
+  expect('Folder-1').to.eq(parseResp[1].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[1].hash}`,
+    headers: headers,
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name folder2$/, () => {
+  expect('folder2').to.eq(parseResp[2].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[2].hash}`,
+    headers: headers,
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name FOLDER 3$/, () => {
+  expect('FOLDER 3').to.eq(parseResp[3].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[3].hash}`,
+    headers: headers,
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name Folder12345678901234$/, () => {
+  expect('Folder12345678901234').to.eq(parseResp[4].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[4].hash}`,
+    headers: headers,
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name Папка$/, () => {
+  expect('Папка').to.eq(parseResp[5].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[5].hash}`,
+    headers: headers,
+  }).then((resp) => {
+    user = resp
+  })
+});
+Given(/^The user sent a request to receive a folder in the root folder with the name 資料 夾$/, () => {
+  expect('資料夾').to.eq(parseResp[6].name)
+
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'GET',
+    url: basic + `/folder/${parseResp[6].hash}`,
+    headers: headers,
   }).then((resp) => {
     user = resp
   })
 });
 
-Given(/^User send request for create folder in root folder without name$/, () => {
-  headers.Authorization = 'Bearer ' + token
+Given(/^The user sends a request for a folder without authorization$/, () => {
+  expect('F').to.eq(parseResp[0].name)
+
+  headers.Authorization = 'Bearer ' + ' '
   cy.request({
-    method: 'POST',
-    url: basic + '/folder',
+    method: 'GET',
+    url: basic + `/folder/${parseResp[0].hash}`,
     headers: headers,
-    body: {
-      'name': '',
-      'parentFolder': sha256(login)
-    },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
+    console.log(resp.body)
   })
-});
+})
+Given(/^The user sends a request for a folder with incorrect hash$/, () => {
 
-Given(/^User send request for create folder in root folder with name (.*) from list than 64 characters and more$/, (bigName) => {
   headers.Authorization = 'Bearer ' + token
   cy.request({
-    method: 'POST',
-    url: basic + '/folder',
+    method: 'GET',
+    url: basic + '/folder/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     headers: headers,
-    body: {
-      'name': bigName,
-      'parentFolder':  sha256(login)
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
-  })
-});
-Given(/^User send request for create folder in root folder with existing name (.*) from list$/, (existingName) => {
-  headers.Authorization = 'Bearer ' + token
-  cy.request({
-    method: 'POST',
-    url: basic + '/folder',
-    headers: headers,
-    body: {
-      'name': existingName,
-      'parentFolder':  sha256(login)
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
-  })
-});
-
-Given(/^User send request for create folder with spaces in folders name$/, function () {
-  headers.Authorization = 'Bearer ' + token
-  cy.request({
-    method: 'POST',
-    url: basic + '/folder',
-    headers: headers,
-    body: {
-      'name': '     ',
-      'parentFolder':  sha256(login)
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
-  })
-});
-
-Given(/^User send request for create folder without auth$/, function () {
-  headers.Authorization = 'Bearer '
-  cy.request({
-    method: 'POST',
-    url: basic + '/folder',
-    headers: headers,
-    body: {
-      'name': 'qwerty',
-      'parentFolder':  sha256(login)
-    },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp

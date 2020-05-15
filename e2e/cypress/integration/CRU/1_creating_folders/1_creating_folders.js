@@ -1,7 +1,7 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
-
+import { sha256 } from 'js-sha256'
 const basic = 'api/v1'
 
 const headers = {
@@ -99,8 +99,109 @@ Given(/^User send request for create folder in root folder with name (.*) from l
     headers: headers,
     body: {
       'name': foldersName,
-      // 'parentFolder': ''
+      'parentFolder':  sha256(login)
     },
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+
+Given(/^User send request for create folder in user's folder with name (.*) from list$/,  (names) => {
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      //TODO
+      'name': names,
+      'parentFolder': ''//хеш созданной ранее папки sha256('Folder-1')
+    },
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+
+Given(/^User send request for create folder in root folder without name$/, () => {
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      'name': '',
+      'parentFolder': sha256(login)
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+
+Given(/^User send request for create folder in root folder with name (.*) from list than 64 characters and more$/, (bigName) => {
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      'name': bigName,
+      'parentFolder':  sha256(login)
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+Given(/^User send request for create folder in root folder with existing name (.*) from list$/, (existingName) => {
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      'name': existingName,
+      'parentFolder':  sha256(login)
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+
+Given(/^User send request for create folder with spaces in folders name$/, function () {
+  headers.Authorization = 'Bearer ' + token
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      'name': '     ',
+      'parentFolder':  sha256(login)
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+    cy.log(resp)
+  })
+});
+
+Given(/^User send request for create folder without auth$/, function () {
+  headers.Authorization = 'Bearer '
+  cy.request({
+    method: 'POST',
+    url: basic + '/folder',
+    headers: headers,
+    body: {
+      'name': 'qwerty',
+      'parentFolder':  sha256(login)
+    },
+    failOnStatusCode: false
   }).then((resp) => {
     user = resp
     cy.log(resp)

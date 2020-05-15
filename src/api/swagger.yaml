@@ -78,7 +78,7 @@ paths:
         "400":
           description: "Incorrect password"
         "403":
-          description: "Bad certificate"
+          description: "Bad certificate or private key"
         "404":
           description: "User not fount"
         "422":
@@ -183,14 +183,24 @@ paths:
       summary: "Upload file"
       description: "Uploading file in current folder"
       operationId: "uploadFile"
+      consumes:
+        - "multipart/form-data"
       produces:
         - "application/json"
       parameters:
-        - in: "body"
-          name: "body"
+        - name: "name"
+          in: "formData"
           required: true
-          schema:
-            $ref: "#/definitions/uploadFile"
+          type: "string"
+        - name: "parentFolder"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "file"
+          in: "formData"
+          description: "File to upload."
+          required: true
+          type: "file"
       responses:
         "200":
           description: "Updated folder with this file"
@@ -266,12 +276,3 @@ definitions:
         type: "string"
       privateKey:
         type: "string"
-  uploadFile:
-    properties:
-      name:
-        type: "string"
-      parentFolder:
-        type: "string"
-      file:
-        type: "object"
-        properties: {}

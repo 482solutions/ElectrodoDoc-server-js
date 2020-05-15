@@ -26,6 +26,7 @@ async function initdb() {
     await dbrequestor.query(conn, `CREATE TABLE public.files (
       name character varying(100) NOT NULL,
       hash character varying(100) NOT NULL,
+      type character varying(100) NOT NULL,
       parentHash character varying(100));`);
     await dbrequestor.query(conn, 'ALTER TABLE public.users OWNER TO admin;');
     await dbrequestor.query(conn, 'ALTER TABLE public.folders OWNER TO admin;');

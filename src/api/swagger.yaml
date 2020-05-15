@@ -89,14 +89,14 @@ paths:
       tags:
         - "user"
       summary: "Logout user from the system"
-      description: "Manualy exit from the system"
+      description: "Manually exit from the system"
       operationId: "Logout"
       produces:
         - "application/json"
       parameters: []
       responses:
         "200":
-          description: "Successfuly"
+          description: "Successfully"
         "203":
           description: "Not Authorized"
       security:
@@ -107,7 +107,7 @@ paths:
       tags:
         - "file_system"
       summary: "Get folder"
-      description: "Geting folder means that user will receive the contents of the\
+      description: "Getting folder means that user will receive the contents of the\
         \ folder (files and folders)"
       operationId: "getFolder"
       parameters:
@@ -118,7 +118,7 @@ paths:
           type: "string"
       responses:
         "200":
-          description: "Сontents of the folder"
+          description: "Contents of the folder"
         "203":
           description: "Not Authorized"
         "404":
@@ -149,7 +149,7 @@ paths:
         "409":
           description: "Folder with this name already exist"
         "422":
-          description: "Invalid folder/parent folder name suplied"
+          description: "Invalid folder/parent folder name supplied"
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
@@ -199,7 +199,7 @@ paths:
         "404":
           description: "Folder not exist"
         "422":
-          description: "Invalid file/parent folder name suplied"
+          description: "Invalid file/parent folder name supplied"
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"

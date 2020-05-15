@@ -14,7 +14,6 @@
   "private": true,
   "dependencies": {
     "bl": "^4.0.2",
-    "@cypress/request": "^2.88.5",
     "connect": "^3.2.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

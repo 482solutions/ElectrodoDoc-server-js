@@ -6,9 +6,9 @@ const configDB = require('./configDB');
 async function initdb() {
     const conn = connection(configDB);
     await dbrequestor.query(conn, 'SET default_tablespace = \'\';');
-    await dbrequestor.query(conn, 'DROP TABLE certs');
-    await dbrequestor.query(conn, 'DROP TABLE users');
-    await dbrequestor.query(conn, 'DROP TABLE folders');
+    await dbrequestor.query(conn, 'DROP TABLE IF EXISTS certs');
+    await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');
+    await dbrequestor.query(conn, 'DROP TABLE IF EXISTS folders');
     await dbrequestor.query(conn, `CREATE TABLE public.certs (username character varying(100), cert character varying(2048));`);
     await dbrequestor.query(conn, 'ALTER TABLE public.certs OWNER TO admin;');
     await dbrequestor.query(conn, `CREATE TABLE public.users (

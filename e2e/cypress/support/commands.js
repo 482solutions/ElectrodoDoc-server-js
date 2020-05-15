@@ -10,7 +10,7 @@ export function decode (token, part) {
   if (part === 1) {
     base64Url = token.split('.')[1]
   }
-  if (part === 2) {
+  if (part === 1) {
     base64Url = token.split('.')[2]
   }
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
@@ -20,20 +20,18 @@ export function decode (token, part) {
 }
 
 export function getPassword () {
-  let value = sha256(generate({
+  return sha256(generate({
     length: 8,
     numbers: true,
     symbols: true,
     lowercase: true,
     uppercase: true,
   }))
-  return value
 }
 
 export function getLogin () {
-  let value = generate({
+  return generate({
     length: 10,
   })
-  return value
 }
 

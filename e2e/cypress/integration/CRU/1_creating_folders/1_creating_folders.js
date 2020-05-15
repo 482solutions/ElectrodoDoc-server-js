@@ -2,7 +2,7 @@ import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'api/v1/user'
+const basic = 'api/v1'
 
 const headers = {
   'content-type': 'application/json'
@@ -17,7 +17,7 @@ let cert
 let csr
 let privateKey
 
-beforeEach('Get user data', () => {
+before('Get user data', () => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
@@ -29,19 +29,32 @@ beforeEach('Get user data', () => {
       expect(text).to.include('-----END PRIVATE KEY-----')
     })
 })
-
-When(/^I got response status 200$/, () => {
+When(/^Response status 200$/, () => {
   expect(200).to.eq(user.status)
 })
 
-Then(/^I got response status 203$/, () => {
+When(/^Response status 201$/, () => {
+  expect(201).to.eq(user.status)
+})
+
+Then(/^Response status 203$/, () => {
   expect(203).to.eq(user.status)
 });
 
-Given(/^I send request for create user and get token$/, () => {
+Then(/^Response status 409$/, () => {
+  expect(409).to.eq(user.status)
+});
+
+Then(/^Response status 422$/, () => {
+  expect(422).to.eq(user.status)
+});
+
+//------------------------------------------------------------------------------------------
+
+Given(/^Send request for create user and get token$/, () => {
   cy.request({
     method: 'POST',
-    url: basic,
+    url: basic + '/user',
     headers: headers,
     body: {
       'login': login,
@@ -62,7 +75,7 @@ Given(/^I send request for create user and get token$/, () => {
     cy.fixture('privateKey.pem').then((privateKey) => {
       cy.request({
         method: 'POST',
-        url: basic + '/auth',
+        url: basic + '/user/auth',
         headers: headers,
         body: {
           'login': login,
@@ -76,38 +89,20 @@ Given(/^I send request for create user and get token$/, () => {
       })
     })
   })
-})
+});
 
-Given(/^I send request for logout$/, () => {
+Given(/^User send request for create folder in root folder with name (.*) from list$/, (foldersName) => {
   headers.Authorization = 'Bearer ' + token
   cy.request({
-    method: 'DELETE',
-    url: basic + '/logout',
-    headers: headers
-  }).then((resp) => {
-    user = resp
-  })
-})
-
-Given(/^I send request for logout without token$/, () => {
-  cy.request({
-    method: 'DELETE',
-    url: basic + '/logout',
+    method: 'POST',
+    url: basic + '/folder',
     headers: headers,
-    failOnStatusCode: false
+    body: {
+      'name': foldersName,
+      // 'parentFolder': ''
+    },
   }).then((resp) => {
     user = resp
+    cy.log(resp)
   })
-})
-
-Given(/^I send request for logout with incorrect token$/,  () => {
-  headers.Authorization = 'Bearer ' + 'incorrectToken'
-  cy.request({
-    method: 'DELETE',
-    url: basic + '/logout',
-    headers: headers,
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
-  })
-})
+});

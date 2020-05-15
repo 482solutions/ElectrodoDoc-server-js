@@ -5,38 +5,20 @@
 Feature: Login user into the system
   Authentication for users to get in to the system and receive JWT token
 
-
   Scenario: Create user
-   Given I send request for create new user
-    Then I got response status 201
-
-# login string
-#  password string
-#  certificate file
-#  private key file
-
-#   responses:
-#        "200":
-#          description: "JWT token"
-#        "400":
-#          description: "Incorrect password"
-#        "403":
-#          description: "Bad certificate"
-#        "404":
-#          description: "User not fount"
-#        "422":
-#          description: "Required Email or Username"
+    Given I sending a request for create new user
+    When I got response status 201
 
   @positive
   Scenario:  Getting JWT token with username
     Given I send request for getting JWT token with username
     When I got response status 200
-    Then Response body contains JWT token
+    Then Response body contains valid JWT token
 
   Scenario:  Getting JWT token with email
     Given I send request for getting JWT token with email
     When I got response status 200
-    Then Response body contains JWT token
+    Then Response body contains valid JWT token
 
   Scenario: User can not get JWT token with incorrect password
     Given I send request for getting JWT token with incorrect password
@@ -54,6 +36,17 @@ Feature: Login user into the system
     Given I send request for getting JWT token without username
     When I got response status 422
 
+  Scenario: User can not get JWT token with incorrect cert
+    Given I send request for getting JWT token with incorrect cert
+    When I got response status 403
+
+  Scenario: User can not get JWT token with incorrect privateKey
+    Given I send request for getting JWT token with incorrect privateKey
+    When I got response status 403
+
+  Scenario: User can not get JWT token with incorrect cert and incorrect privateKey
+    Given I send request for getting JWT token with incorrect cert and incorrect privateKey
+    When I got response status 403
 
 #    Проверка jwt:
 #  1) содержит 3 структуры разделенные точками 111.222.333 (загоовок, полезная нагрузка, подпись)

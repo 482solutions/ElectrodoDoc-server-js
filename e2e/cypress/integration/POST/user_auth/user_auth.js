@@ -1,24 +1,35 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { decode, getLogin, getPassword } from '../../../support/commands'
+import { getCSR } from '../../../support/csr'
+
+const jwt = require('jsonwebtoken');
 
 const basic = 'api/v1/user'
 
 const headers = {
-  'content-type': 'multipart/form-data',
-  'accept': 'application/json'
+  'content-type': 'application/json'
 }
 
-let user_id
 let user
 let token
 let login
 let email
 let password
+let cert
+let csr
+let privateKey
 
 before('Get user data', () => {
-  login = getLogin()
+  login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
+  csr = getCSR({ username: login })
+  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+    expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+    expect(text).to.include('-----END PRIVATE KEY-----')
+  })
 })
 
 When(/^I got response status 200$/, () => {
@@ -45,158 +56,241 @@ When(/^I got response status 422$/, () => {
   expect(422).to.eq(user.status)
 })
 
-Given(/^I send request for create new user$/, () => {
+//-----------------------------------------------------------------------------
+
+Given(/^I sending a request for create new user$/, () => {
   cy.request({
     method: 'POST',
     url: basic,
     headers: headers,
-    form: true,
     body: {
       'login': login,
       'email': email,
       'password': password,
-      // TODO add CSR to all steps
-      // 'CSR': csr,
+      'CSR': csr.csrPem
     },
   }).then((resp) => {
-    expect(resp.statusText).to.eq('Created')
     user = resp
-    user_id = resp.body
+    cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+      .then(() => {
+        cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+          expect(text).to.include('-----BEGIN CERTIFICATE-----')
+          expect(text).to.include('-----END CERTIFICATE-----')
+        })
+      })
   })
 })
 
 Given(/^I send request for getting JWT token with username$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': login,
-      'password': password,
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-  }).then((resp) => {
-    user = resp
-    token = resp.body
-    cy.log(token.toString())
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': login,
+          'password': password,
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })
 
-Then(/^Response body contains JWT token$/, function () {
+Then(/^Response body contains valid JWT token$/,  () => {
+  console.log(token)
   let header = decode(token, 0)
   expect('HS256').to.equal(header.alg)
   expect('JWT').to.equal(header.typ)
 
   let payload = decode(token, 1)
-  expect(true).to.eq(payload.authorized)
-  //TODO:
-  // expect(user_id).to.eq(payload.user_id)
+  expect(login).to.equal(payload.data)
+
+  //  TODO verify signature
+  jwt.verify(token, '482solution', (err, decoded) => {
+    console.log(decoded)
+    console.log(err)
+    let verify = jwt.decode(token, {complete: true});
+    expect(token.split('.')[2]).to.equal(verify.signature)
+  });
 })
 
 Given(/^I send request for getting JWT token with email$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': email,
-      'password': password,
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-  }).then((resp) => {
-    user = resp
-    token = resp.body
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': email,
+          'password': password,
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })
 
 Given(/^I send request for getting JWT token with incorrect password$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': login,
-      'password': 'incorrectPassword',
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': email,
+          'password': 'invalidPassword',
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })
 
-// TODO: user authorization for change password
-// cy.request({
-//   method: 'PUT',
-//   url: basic,
-//   authorized: {
-//     bearer: user,
-//     headers: { 'accept': 'application/json' },
-//     form: true,
-//     body: {
-//       'oldPassword': 'Mock12345',
-//       'newPassword': '12345Mock',
-//     },
-//   },
-// }).then((resp) => {
-//   cy.log(resp)
-// })
 Given(/^I send request for getting JWT token with incorrect username$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': 'incorrectUsername',
-      'password': password,
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': 'invalidUsername',
+          'password': password,
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })
 
 Given(/^I send request for getting JWT token with incorrect username and incorrect password$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': 'incorrectUsername',
-      'password': 'incorrectPassword',
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': 'invalidUsername',
+          'password': 'invalidPassword',
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })
 
 Given(/^I send request for getting JWT token without username$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/auth',
-    headers: headers,
-    form: true,
-    body: {
-      'login': '',
-      'password': password,
-      'certificate': cy.fixture('mockCert.pem'),
-      'private key': cy.fixture('mockPrivateKey.pem'),
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    user = resp
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': '',
+          'password': password,
+          'certificate': cert,
+          'privateKey': privateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
+  })
+})
+
+Given(/^I send request for getting JWT token with incorrect cert$/, () => {
+  cy.fixture('invalidCert.pem').then((invalidCert) => {
+    cy.fixture('privateKey.pem').then((privateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': login,
+          'password': password,
+          'certificate': invalidCert,
+          'privateKey': privateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
+  })
+});
+
+Given(/^I send request for getting JWT token with incorrect privateKey$/, () => {
+  cy.fixture('cert.pem').then((cert) => {
+    cy.fixture('invalidPrivateKey.pem').then((invalidPrivateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': login,
+          'password': password,
+          'certificate': cert,
+          'privateKey': invalidPrivateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
+  })
+})
+
+Given(/^I send request for getting JWT token with incorrect cert and incorrect privateKey$/, () => {
+  cy.fixture('invalidCert.pem').then((invalidCert) => {
+    cy.fixture('invalidPrivateKey.pem').then((invalidPrivateKey) => {
+      cy.request({
+        method: 'POST',
+        url: basic + '/auth',
+        headers: headers,
+        body: {
+          'login': login,
+          'password': password,
+          'certificate': invalidCert,
+          'privateKey': invalidPrivateKey,
+        },
+        failOnStatusCode: false
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+      })
+    })
   })
 })

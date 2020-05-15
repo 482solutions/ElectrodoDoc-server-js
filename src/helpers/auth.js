@@ -45,11 +45,10 @@ exports.validationCSR = (string) => {
     return string.startsWith("-----BEGIN CERTIFICATE REQUEST-----") && string.endsWith("-----END CERTIFICATE REQUEST-----");
 }
 
-exports.getUserFromToken = (token) => {
+exports.getUserFromToken = async (token) => {
     if (token && token.indexOf("Bearer ") === 0) {
         const tokenString = token.split(" ")[1];
-        const decodedToken = jwt.verify(tokenString, "482solutions")
-
+        const decodedToken = await jwt.verify(tokenString, "482solutions".toString('base64'))
         return decodedToken.data
     }
 }

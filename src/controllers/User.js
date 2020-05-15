@@ -17,7 +17,6 @@ module.exports.ChangeUser = function changeUser(req, res, next) {
 module.exports.CreateUser = function createUser(req, res, next) {
     const body = req.swagger.params['body'].value;
 
-    console.log(body.CSR)
     User.createUser(body.login, body.email, body.password, body.CSR)
         .then(function (response) {
             utils.writeJson(res, response);

@@ -1,10 +1,9 @@
 'use strict';
 const sha256 = require('sha256');
 const {promisify} = require("util");
-
+const validator = require('../helpers/auth')
 const configDB = require('../database/configDB');
 const connection = require('../database/connect');
-const validator = require('../helpers/auth')
 const {redis} = require('../adapter/redis')
 
 const DB = require('../database/utils');
@@ -24,36 +23,35 @@ const fileStorage = new FileStorage(IPFS_API_URL);
  * no response value expected for this operation
  **/
 exports.createFolder = async (name, parentFolderHash, token) => {
+    await validator.getUserFromToken(token)
     const folderHash = sha256(name.concat(parentFolderHash))
     const blackToken = await redisGet(token);
     if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
 
-    if (!name) {
-        return {code: 422, payload: 'Name is not specified'};
+    if (!name && name.length > 20 && name < 2) {
+        return {code: 422, payload: {message: 'Name is not correct'}};
     }
     if (!parentFolderHash) {
-        return {code: 422, payload: 'Cant create folder without parent folder'};
+        return {code: 422, payload: {message: 'Cant create folder without parent folder'}};
     }
 
     const folderList = await DB.getFolder(conn, parentFolderHash);
     if (folderList.length === 0) {
-        return {code: 404, payload: 'Parent folder not found.'};
+        return {code: 404, payload: {message: 'Parent folder not found.'}};
     }
 
     const childrenFolders = JSON.parse(folderList[0].folders);
-    console.log("from database", childrenFolders)
     for (let item in childrenFolders) {
         if (childrenFolders[item].name === name) {
-            return {code: 409, payload: 'Folder with the same already exist'};
+            return {code: 409, payload: {message: 'Folder with the same already exist'}};
         }
     }
     const child = {
         name: name, hash: folderHash
     }
     childrenFolders.push(child);
-    console.log("result child:", childrenFolders);
     await DB.insertFolder(conn, name, folderHash, parentFolderHash);
     await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders))
 
@@ -70,13 +68,14 @@ exports.createFolder = async (name, parentFolderHash, token) => {
  * @returns {string} file contents
  */
 exports.downloadFile = async (cid, token) => {
+    await validator.getUserFromToken(token)
     const blackToken = await redisGet(token);
     if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
     const file = fileStorage.getFileByHash(cid);
     if (file === null) {
-        return {code: 404, payload: 'File not found.'};
+        return {code: 404, payload: {message: 'File not found.'}};
     }
 
     return {code: 200, payload: file};
@@ -91,14 +90,15 @@ exports.downloadFile = async (cid, token) => {
  * no response value expected for this operation
  **/
 exports.getFolder = async (hash, token) => {
+    await validator.getUserFromToken(token)
     const blackToken = await redisGet(token);
     if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
     const folderList = await DB.getFolder(conn, hash);
 
     if (folderList.length === 0) {
-        return {code: 404, payload: 'folder not found.'};
+        return {code: 404, payload: {message: 'folder not found.'}};
     }
     return {code: 200, payload: {folder: folderList[0]}};
 }
@@ -115,25 +115,25 @@ exports.getFolder = async (hash, token) => {
  * @returns {object} parent updated parent folder
  **/
 exports.uploadFile = async (name, parentName, contents, token) => {
+    await validator.getUserFromToken(token)
     const blackToken = await redisGet(token);
     if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
 
     if (!name) {
-        return {code: 422, payload: 'Name is not specified'};
+        return {code: 422, payload: {message: 'Name is not specified'}};
     }
     if (!parentName) {
-        return {code: 422, payload: 'Cant create folder without parent folder'};
+        return {code: 422, payload: {message: 'Cant create folder without parent folder'}};
     }
 
-    // Add validation
     const cid = await fileStorage.upload(contents);
     /* Get list of files in parent folder */
     const parentFolder = (await DB.getFolder(conn, parentName))[0];
 
     if (parentFolder === null) {
-        return {code: 404, payload: 'Parent folder not found.'};
+        return {code: 404, payload: {message: 'Parent folder not found.'}};
     }
     const {files} = parentFolder;
     files.push({name, hash: cid});
@@ -151,17 +151,18 @@ exports.uploadFile = async (name, parentName, contents, token) => {
  * no response value expected for this operation
  **/
 exports.search = async (name, token) => {
+    await validator.getUserFromToken(token)
     const blackToken = await redisGet(token);
     if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
     if (!name) {
-        return {code: 422, payload: 'File name is not specified'};
+        return {code: 422, payload: {message: 'File name is not specified'}};
     }
     const folders = await DB.getFolderByName(conn, name)
     const files = await DB.getFileByName(conn, name)
-    if(files.length === 0 && folders.length === 0){
-        return {code: 404, payload: "Files or folders does not exist"};
+    if (files.length === 0 && folders.length === 0) {
+        return {code: 404, payload: {message: "Files or folders does not exist"}};
     }
     return {code: 200, payload: {folders: folders, files: files}};
 }

@@ -86,13 +86,28 @@ Feature: Create user
     Then response status 422
 
   @negative
+  Scenario: User cannot register without field login
+    Given I send request for POST user without field login
+    Then response status 422
+
+  @negative
   Scenario: User cannot register without password
     Given I send request for POST user without password
     Then response status 422
 
   @negative
+  Scenario: User cannot register without field password
+    Given I send request for POST user without field password
+    Then response status 422
+
+  @negative
   Scenario: User cannot register without email
     Given I send request for POST user without email
+    Then response status 422
+
+  @negative
+  Scenario: User cannot register without field email
+    Given I send request for POST user without field email
     Then response status 422
 
   @negative

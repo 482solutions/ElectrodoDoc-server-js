@@ -51,7 +51,6 @@ Given(/^I send request for "POST" user$/, async () => {
     expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
     expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
     user = resp
-    cy.log(resp.body)
   })
 })
 
@@ -71,7 +70,6 @@ Given(/^I send request for POST user without login$/, () => {
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
-    cy.log(resp.body)
   })
 })
 
@@ -122,7 +120,6 @@ Given(/^I send request for POST user without email$/, () => {
     },
     failOnStatusCode: false
   }).then((resp) => {
-    cy.log(resp)
     user = resp
   })
 })
@@ -153,7 +150,6 @@ Given(/^I send a request for "POST" user twice$/, () => {
     },
     failOnStatusCode: false
   }).then((resp) => {
-    cy.log(resp)
     user = resp
   })
 })
@@ -171,7 +167,6 @@ Given(/^I send request for POST user with login in field email$/, () => {
     },
     failOnStatusCode: false
   }).then((resp) => {
-    cy.log(resp)
     user = resp
   })
 })
@@ -189,7 +184,6 @@ Given(/^I send request for POST user with email in field login$/, () => {
     },
     failOnStatusCode: false
   }).then((resp) => {
-    cy.log(resp)
     user = resp
   })
 })
@@ -527,12 +521,6 @@ Given(/^I send request for POST user with email that contain 2 @@$/, () => {
 })
 
 Given(/^I send request for POST user with password that contain 101 characters$/, () => {
-  let passw = generate({
-    length: 101,
-    numbers: true,
-    symbols: true,
-  })
-  cy.log(passw)
   cy.request({
     method: 'POST',
     url: basic,
@@ -540,7 +528,11 @@ Given(/^I send request for POST user with password that contain 101 characters$/
     body: {
       'login': login,
       'email': email,
-      'password': passw,
+      'password': generate({
+        length: 101,
+        numbers: true,
+        symbols: true,
+      }),
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -550,12 +542,6 @@ Given(/^I send request for POST user with password that contain 101 characters$/
 })
 
 Given(/^I send request for POST user with password that contain 100 characters$/, () => {
-  let passw = generate({
-    length: 100,
-    numbers: true,
-    symbols: true,
-  })
-  cy.log(passw)
   cy.request({
     method: 'POST',
     url: basic,
@@ -563,7 +549,11 @@ Given(/^I send request for POST user with password that contain 100 characters$/
     body: {
       'login': login,
       'email': email,
-      'password': passw,
+      'password': generate({
+        length: 100,
+        numbers: true,
+        symbols: true,
+      }),
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -572,5 +562,50 @@ Given(/^I send request for POST user with password that contain 100 characters$/
   })
 })
 
+Given(/^I send request for POST user without field password$/, function () {
+  cy.request({
+    method: 'POST',
+    url: basic,
+    headers: headers,
+    body: {
+      'login': login,
+      'email': email,
+      'CSR': csr.csrPem
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+  })
+});
 
+Given(/^I send request for POST user without field email$/, function () {
+  cy.request({
+    method: 'POST',
+    url: basic,
+    headers: headers,
+    body: {
+      'login': login,
+      'password': password,
+      'CSR': csr.csrPem
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+  })
+});
 
+Given(/^I send request for POST user without field login$/, function () {
+  cy.request({
+    method: 'POST',
+    url: basic,
+    headers: headers,
+    body: {
+      'email': email,
+      'password': password,
+      'CSR': csr.csrPem
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    user = resp
+  })
+});

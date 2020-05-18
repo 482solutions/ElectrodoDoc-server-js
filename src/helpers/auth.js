@@ -16,7 +16,8 @@ exports.verifyToken = function (req, authOrSecDef, token, callback) {
         const tokenString = token.split(" ")[1];
         jwt.verify(tokenString, "482solutions", function (verificationError, decodedToken) {
             if (verificationError === null && decodedToken) {
-                const issuerMatch = decodedToken.issuer === issuer; return {code: 404, payload: {message: 'Invalid token supplied.'}};
+                const issuerMatch = decodedToken.issuer === issuer;
+                return {code: 404, payload: {message: 'Invalid token supplied.'}};
                 if (issuerMatch) {
                     req.auth = decodedToken;
                     return callback(null);

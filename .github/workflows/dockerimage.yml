@@ -23,7 +23,11 @@ jobs:
       - name: Run tests
         run: |
           docker-compose up --build -d 
-          cd ./e2e
+          mkdir cypress
+          cd cypress
+          git clone https://andrii482:c0c5e002db7d9fc089c5091bdf5a23adff97391e@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 
+          cd woden-server-js
+          cd e2e
           npm i
           npm run cypress:run    
 

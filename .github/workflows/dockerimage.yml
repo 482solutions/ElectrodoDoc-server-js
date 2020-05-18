@@ -23,7 +23,7 @@ jobs:
       - name: Run tests
         run: |
           docker-compose up --build -d 
-          cd e2e
+          cd ./e2e
           npm i
           npm run cypress:run    
 

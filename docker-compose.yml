@@ -67,17 +67,7 @@ services:
       - ./storage/redis:/data
     entrypoint: redis-server --appendonly yes
 
-  #  ipfs:
-  #    image: ipfs/go-ipfs:v0.4.22
-  #    container_name: ipfs
-  #    network_mode: service:backend
-  #    environment:
-  #      - IPFS_PATH=/ipfs
-  #      - IPFS_API_URL=${IPFS_API_URL}
-  #    volumes:
-  #      - $HOME/ipfs/staging:/export
-  #      - $HOME/ipfs/data:/ipfs/data
-  #    entrypoint: sh -c "ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001 && ipfs daemon --offline"
+
   ipfs:
     image: ipfs/go-ipfs:v0.4.22
     container_name: ipfs

@@ -28,11 +28,14 @@ const redisGet = promisify(redis.get).bind(redis);
  * no response value expected for this operation
  **/
 exports.changeUser = async (oldPassword, newPassword, token) => {
+    if (!token){
+        return {code: 203, payload: {message: "Not Authorized"}};
+    }
     const username = await validator.getUserFromToken(token)
-
     const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: "Not Authorized"};
+    console.log("data", username)
+    if (!username || blackToken != null) {
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
 
     if (oldPassword === newPassword) {
@@ -74,18 +77,18 @@ exports.changeUser = async (oldPassword, newPassword, token) => {
  * no response value expected for this operation
  **/
 exports.createUser = async (login, email, password, csr) => {
-    if (!login.match(/^[a-zA-Z0-9-_.]{2,20}$/g)) {
+    if (!login || !login.match(/^[a-zA-Z0-9-_.]{2,20}$/g)) {
         return {code: 422, payload: {message: 'Username is not specified'}};
     }
-    if (!email.match(
+    if (!email || !email.match(
         /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g)) {
         return {code: 422, payload: {message: 'Email is not specified'}};
     }
-    if ( password.length !== 64) {
+    if (!password || password.length !== 64) {
         return {code: 422, payload: {message: 'Password is invalid'}};
     }
 
-    if (!validator.validationCSR(csr)) {
+    if (!csr || !validator.validationCSR(csr)) {
         return {code: 422, payload: {message: 'CSR is not correct'}};
     }
 
@@ -172,7 +175,7 @@ exports.login = async (login, password, certificate, privateKey) => {
     if (!login) {
         return {code: 422, payload: {message: 'Invalid username/email supplied.'}};
     }
-    if (password.length !== 64) {
+    if (!password || password.length !== 64) {
         return {code: 422, payload: {message: 'Invalid password supplied.'}};
     }
     if (!validator.validationCertificate(certificate)) {
@@ -190,20 +193,35 @@ exports.login = async (login, password, certificate, privateKey) => {
         }
     }
 
-    // Check if password matches
     const user = users[0];
-    if (user.password === password) {
-        const wallet = new InMemoryWallet();
-        const mixin = await X509WalletMixin.createIdentity("482solutions", certificate, privateKey);
-
-        await wallet.import(user.username, mixin);
-        const token = jwt.sign({data: user.username, issuer: "482solutions"},
-            "482solutions",
-            {expiresIn: '1h'})
-        return {code: 200, payload: {message: "Welcome", token: token, folder: user.folder}};
+    if (user.password !== password) {
+        return {code: 400, payload: {message: 'Invalid password supplied.'}};
+    }
+    const response = await validator.sendTransaction({
+        identity: {
+            label: user.username,
+            certificate: certificate,
+            privateKey: privateKey,
+            mspId: "482solutions",
+        },
+        network: {
+            channel: "testchannel",
+            chaincode: "electricitycc",
+            contract: "org.fabric.marketcontract",
+        },
+        transaction: {
+            name: "registerUser",
+            props: [""]
+        }
+    });
+    if (response === undefined || response.userId.substring(86, 86 + user.username.length) !== user.username) {
+        return {code: 403, payload: {message: 'Invalid certificate/private key supplied.'}};
     }
 
-    return {code: 400, payload: {message: 'Invalid password supplied.'}};
+    const token = jwt.sign({data: user.username, issuer: "482solutions"},
+        "482solutions",
+        {expiresIn: '1h'})
+    return {code: 200, payload: {message: "Welcome", token: token, folder: user.folder}};
 }
 
 
@@ -214,13 +232,17 @@ exports.login = async (login, password, certificate, privateKey) => {
  * no response value expected for this operation
  **/
 exports.logout = async (token) => {
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: 'Not Authorized'}};
+    if (!token){
+        return {code: 203, payload: {message: "Not Authorized"}};
     }
-    const user = await validator.getUserFromToken(token)
+    const username = await validator.getUserFromToken(token)
+    const blackToken = await redisGet(token);
+    console.log("data", username)
+    if (!username || blackToken != null) {
+        return {code: 203, payload: {message: "Not Authorized"}};
+    }
 
-    await redis.set(token, user, 'EX', 60 * 60);
+    await redis.set(token, username, 'EX', 60 * 60);
     return {code: 200, payload: {message: 'User successfully logout.'}};
 }
 

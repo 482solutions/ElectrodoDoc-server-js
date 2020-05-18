@@ -30,7 +30,7 @@ exports.createFolder = async (name, parentFolderHash, token) => {
         return {code: 203, payload: {message: "Not Authorized"}};
     }
 
-    if (!name && name.length > 20 && name < 2) {
+    if (!name || name.length > 20 || name.length < 1) {
         return {code: 422, payload: {message: 'Name is not correct'}};
     }
     if (!parentFolderHash) {
@@ -143,7 +143,7 @@ exports.uploadFile = async (name, parentName, contents, token) => {
     await DB.insertFile(conn, name, cid, parentFolder.hash, contents.mimetype)
     await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
     const folderListAfter = await DB.getFolder(conn, parentName);
-    return {code: 200, payload: folderListAfter[0]};
+    return {code: 200, payload: {folder: folderListAfter[0]}};
 }
 
 /**

@@ -18,7 +18,7 @@ let cert
 let csr
 let privateKey
 
-beforeEach('Get user data', () => {
+before('Get user data', () => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
@@ -26,19 +26,19 @@ beforeEach('Get user data', () => {
   privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
 })
 
-When(/^I got response status 200$/, () => {
+When(/^I got response status 200 in update$/, () => {
   expect(200).to.eq(user.status)
 })
 
-When(/^I got response status 201$/, () => {
+When(/^I got response status 201 in update$/, () => {
   expect(201).to.eq(user.status)
 })
 
-When(/^I got response status 203$/, () => {
+When(/^I got response status 203 in update$/, () => {
   expect(203).to.eq(user.status)
 })
 
-Then(/^I got response status 422$/, () => {
+Then(/^I got response status 422 in update$/, () => {
   expect(422).to.eq(user.status)
 });
 
@@ -63,6 +63,8 @@ Given(/^I send request for create new user and getting JWT token$/, () => {
         })
       })
     })
+  cy.wait(2000)
+
 })
 
 Then(/^I send request for getting JWT token$/, () => {
@@ -91,6 +93,7 @@ Then(/^I send request for getting JWT token$/, () => {
       })
     })
   })
+  cy.wait(2000)
 });
 
 Given(/^I send request for update password$/, () => {

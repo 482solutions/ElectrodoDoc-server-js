@@ -13,16 +13,16 @@ let token
 let login
 let email
 let password
-let cert
 let csr
-let privateKey
 
-beforeEach('Get user data', () => {
+
+beforeEach(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
     .readFile('cypress/fixtures/privateKey.pem')
     .then((text) => {
       expect(text).to.include('-----BEGIN PRIVATE KEY-----')
@@ -30,11 +30,11 @@ beforeEach('Get user data', () => {
     })
 })
 
-When(/^I got response status 200$/, () => {
+When(/^I got response status 200 out$/, () => {
   expect(200).to.eq(user.status)
 })
 
-Then(/^I got response status 203$/, () => {
+Then(/^I got response status 203 out$/, () => {
   expect(203).to.eq(user.status)
 });
 
@@ -51,15 +51,17 @@ Given(/^I send request for create user and get token$/, () => {
     },
   }).then((resp) => {
     user = resp
-    cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+    cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
       .then(() => {
-        cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+        cy.readFile('cypress/fixtures/cert.pem').then((text) => {
           expect(text).to.include('-----BEGIN CERTIFICATE-----')
           expect(text).to.include('-----END CERTIFICATE-----')
         })
       })
-  }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  })
+
+  cy.readFile('cypress/fixtures/cert.pem').then((certificate) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -67,8 +69,8 @@ Given(/^I send request for create user and get token$/, () => {
         body: {
           'login': login,
           'password': password,
-          'certificate': cert,
-          'privateKey': privateKey,
+          'certificate': certificate,
+          'privateKey': key,
         },
       }).then((resp) => {
         token = resp.body.token

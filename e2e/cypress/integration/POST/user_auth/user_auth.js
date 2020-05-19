@@ -1,6 +1,7 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { decode, getLogin, getPassword } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
+import { sha256 } from 'js-sha256'
 
 const jwt = require('jsonwebtoken');
 
@@ -15,44 +16,43 @@ let token
 let login
 let email
 let password
-let cert
 let csr
-let privateKey
 
-before('Get user data', () => {
-  login = getLogin() + 'JWT'
+beforeEach('Get user data', () => {
+  login = getLogin() + 'auth'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
     .readFile('cypress/fixtures/privateKey.pem')
     .then((text) => {
-    expect(text).to.include('-----BEGIN PRIVATE KEY-----')
-    expect(text).to.include('-----END PRIVATE KEY-----')
-  })
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
 })
 
-When(/^I got response status 200$/, () => {
+When(/^I got response status 200 auth$/, () => {
   expect(200).to.eq(user.status)
 })
 
-When(/^I got response status 201$/, () => {
+When(/^I got response status 201 auth$/, () => {
   expect(201).to.eq(user.status)
 })
 
-When(/^I got response status 400$/, () => {
+When(/^I got response status 400 auth$/, () => {
   expect(400).to.eq(user.status)
 })
 
-When(/^I got response status 403$/, () => {
+When(/^I got response status 403 auth$/, () => {
   expect(403).to.eq(user.status)
 })
 
-When(/^I got response status 404$/, () => {
+When(/^I got response status 404 auth$/, () => {
   expect(404).to.eq(user.status)
 })
 
-When(/^I got response status 422$/, () => {
+When(/^I got response status 422 auth$/, () => {
   expect(422).to.eq(user.status)
 })
 
@@ -71,9 +71,9 @@ Given(/^I sending a request for create new user$/, () => {
     },
   }).then((resp) => {
     user = resp
-    cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+    cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
       .then(() => {
-        cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+        cy.readFile('cypress/fixtures/cert.pem').then((text) => {
           expect(text).to.include('-----BEGIN CERTIFICATE-----')
           expect(text).to.include('-----END CERTIFICATE-----')
         })
@@ -82,8 +82,8 @@ Given(/^I sending a request for create new user$/, () => {
 })
 
 Given(/^I send request for getting JWT token with username$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -92,7 +92,7 @@ Given(/^I send request for getting JWT token with username$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
       }).then((resp) => {
         token = resp.body.token
@@ -115,8 +115,8 @@ Then(/^Response body contains valid JWT token$/, () => {
 })
 
 Given(/^I send request for getting JWT token with email$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -125,7 +125,7 @@ Given(/^I send request for getting JWT token with email$/, () => {
           'login': email,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
       }).then((resp) => {
         token = resp.body.token
@@ -136,17 +136,17 @@ Given(/^I send request for getting JWT token with email$/, () => {
 })
 
 Given(/^I send request for getting JWT token with incorrect password$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
         headers: headers,
         body: {
           'login': email,
-          'password': 'invalidPassword',
+          'password': sha256('invalidPassword'),
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
         failOnStatusCode: false
       }).then((resp) => {
@@ -158,8 +158,8 @@ Given(/^I send request for getting JWT token with incorrect password$/, () => {
 })
 
 Given(/^I send request for getting JWT token with incorrect username$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -168,7 +168,7 @@ Given(/^I send request for getting JWT token with incorrect username$/, () => {
           'login': 'invalidUsername',
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
         failOnStatusCode: false
       }).then((resp) => {
@@ -180,17 +180,17 @@ Given(/^I send request for getting JWT token with incorrect username$/, () => {
 })
 
 Given(/^I send request for getting JWT token with incorrect username and incorrect password$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
         headers: headers,
         body: {
           'login': 'invalidUsername',
-          'password': 'invalidPassword',
+          'password': sha256('invalidPassword'),
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
         failOnStatusCode: false
       }).then((resp) => {
@@ -202,8 +202,8 @@ Given(/^I send request for getting JWT token with incorrect username and incorre
 })
 
 Given(/^I send request for getting JWT token without username$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -212,7 +212,7 @@ Given(/^I send request for getting JWT token without username$/, () => {
           'login': '',
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
         failOnStatusCode: false
       }).then((resp) => {
@@ -224,8 +224,8 @@ Given(/^I send request for getting JWT token without username$/, () => {
 })
 
 Given(/^I send request for getting JWT token with incorrect cert$/, () => {
-  cy.fixture('invalidCert.pem').then((invalidCert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+  cy.readFile('cypress/fixtures/invalidCert.pem').then((invalidCert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -234,7 +234,7 @@ Given(/^I send request for getting JWT token with incorrect cert$/, () => {
           'login': login,
           'password': password,
           'certificate': invalidCert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
         failOnStatusCode: false
       }).then((resp) => {
@@ -246,8 +246,8 @@ Given(/^I send request for getting JWT token with incorrect cert$/, () => {
 });
 
 Given(/^I send request for getting JWT token with incorrect privateKey$/, () => {
-  cy.fixture('cert.pem').then((cert) => {
-    cy.fixture('invalidPrivateKey.pem').then((invalidPrivateKey) => {
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/invalidPrivateKey.pem').then((invalidPrivateKey) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -268,8 +268,8 @@ Given(/^I send request for getting JWT token with incorrect privateKey$/, () => 
 })
 
 Given(/^I send request for getting JWT token with incorrect cert and incorrect privateKey$/, () => {
-  cy.fixture('invalidCert.pem').then((invalidCert) => {
-    cy.fixture('invalidPrivateKey.pem').then((invalidPrivateKey) => {
+  cy.readFile('cypress/fixtures/invalidCert.pem').then((invalidCert) => {
+    cy.readFile('cypress/fixtures/invalidPrivateKey.pem').then((invalidPrivateKey) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',

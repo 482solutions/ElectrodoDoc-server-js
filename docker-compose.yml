@@ -45,19 +45,19 @@ services:
     networks:
       - woden
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmins
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    depends_on:
-      - postgres
-    ports:
-      - "5050:80"
-    networks:
-      - woden
-    restart: unless-stopped
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    container_name: pgadmins
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+#    depends_on:
+#      - postgres
+#    ports:
+#      - "5050:80"
+#    networks:
+#      - woden
+#    restart: unless-stopped
 
   redis:
     image: redis

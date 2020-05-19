@@ -1,9 +1,8 @@
 /* eslint-disable no-restricted-syntax */
-const ipfsClient = require('ipfs-http-client');
-const BufferList = require('bl');
+import ipfsClient from 'ipfs-http-client';
+import BufferList from 'bl';
 
 class FileStorage {
-
   /**
    * @param uri {string|object} - IPFS API server
    */
@@ -13,24 +12,24 @@ class FileStorage {
 
   /**
    * Uploads contents of a single file
-   * 
-   * @param {String|Buffer} contents 
-   * 
+   *
+   * @param {String|Buffer} contents
+   *
    * @returns {CID}
    */
   async upload(contents) {
     let cid;
-    for await (let chunk of this.node.add(contents)) {
-      ({ cid } = chunk)
+    for await (const chunk of this.node.add(contents)) {
+      ({ cid } = chunk);
     }
     return cid;
   }
 
   /**
    * Retrieves contents of a single file
-   * 
+   *
    * @param {String|CID} cid
-   * 
+   *
    * @returns {String}
    */
   async getFileByHash(cid) {
@@ -46,4 +45,4 @@ class FileStorage {
   }
 }
 
-module.exports.FileStorage = FileStorage;
+export { FileStorage };

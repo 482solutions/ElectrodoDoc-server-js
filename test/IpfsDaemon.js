@@ -1,6 +1,6 @@
-const Ctl = require('ipfsd-ctl');
-const path = require('path');
-const ipfsHttpModule = require('ipfs-http-client');
+import Ctl from 'ipfsd-ctl';
+import path from 'path';
+import ipfsHttpModule from 'ipfs-http-client';
 
 let ipfsd;
 
@@ -16,4 +16,4 @@ async function shutDownIpfsDaemon() {
   return ipfsd && ipfsd.stop();
 }
 
-module.exports = { spawnIpfsDaemon, shutDownIpfsDaemon }
+export { spawnIpfsDaemon, shutDownIpfsDaemon };

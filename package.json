@@ -1,19 +1,6 @@
 {
-  "name": "woden",
-  "version": "1.0.0",
-  "description": "Specification for Woden REST API",
-  "main": "src/index.js",
-  "scripts": {
-    "prestart": "npm install",
-    "start": "node src/index.js",
-    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\""
-  },
-  "keywords": [
-    "swagger"
-  ],
-  "license": "Unlicense",
-  "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
     "bl": "^4.0.2",
     "connect": "^3.2.0",
     "cors": "^2.8.5",
@@ -34,9 +21,35 @@
     "swagger-tools": "^0.10.4",
     "yamljs": "^0.3.0"
   },
+  "description": "Specification for Woden REST API",
   "devDependencies": {
+    "@babel/cli": "^7.6.2",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
+    "@babel/preset-env": "^7.9.6",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-import": "^1.12.0",
     "chai": "^4.2.0",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.19.1",
+    "husky": "^3.1.0",
     "ipfsd-ctl": "^4.1.0",
     "mocha": "^7.1.2"
-  }
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Unlicense",
+  "main": "src/index.js",
+  "name": "woden",
+  "private": true,
+  "scripts": {
+    "prestart": "npm install",
+    "start": "babel-node -- src/index.js",
+    "lint:js": "eslint src/**/*.js",
+    "fix:js": "eslint src/**/*.js --fix",
+    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\""
+  },
+  "version": "1.0.0"
 }

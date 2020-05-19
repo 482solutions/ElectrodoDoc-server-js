@@ -1,49 +1,50 @@
-'use strict';
-const utils = require('../utils/writer.js');
-const User = require('../service/UserService');
+import utils from '../utils/writer';
+import {
+  createUser, changeUser, logIn, logout,
+} from '../service/UserService';
 
-module.exports.ChangeUser = function changeUser(req, res, next) {
-    const token = req.headers['authorization']
-    const body = req.swagger.params['body'].value;
-    User.changeUser(body.oldPassword, body.newPassword, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const ChangeUser = (req, res) => {
+  const token = req.headers.authorization;
+  const body = req.swagger.params.body.value;
+  changeUser(body.oldPassword, body.newPassword, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.CreateUser = function createUser(req, res, next) {
-    const body = req.swagger.params['body'].value;
+export const CreateUser = (req, res) => {
+  const body = req.swagger.params.body.value;
 
-    User.createUser(body.login, body.email, body.password, body.CSR)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+  createUser(body.login, body.email, body.password, body.CSR)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.Login = function login(req, res, next) {
-    const body = req.swagger.params['body'].value;
-    User.login(body.login, body.password, body.certificate, body.privateKey)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const Login = (req, res) => {
+  const body = req.swagger.params.body.value;
+  logIn(body.login, body.password, body.certificate, body.privateKey)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.Logout = function logout(req, res, next) {
-    const token = req.headers['authorization']
-    User.logout(token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const Logout = (req, res) => {
+  const token = req.headers.authorization;
+  logout(token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };

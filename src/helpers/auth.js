@@ -86,6 +86,6 @@ exports.sendTransaction = async({ identity, transaction, network: networkOptions
   } catch (error) {
     console.log(`Error processing transaction. ${error.stack}`);
     gateway.disconnect();
+    return null;
   }
-  return null;
 };

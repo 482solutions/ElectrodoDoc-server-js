@@ -1,0 +1,56 @@
+{
+  "name": "woden-server",
+  "version": "1.0.0",
+  "description": "Specification for Wooden REST API",
+  "main": "index.js",
+  "directories": {
+    "doc": "../docs"
+  },
+  "scripts": {
+    "test": "cypress run --spec \"**/*.feature\"",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run --spec \"**/create_user.feature\"",
+    "cypress:tags": "cypress run -e TAGS='@step'",
+    "cypress:report": "cypress run --spec cypress/integration/POST/create_user.feature --reporter mochawesome && open ./mochawesome-report/mochawesome.html",
+    "build": "docker ps -a -q | xargs -n 1 -P 8 -I {} docker stop {} && docker system prune -a -f && docker-compose down && docker-compose build && docker-compose up",
+    "up": "docker-compose up"
+  },
+  "dependencies": {
+    "@cypress/request": "^2.88.5",
+    "generate-password": "^1.5.1",
+    "jsonwebtoken": "^8.5.1",
+    "jsrsasign": "^8.0.15",
+    "jwt-simple": "^0.5.6",
+    "object-to-formdata": "^3.0.9",
+    "querystring": "0.2.0",
+    "superagent": "3.7.0"
+  },
+  "devDependencies": {
+    "cypress": "4.5.0",
+    "cypress-cucumber-preprocessor": "^1.9.1",
+    "cypress-downloadfile": "^1.1.0",
+    "cypress-file-upload": "^4.0.6",
+    "eslint-plugin-cypress": "^2.10.3",
+    "expect.js": "~0.3.1",
+    "js-sha256": "^0.9.0",
+    "mocha": "~2.3.4",
+    "mochawesome": "^3.1.1",
+    "request": "^2.88.2",
+    "rimraf": "^2.6.2",
+    "sinon": "1.17.3",
+    "standard": "^12.0.1"
+  },
+  "cypress-cucumber-preprocessor": {
+    "nonGlobalStepDefinitions": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/482solutions/woden-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/482solutions/woden-server/issues"
+  },
+  "homepage": "https://github.com/482solutions/woden-server#readme"
+}

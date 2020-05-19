@@ -6,7 +6,7 @@ on:
   # Run tests for any PRs.
   pull_request:
 
-env:
+#env:
 
 jobs:
   # Run tests.

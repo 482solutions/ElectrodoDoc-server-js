@@ -209,7 +209,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
       props: [''],
     },
   });
-  if (response === undefined
+  if (response === null
     || response.userId.substring(86, 86 + user.username.length) !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };
   }

@@ -1,17 +1,20 @@
-'use strict';
-const sha256 = require('sha256');
-const {promisify} = require("util");
-const validator = require('../helpers/auth')
-const configDB = require('../database/configDB');
-const connection = require('../database/connect');
-const {redis} = require('../adapter/redis')
+import sha256 from 'sha256';
+import { promisify } from 'util';
 
-const DB = require('../database/utils');
-const {FileStorage} = require('../FileStorage');
-const redisGet = promisify(redis.get).bind(redis);
+import validator from '../helpers/auth';
+import configDB from '../database/configDB';
+import connection from '../database/connect';
+import { redisClient } from '../adapter/redis';
+
+
+import DB from '../database/utils';
+import { FileStorage } from '../FileStorage';
+
+
+const redisGet = promisify(redisClient.get).bind(redisClient);
 const conn = connection(configDB);
 
-const {IPFS_API_URL} = process.env;
+const { IPFS_API_URL } = process.env;
 const fileStorage = new FileStorage(IPFS_API_URL);
 
 /**
@@ -21,43 +24,43 @@ const fileStorage = new FileStorage(IPFS_API_URL);
  * name - folder name
  * parentFolderHash - name of parent folder if exist
  * no response value expected for this operation
- **/
-exports.createFolder = async (name, parentFolderHash, token) => {
-    await validator.getUserFromToken(token)
-    const folderHash = sha256(name.concat(parentFolderHash))
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: "Not Authorized"}};
-    }
+ * */
+export const CreateFolder = async (name, parentFolderHash, token) => {
+  await validator.getUserFromToken(token);
+  const folderHash = sha256(name.concat(parentFolderHash));
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
 
-    if (!name || name.length > 20 || name.length < 1) {
-        return {code: 422, payload: {message: 'Name is not correct'}};
-    }
-    if (!parentFolderHash) {
-        return {code: 422, payload: {message: 'Cant create folder without parent folder'}};
-    }
+  if (!name || name.length > 20 || name.length < 1) {
+    return { code: 422, payload: { message: 'Name is not correct' } };
+  }
+  if (!parentFolderHash) {
+    return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
+  }
 
-    const folderList = await DB.getFolder(conn, parentFolderHash);
-    if (folderList.length === 0) {
-        return {code: 404, payload: {message: 'Parent folder not found.'}};
-    }
+  const folderList = await DB.getFolder(conn, parentFolderHash);
+  if (folderList.length === 0) {
+    return { code: 404, payload: { message: 'Parent folder not found.' } };
+  }
 
-    const childrenFolders = JSON.parse(folderList[0].folders);
-    for (let item in childrenFolders) {
-        if (childrenFolders[item].name === name) {
-            return {code: 409, payload: {message: 'Folder with the same already exist'}};
-        }
+  const childrenFolders = JSON.parse(folderList[0].folders);
+  for (const item in childrenFolders) {
+    if (childrenFolders[item].name === name) {
+      return { code: 409, payload: { message: 'Folder with the same already exist' } };
     }
-    const child = {
-        name: name, hash: folderHash
-    }
-    childrenFolders.push(child);
-    await DB.insertFolder(conn, name, folderHash, parentFolderHash);
-    await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders))
+  }
+  const child = {
+    name, hash: folderHash,
+  };
+  childrenFolders.push(child);
+  await DB.insertFolder(conn, name, folderHash, parentFolderHash);
+  await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders));
 
-    const folderListAfter = await DB.getFolder(conn, parentFolderHash);
-    return {code: 201, payload: {folder: folderListAfter[0]}};
-}
+  const folderListAfter = await DB.getFolder(conn, parentFolderHash);
+  return { code: 201, payload: { folder: folderListAfter[0] } };
+};
 
 /**
  * Retrieves file's contents as a string
@@ -67,20 +70,20 @@ exports.createFolder = async (name, parentFolderHash, token) => {
  *
  * @returns {string} file contents
  */
-exports.downloadFile = async (cid, token) => {
-    await validator.getUserFromToken(token)
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: "Not Authorized"}};
-    }
+export const DownloadFile = async (cid, token) => {
+  await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
 
-    const fileFromDB = (await DB.getFile(conn, cid))[0];
-    const file = await fileStorage.getFileByHash(cid);
-    if (file === null) {
-        return {code: 404, payload: {message: 'File not found.'}};
-    }
-    return {code: 200, payload: {name: fileFromDB.name, type: fileFromDB.type, file}};
-}
+  const fileFromDB = (await DB.getFile(conn, cid))[0];
+  const file = await fileStorage.getFileByHash(cid);
+  if (file === null) {
+    return { code: 404, payload: { message: 'File not found.' } };
+  }
+  return { code: 200, payload: { name: fileFromDB.name, type: fileFromDB.type, file } };
+};
 
 
 /**
@@ -89,20 +92,20 @@ exports.downloadFile = async (cid, token) => {
  *
  * body Body_1
  * no response value expected for this operation
- **/
-exports.getFolder = async (hash, token) => {
-    await validator.getUserFromToken(token)
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: "Not Authorized"}};
-    }
-    const folderList = await DB.getFolder(conn, hash);
+ * */
+export const GetFolder = async (hash, token) => {
+  await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const folderList = await DB.getFolder(conn, hash);
 
-    if (folderList.length === 0) {
-        return {code: 404, payload: {message: 'folder not found.'}};
-    }
-    return {code: 200, payload: {folder: folderList[0]}};
-}
+  if (folderList.length === 0) {
+    return { code: 404, payload: { message: 'folder not found.' } };
+  }
+  return { code: 200, payload: { folder: folderList[0] } };
+};
 
 
 /**
@@ -114,37 +117,37 @@ exports.getFolder = async (hash, token) => {
  * @param {} token
  *
  * @returns {object} parent updated parent folder
- **/
-exports.uploadFile = async (name, parentName, contents, token) => {
-    await validator.getUserFromToken(token)
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: "Not Authorized"}};
-    }
+ * */
+export const UploadFile = async (name, parentName, contents, token) => {
+  await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
 
-    if (!name) {
-        return {code: 422, payload: {message: 'Name is not specified'}};
-    }
-    if (!parentName) {
-        return {code: 422, payload: {message: 'Cant create folder without parent folder'}};
-    }
+  if (!name) {
+    return { code: 422, payload: { message: 'Name is not specified' } };
+  }
+  if (!parentName) {
+    return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
+  }
 
-    const cid = (await fileStorage.upload(contents.buffer)).toString();
-    /* Get list of files in parent folder */
-    const parentFolder = (await DB.getFolder(conn, parentName))[0];
+  const cid = (await fileStorage.upload(contents.buffer)).toString();
+  /* Get list of files in parent folder */
+  const parentFolder = (await DB.getFolder(conn, parentName))[0];
 
-    if (parentFolder === null) {
-        return {code: 404, payload: {message: 'Parent folder not found.'}};
-    }
-    const files = JSON.parse(parentFolder.files);
+  if (parentFolder === null) {
+    return { code: 404, payload: { message: 'Parent folder not found.' } };
+  }
+  const files = JSON.parse(parentFolder.files);
 
-    files.push({name, hash: cid});
-    console.log("Files", files);
-    await DB.insertFile(conn, name, cid, parentFolder.hash, contents.mimetype)
-    await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
-    const folderListAfter = await DB.getFolder(conn, parentName);
-    return {code: 200, payload: {folder: folderListAfter[0]}};
-}
+  files.push({ name, hash: cid });
+  console.log('Files', files);
+  await DB.insertFile(conn, name, cid, parentFolder.hash, contents.mimetype);
+  await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
+  const folderListAfter = await DB.getFolder(conn, parentName);
+  return { code: 200, payload: { folder: folderListAfter[0] } };
+};
 
 /**
  * Search
@@ -152,21 +155,20 @@ exports.uploadFile = async (name, parentName, contents, token) => {
  *
  * name String The folder or file name
  * no response value expected for this operation
- **/
-exports.search = async (name, token) => {
-    await validator.getUserFromToken(token)
-    const blackToken = await redisGet(token);
-    if (blackToken != null) {
-        return {code: 203, payload: {message: "Not Authorized"}};
-    }
-    if (!name) {
-        return {code: 422, payload: {message: 'File name is not specified'}};
-    }
-    const folders = await DB.getFolderByName(conn, name)
-    const files = await DB.getFileByName(conn, name)
-    if (files.length === 0 && folders.length === 0) {
-        return {code: 404, payload: {message: "Files or folders does not exist"}};
-    }
-    return {code: 200, payload: {folders: folders, files: files}};
-}
-
+ * */
+export const Search = async (name, token) => {
+  await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  if (!name) {
+    return { code: 422, payload: { message: 'File name is not specified' } };
+  }
+  const folders = await DB.getFolderByName(conn, name);
+  const files = await DB.getFileByName(conn, name);
+  if (files.length === 0 && folders.length === 0) {
+    return { code: 404, payload: { message: 'Files or folders does not exist' } };
+  }
+  return { code: 200, payload: { folders, files } };
+};

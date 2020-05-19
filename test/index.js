@@ -1,1 +1,3 @@
-module.exports = { ...require('./IpfsDaemon') };
+import IpfsDaemon from './IpfsDaemon';
+
+export { IpfsDaemon };

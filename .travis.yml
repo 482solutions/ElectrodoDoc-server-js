@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+ - "stable"
+services:
+  - docker
+script:
+  - docker-compose up -d
+  - cd ./e2e && npm i && npm run cypress:run
+

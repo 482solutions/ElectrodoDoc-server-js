@@ -4,6 +4,6 @@ node_js:
 services:
   - docker
 script:
-  - docker-compose up --buid -d
+  - docker-compose up --build -d
   - cd ./e2e && npm i && npm run cypress:run
 

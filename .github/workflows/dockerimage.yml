@@ -8,8 +8,6 @@ on:
   pull_request:
 
 env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: image
 
 jobs:
   # Run tests.
@@ -22,10 +20,9 @@ jobs:
 
       - name: Run tests
         run: |
-          docker-compose up --build -d 
           mkdir cypress
           cd cypress
-          git clone https://andrii482:c0c5e002db7d9fc089c5091bdf5a23adff97391e@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 
+          git clone https://andrii482:{{ secret.woden_server_js_workflow_actions_repo }}@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 
           cd woden-server-js
           cd e2e
           npm i

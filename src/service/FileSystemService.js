@@ -26,14 +26,17 @@ const fileStorage = new FileStorage(IPFS_API_URL);
  * no response value expected for this operation
  * */
 export const CreateFolder = async (name, parentFolderHash, token) => {
-  await validator.getUserFromToken(token);
-  const folderHash = sha256(name.concat(parentFolderHash));
-  const blackToken = await redisGet(token);
-  if (blackToken != null) {
+  if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
+  const username = await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (!username || blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const folderHash = sha256(name.concat(parentFolderHash));
 
-  if (!name || name.length > 20 || name.length < 1) {
+  if (!name || name.length > 20 || name.length < 1 || name.trim().length < 1) {
     return { code: 422, payload: { message: 'Name is not correct' } };
   }
   if (!parentFolderHash) {
@@ -71,9 +74,12 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
  * @returns {string} file contents
  */
 export const DownloadFile = async (cid, token) => {
-  await validator.getUserFromToken(token);
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
   const blackToken = await redisGet(token);
-  if (blackToken != null) {
+  if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
@@ -94,9 +100,12 @@ export const DownloadFile = async (cid, token) => {
  * no response value expected for this operation
  * */
 export const GetFolder = async (hash, token) => {
-  await validator.getUserFromToken(token);
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
   const blackToken = await redisGet(token);
-  if (blackToken != null) {
+  if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const folderList = await DB.getFolder(conn, hash);
@@ -119,9 +128,12 @@ export const GetFolder = async (hash, token) => {
  * @returns {object} parent updated parent folder
  * */
 export const UploadFile = async (name, parentName, contents, token) => {
-  await validator.getUserFromToken(token);
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
   const blackToken = await redisGet(token);
-  if (blackToken != null) {
+  if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
@@ -157,9 +169,12 @@ export const UploadFile = async (name, parentName, contents, token) => {
  * no response value expected for this operation
  * */
 export const Search = async (name, token) => {
-  await validator.getUserFromToken(token);
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
   const blackToken = await redisGet(token);
-  if (blackToken != null) {
+  if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   if (!name) {

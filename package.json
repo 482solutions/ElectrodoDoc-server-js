@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/runtime": "^7.9.6",
     "bl": "^4.0.2",
     "connect": "^3.2.0",
     "cors": "^2.8.5",
@@ -26,6 +27,7 @@
     "@babel/cli": "^7.6.2",
     "@babel/core": "^7.6.2",
     "@babel/node": "^7.6.2",
+    "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
     "babel-loader": "^8.1.0",
     "babel-plugin-import": "^1.12.0",
@@ -49,7 +51,7 @@
     "start": "babel-node -- src/index.js",
     "lint:js": "eslint src/**/*.js",
     "fix:js": "eslint src/**/*.js --fix",
-    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\""
+    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\" --require @babel/register"
   },
   "version": "1.0.0"
 }

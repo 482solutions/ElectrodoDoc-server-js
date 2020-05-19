@@ -21,7 +21,7 @@ jobs:
         run: |
           mkdir cypress
           cd cypress
-          git clone https://andrii482:{{ secret.woden_server_js_workflow_actions_repo }}@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 
+          git clone https://andrii482:${{ secrets.woden_server_js_workflow_actions_repo }}@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 
           cd woden-server-js
           cd e2e
           npm i

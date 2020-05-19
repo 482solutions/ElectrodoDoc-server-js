@@ -48,10 +48,6 @@ Feature: Login user into the system
     Given I send request for getting JWT token with incorrect cert and incorrect privateKey
     When I got response status 403 auth
 
-#    Проверка jwt:
-#  1) содержит 3 структуры разделенные точками 111.222.333 (загоовок, полезная нагрузка, подпись)
-#  2) проверить подпись - это хеш. для этого нужно расшифровать сравнить локальный ключ с публичным
-
 
 
 

@@ -1,13 +1,14 @@
-const { expect } = require('chai');
-const { shutDownIpfsDaemon, spawnIpfsDaemon } = require('../../../test/IpfsDaemon');
-const { FileStorage } = require('..');
+import { expect } from 'chai';
+import { FileStorage } from '..';
+import { shutDownIpfsDaemon, spawnIpfsDaemon } from '../../../test';
+
 
 describe('[FILE STORAGE]', function () {
   this.timeout(0);
   let fileStorage;
   let api;
 
-  before('start ipfs daemon', async function () {
+  before('start ipfs daemon', async () => {
     // api = '/ip4/127.0.0.1/tcp/5001'; // connect to existed node API
     api = await spawnIpfsDaemon();
     fileStorage = new FileStorage(api);
@@ -19,7 +20,7 @@ describe('[FILE STORAGE]', function () {
   });
 
   it('should upload file ', async () => {
-    let content = 'Hello';
+    const content = 'Hello';
     const cid = await fileStorage.upload(content);
     expect(await fileStorage.getFileByHash(cid)).equal(content);
   });
@@ -28,4 +29,3 @@ describe('[FILE STORAGE]', function () {
 after('stop the daemon', async () => {
   await shutDownIpfsDaemon();
 });
-

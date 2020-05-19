@@ -1,1 +1,1 @@
-module.exports = { ...require('./src/FileStorage') };
+export * from './src/FileStorage';

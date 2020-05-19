@@ -1,66 +1,66 @@
-'use strict';
+import utils from '../utils/writer';
+import {
+  CreateFolder, GetFolder, DownloadFile, UploadFile, Search,
+} from '../service/FileSystemService';
 
-const utils = require('../utils/writer.js');
-const FileSystem = require('../service/FileSystemService');
-
-module.exports.createFolder = function createFolder(req, res, next) {
-    const token = req.headers['authorization']
-    const body = req.swagger.params['body'].value;
-    FileSystem.createFolder(body.name, body.parentFolder, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const createFolder = (req, res) => {
+  const token = req.headers.authorization;
+  const body = req.swagger.params.body.value;
+  CreateFolder(body.name, body.parentFolder, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.downloadFile = function downloadFile(req, res, next) {
-    const token = req.headers['authorization']
-    const hash = req.swagger.params['hash'].value;
-    FileSystem.downloadFile(hash, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const downloadFile = (req, res) => {
+  const token = req.headers.authorization;
+  const hash = req.swagger.params.hash.value;
+  DownloadFile(hash, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.getFolder = function getFolder(req, res, next) {
-    const token = req.headers['authorization']
-    const hash = req.swagger.params['hash'].value;
-    FileSystem.getFolder(hash, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const getFolder = (req, res) => {
+  const token = req.headers.authorization;
+  const hash = req.swagger.params.hash.value;
+  GetFolder(hash, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.uploadFile = function uploadFile(req, res, next) {
-    const token = req.headers['authorization']
-    const name = req.swagger.params['name'].value;
-    const parentFolder = req.swagger.params['parentFolder'].value;
-    const file = req.swagger.params['file'].value;
-    FileSystem.uploadFile(name, parentFolder, file, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const uploadFile = (req, res) => {
+  const token = req.headers.authorization;
+  const name = req.swagger.params.name.value;
+  const parentFolder = req.swagger.params.parentFolder.value;
+  const file = req.swagger.params.file.value;
+  UploadFile(name, parentFolder, file, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };
 
-module.exports.search = function search(req, res, next) {
-    const token = req.headers['authorization']
-    const name = req.swagger.params['name'].value;
-    FileSystem.search(name, token)
-        .then(function (response) {
-            utils.writeJson(res, response);
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response);
-        });
+export const search = (req, res) => {
+  const token = req.headers.authorization;
+  const name = req.swagger.params.name.value;
+  Search(name, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
 };

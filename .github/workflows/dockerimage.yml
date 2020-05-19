@@ -3,6 +3,7 @@ name: Docker
 on:
   push: 
     branches:
+      - master
   # Run tests for any PRs.
   pull_request:
 
@@ -19,6 +20,7 @@ jobs:
 
       - name: Run tests
         run: |
+          docker-compose up --build -d 
           mkdir cypress
           cd cypress
           git clone https://andrii482:${{ secrets.woden_server_js_workflow_actions_repo }}@github.com/482solutions/woden-server-js.git  -b  WGRND-551 --single-branch 

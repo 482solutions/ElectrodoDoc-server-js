@@ -53,5 +53,11 @@
     "fix:js": "eslint src/**/*.js --fix",
     "test": "mocha \"@(src|test)/**/*.@(test|spec).js\" --require @babel/register"
   },
+    "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:js",
+      "pre-push": "npm run lint:js"
+    }
+  },
   "version": "1.0.0"
 }

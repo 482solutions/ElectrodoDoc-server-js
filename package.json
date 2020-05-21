@@ -29,9 +29,12 @@
     "@babel/node": "^7.6.2",
     "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
+    "@commitlint/cli": "^8.3.5",
     "babel-loader": "^8.1.0",
     "babel-plugin-import": "^1.12.0",
     "chai": "^4.2.0",
+    "commitlint-config-jira": "^1.4.1",
+    "commitlint-plugin-jira-rules": "^1.4.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
@@ -53,8 +56,9 @@
     "fix:js": "eslint src/**/*.js --fix",
     "test": "mocha \"@(src|test)/**/*.@(test|spec).js\" --require @babel/register"
   },
-    "husky": {
+  "husky": {
     "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "npm run lint:js",
       "pre-push": "npm run lint:js"
     }

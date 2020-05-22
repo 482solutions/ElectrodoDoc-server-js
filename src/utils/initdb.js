@@ -1,6 +1,6 @@
-import connection from './connect';
-import dbrequestor from './utils';
-import configDB from './configDB';
+import connection from '../database/connect';
+import dbrequestor from '../database/utils';
+import configDB from '../database/configDB';
 
 async function initdb() {
   const conn = connection(configDB);

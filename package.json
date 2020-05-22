@@ -54,7 +54,7 @@
     "start": "babel-node -- src/index.js",
     "lint:js": "eslint src/**/*.js",
     "fix:js": "eslint src/**/*.js --fix",
-    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\" --require @babel/register --timeout=7000",
+    "test": "NODE_ENV=test mocha --require @babel/register --timeout=8000 --recursive --exit",
     "coverage": "nyc npm run test"
   },
   "version": "1.0.0"

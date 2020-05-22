@@ -50,7 +50,6 @@ describe('User Registration', async () => {
     it('should return created user from database', async () => {
         await createUser(login, 'test@gmail.com', password, csr.csrPem);
         const userFromDB = (await DB.getUser(conn, login))[0];
-        console.log(userFromDB);
         assert.equal(login, userFromDB.username);
     });
 });
@@ -67,7 +66,6 @@ describe('User Login', async () => {
     it('should return code 200 when correct user login to system', async () => {
         const userCert = (await DB.getCerts(conn, login))[0];
         const result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
-        console.log(result);
         assert.equal(result.code, 200);
     });
 });
@@ -86,7 +84,6 @@ describe('User password changing', async () => {
 
     it('should return new password from database after changing', async () => {
         const newPassword = sha256('newPassword');
-        console.log(result.payload);
         await changeUser(password, newPassword, `Bearer ${result.payload.token}`);
         const userFromDB = (await DB.getUser(conn, login))[0];
         assert.equal(newPassword, userFromDB.password);

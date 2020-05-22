@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>0/18</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
@@ -94,80 +94,80 @@
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import connection from './connect';
-import dbrequestor from './utils';
-import configDB from './configDB';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import connection from './connect';</span>
+<span class="cstat-no" title="statement not covered" >import dbrequestor from './utils';</span>
+<span class="cstat-no" title="statement not covered" >import configDB from './configDB';</span>
 &nbsp;
-async function <span class="fstat-no" title="function not covered" >initdb(</span>) {
-  const conn = <span class="cstat-no" title="statement not covered" >connection(configDB);</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'SET default_tablespace = \'\';');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS certs');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS folders');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS files');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048));');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE public.certs OWNER TO admin;');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, `CREATE TABLE public.users (</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async function i</span></span>nitdb() {
+  const <span class="cstat-no" title="statement not covered" >conn = connection(configDB);</span>
+  await dbrequestor.query(conn, 'SET default_tablespace = \'\';');
+  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS certs');
+  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');
+  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS folders');
+  await dbrequestor.query(conn, 'DROP TABLE IF EXISTS files');
+  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048));');
+  await dbrequestor.query(conn, 'ALTER TABLE public.certs OWNER TO admin;');
+  await dbrequestor.query(conn, `CREATE TABLE public.users (
       username character varying(100) NOT NULL,
       email character varying(100) NOT NULL,
       password character varying(70),
       folder character varying(100) );`);
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, `CREATE TABLE public.folders (</span>
+  await dbrequestor.query(conn, `CREATE TABLE public.folders (
       name character varying(100) NOT NULL,
       hash character varying(100) NOT NULL,
       parentHash character varying(100),
       folders character varying(4096),
       files character varying(4096) );`);
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, `CREATE TABLE public.files (</span>
+  await dbrequestor.query(conn, `CREATE TABLE public.files (
       name character varying(100) NOT NULL,
       hash character varying(100) NOT NULL,
       type character varying(100) NOT NULL,
       parentHash character varying(100));`);
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE public.users OWNER TO admin;');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE public.folders OWNER TO admin;');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE public.files OWNER TO admin;');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE ONLY public.users ADD CONSTRAINT users_pkey PRIMARY KEY (username);');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, 'ALTER TABLE ONLY public.certs ADD CONSTRAINT certs_name_fkey FOREIGN KEY (username) REFERENCES public.users(username);');</span>
-<span class="cstat-no" title="statement not covered" >  await dbrequestor.query(conn, "INSERT INTO public.users VALUES ('user1', 'password', 'email@mail.com')");</span>
+  await dbrequestor.query(conn, 'ALTER TABLE public.users OWNER TO admin;');
+  await dbrequestor.query(conn, 'ALTER TABLE public.folders OWNER TO admin;');
+  await dbrequestor.query(conn, 'ALTER TABLE public.files OWNER TO admin;');
+  await dbrequestor.query(conn, 'ALTER TABLE ONLY public.users ADD CONSTRAINT users_pkey PRIMARY KEY (username);');
+  await dbrequestor.query(conn, 'ALTER TABLE ONLY public.certs ADD CONSTRAINT certs_name_fkey FOREIGN KEY (username) REFERENCES public.users(username);');
+  await dbrequestor.query(conn, "INSERT INTO public.users VALUES ('user1', 'password', 'email@mail.com')");
 }
-<span class="cstat-no" title="statement not covered" >module.exports = initdb;</span>
+<span class="cstat-no" title="statement not covered" >module.</span>exports = initdb;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -175,7 +175,7 @@ async function <span class="fstat-no" title="function not covered" >initdb(</spa
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Thu May 21 2020 14:12:25 GMT+0000 (Coordinated Universal Time)
+                at Fri May 22 2020 13:37:51 GMT+0000 (Coordinated Universal Time)
             </div>
         </div>
         <script src="../../prettify.js"></script>

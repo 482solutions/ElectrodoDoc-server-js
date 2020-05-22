@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+ - "stable"
+services:
+  - docker
+script:
+  - npm run lint:js
+  - docker-compose up --build -d
+  - cd ./e2e && npm i && npm run cypress:run
+

@@ -1,3 +1,3 @@
-import IpfsDaemon from './IpfsDaemon';
-
-export { IpfsDaemon };
+// import IpfsDaemon from './ipfsDaemon.test';
+//
+// export { IpfsDaemon };

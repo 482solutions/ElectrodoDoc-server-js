@@ -210,7 +210,6 @@ Given(/^I send request for POST user with email in field login$/, () => {
 //     user = resp
 //   })
 // })
-
 // Given(/^I send request for POST user with username that contain 2 lowercase letters$/, () => {
 //   let login = generate({
 //     length: 2,

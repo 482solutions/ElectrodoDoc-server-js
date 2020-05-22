@@ -7,7 +7,7 @@ import swaggerTools from 'swagger-tools';
 import jsyaml from 'js-yaml';
 import dotenv from 'dotenv';
 import auth from './helpers/auth';
-import initDB from './database/initdb';
+import initDB from './utils/initdb';
 
 const app = connect();
 const serverPort = 1823;

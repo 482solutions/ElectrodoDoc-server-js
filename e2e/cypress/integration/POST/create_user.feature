@@ -10,15 +10,15 @@ Feature: Create user
     Given I send request for "POST" user
     Then response status 201
 
-  @positive
-  Scenario: Username can contain 2 uppercase letters
-    Given I send request for POST user with username that contain 2 uppercase letters
-    Then response status 201
-
-  @positive
-  Scenario: Username can contain 2 lowercase letters
-    Given I send request for POST user with username that contain 2 lowercase letters
-    Then response status 201
+#  @positive
+#  Scenario: Username can contain 2 uppercase letters
+#    Given I send request for POST user with username that contain 2 uppercase letters
+#    Then response status 201
+#
+#  @positive
+#  Scenario: Username can contain 2 lowercase letters
+#    Given I send request for POST user with username that contain 2 lowercase letters
+#    Then response status 201
 
   @positive
   Scenario: Username can contain 20 uppercase letters

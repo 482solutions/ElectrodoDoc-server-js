@@ -148,7 +148,7 @@ export const UploadFile = async (name, parentName, contents, token) => {
   /* Get list of files in parent folder */
   const parentFolder = (await DB.getFolder(conn, parentName))[0];
 
-  if (parentFolder === null) {
+  if (parentFolder === undefined) {
     return { code: 404, payload: { message: 'Parent folder not found.' } };
   }
   const files = JSON.parse(parentFolder.files);

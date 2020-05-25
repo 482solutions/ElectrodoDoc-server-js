@@ -22,12 +22,12 @@ module.exports.getFile = async function getFile(conn, hash) {
 };
 
 module.exports.getFolderByName = async function getFolderByName(conn, name) {
-  const result = await query(conn, `SELECT * FROM public.Folders WHERE name LIKE '${name}'`);
+  const result = await query(conn, `SELECT * FROM public.Folders WHERE name LIKE '%${name}%'`);
   return result.rows;
 };
 
 module.exports.getFileByName = async function getFileByName(conn, name) {
-  const result = await query(conn, `SELECT * FROM public.Files WHERE name LIKE '${name}'`);
+  const result = await query(conn, `SELECT * FROM public.Files WHERE name LIKE '%${name}%'`);
   return result.rows;
 };
 

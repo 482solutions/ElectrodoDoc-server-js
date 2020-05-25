@@ -1,1 +1,1 @@
-export * from './src/FileStorage';
+export * from './FileStorage';

@@ -10,6 +10,7 @@
     "fabric-ca-client": "^1.4.8",
     "fabric-client": "^1.4.5",
     "fabric-network": "^1.4.5",
+    "generate-password": "^1.5.1",
     "ipfs": "^0.43.3",
     "ipfs-http-client": "^44.0.3",
     "js-yaml": "^3.3.0",
@@ -32,17 +33,19 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-import": "^1.12.0",
     "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.19.1",
     "husky": "^3.1.0",
     "ipfsd-ctl": "^4.1.0",
-    "mocha": "^7.1.2"
+    "mocha": "^7.1.2",
+    "nyc": "^15.0.1"
   },
   "keywords": [
     "swagger"
   ],
-  "license": "Unlicense",
+  "license": "Apache License 2.0",
   "main": "src/index.js",
   "name": "woden",
   "private": true,
@@ -51,7 +54,8 @@
     "start": "babel-node -- src/index.js",
     "lint:js": "eslint src/**/*.js",
     "fix:js": "eslint src/**/*.js --fix",
-    "test": "mocha \"@(src|test)/**/*.@(test|spec).js\" --require @babel/register"
+    "test": "NODE_ENV=test mocha --require @babel/register --timeout=8000 --recursive --exit",
+    "coverage": "nyc npm run test"
   },
   "version": "1.0.0"
 }

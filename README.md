@@ -10,6 +10,12 @@ To run the server, run:
 docker-compose up --build
 ```
 
+To run the tests, run:
+
+```
+sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
+```
+
 To view the Woden UI interface:
 
 ```

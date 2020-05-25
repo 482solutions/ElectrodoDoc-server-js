@@ -188,51 +188,50 @@ Given(/^I send request for POST user with email in field login$/, () => {
   })
 })
 
-Given(/^I send request for POST user with username that contain 2 uppercase letters$/, () => {
-  let login = generate({
-    length: 2,
-    lowercase: false
-  })
-  let csr = getCSR({ username: login })
-  cy.request({
-    method: 'POST',
-    url: basic,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).then((resp) => {
-    expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
-    expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
-    user = resp
-  })
-})
-
-Given(/^I send request for POST user with username that contain 2 lowercase letters$/, () => {
-  let login = generate({
-    length: 2,
-    uppercase: false
-  })
-  let csr = getCSR({ username: login })
-  cy.request({
-    method: 'POST',
-    url: basic,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).then((resp) => {
-    expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
-    expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
-    user = resp
-  })
-})
+// Given(/^I send request for POST user with username that contain 2 uppercase letters$/, () => {
+//   let login = generate({
+//     length: 2,
+//     lowercase: false
+//   })
+//   let csr = getCSR({ username: login })
+//   cy.request({
+//     method: 'POST',
+//     url: basic,
+//     headers: headers,
+//     body: {
+//       'login': login,
+//       'email': email,
+//       'password': password,
+//       'CSR': csr.csrPem
+//     },
+//   }).then((resp) => {
+//     expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
+//     expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
+//     user = resp
+//   })
+// })
+// Given(/^I send request for POST user with username that contain 2 lowercase letters$/, () => {
+//   let login = generate({
+//     length: 2,
+//     uppercase: false
+//   })
+//   let csr = getCSR({ username: login })
+//   cy.request({
+//     method: 'POST',
+//     url: basic,
+//     headers: headers,
+//     body: {
+//       'login': login,
+//       'email': email,
+//       'password': password,
+//       'CSR': csr.csrPem
+//     },
+//   }).then((resp) => {
+//     expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
+//     expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
+//     user = resp
+//   })
+// })
 
 Given(/^I send request for POST user with username that contain 20 uppercase letters$/, () => {
   let login = generate({

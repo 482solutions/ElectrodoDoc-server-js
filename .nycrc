@@ -1,0 +1,10 @@
+{
+  "include": "src/**/*.js",
+  "cache": true,
+  "all": true,
+  "exclude": [
+      "src/index.js",
+      "src/controllers",
+      "src/utils"
+    ]
+}

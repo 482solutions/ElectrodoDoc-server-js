@@ -154,7 +154,6 @@ export const UploadFile = async (name, parentName, contents, token) => {
   const files = JSON.parse(parentFolder.files);
 
   files.push({ name, hash: cid });
-  console.log('Files', files);
   await DB.insertFile(conn, name, cid, parentFolder.hash, contents.mimetype);
   await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
   const folderListAfter = await DB.getFolder(conn, parentName);

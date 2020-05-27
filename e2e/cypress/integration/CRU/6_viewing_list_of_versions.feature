@@ -16,6 +16,9 @@
 #  Scenario: 1 Viewing list of versions
 #
 #    Given The user has access to the file with any type of rights
-#    When The user press the "Previous versions" button
-#    Then The user sees the list of available versions and the time, date when the version was created
+#    When user press the "Actions_хешфайла" button
+#    The user press the "Previous versions" button (id Versions_хешфайла)
+#    Then The user sees the pop-up (VersionsModal) with the list of available versions (CID_(cid))and the time(Time_(cid)), date when the version was created
+#  And button "Download" (Download_(cid))
+#  And button close pop-up (CloseVersionsModal) is visible
 

@@ -160,6 +160,17 @@ export const UploadFile = async (name, parentName, contents, token) => {
   return { code: 200, payload: { folder: folderListAfter[0] } };
 };
 
+export const UpdateFile = async (hash, file, token) => {
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (!username || blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+}
+
 /**
  * Search
  * Search folders and files means that user will receive folder or file if exist
@@ -186,3 +197,21 @@ export const Search = async (name, token) => {
   }
   return { code: 200, payload: { folders, files } };
 };
+
+/**
+ * Versions of file
+ * Get all existing versions of file
+ *
+ * hash String The folder or file name
+ * no response value expected for this operation
+ **/
+export const Versions = async (hash, token) => {
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (!username || blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+}

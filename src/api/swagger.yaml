@@ -213,6 +213,61 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+    put:
+      tags:
+        - "file_system"
+      summary: "Update file"
+      description: "Update existing file"
+      operationId: "updateFile"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "hash"
+          in: "formData"
+          required: true
+          type: "string"
+        - name: "file"
+          in: "formData"
+          description: "File to upload."
+          required: true
+          type: "file"
+      responses:
+        "200":
+          description: "Updated folder with this file"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "Folder not exist"
+        "422":
+          description: "Invalid file hash supplied"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
+  /versions/{hash}:
+    get:
+      tags:
+        - "file_system"
+      summary: "Versions of file"
+      description: "Get all existing versions of file"
+      operationId: "versions"
+      parameters:
+        - name: "hash"
+          in: "path"
+          description: "The folder or file name"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "Versions of file"
+        "203":
+          description: "Not Authorized"
+        "404":
+          description: "File with this hash not found"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
   /search/{name}:
     get:
       tags:
@@ -233,7 +288,7 @@ paths:
         "203":
           description: "Not Authorized"
         "404":
-          description: "Folder not found"
+          description: "Not found"
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"

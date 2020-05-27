@@ -5,8 +5,7 @@ services:
   - docker
 script:
   - npm run lint:js
-  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
-  
+  - docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
   - docker-compose up --build -d
   - cd ./e2e && npm i && npm run cypress:run
 

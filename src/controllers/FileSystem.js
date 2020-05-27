@@ -6,7 +6,7 @@ import {
   Search,
   UpdateFile,
   UploadFile,
-  Versions
+  Versions,
 } from '../service/FileSystemService';
 
 export const createFolder = (req, res) => {
@@ -59,15 +59,15 @@ export const uploadFile = (req, res) => {
     });
 };
 
-export const updateFile = (req, res, next) => {
+export const updateFile = (req, res) => {
   const token = req.headers.authorization;
   const hash = req.swagger.params.hash.value;
   const file = req.swagger.params.file.value;
   UpdateFile(hash, file, token)
-    .then(function(response) {
+    .then((response) => {
       utils.writeJson(res, response);
     })
-    .catch(function(response) {
+    .catch((response) => {
       utils.writeJson(res, response);
     });
 };
@@ -84,14 +84,14 @@ export const search = (req, res) => {
     });
 };
 
-export const versions = (req, res, next) => {
+export const versions = (req, res) => {
   const token = req.headers.authorization;
   const hash = req.swagger.params.hash.value;
   Versions(hash, token)
-    .then(function(response) {
+    .then((response) => {
       utils.writeJson(res, response);
     })
-    .catch(function(response) {
+    .catch((response) => {
       utils.writeJson(res, response);
     });
 };

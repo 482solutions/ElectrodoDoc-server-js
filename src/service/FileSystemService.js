@@ -169,7 +169,8 @@ export const UpdateFile = async (hash, file, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-}
+  return { code: 200, payload: { message: 'OK' } };
+};
 
 /**
  * Search
@@ -204,7 +205,7 @@ export const Search = async (name, token) => {
  *
  * hash String The folder or file name
  * no response value expected for this operation
- **/
+ * */
 export const Versions = async (hash, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
@@ -214,4 +215,5 @@ export const Versions = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-}
+  return { code: 200, payload: { message: 'OK' } };
+};

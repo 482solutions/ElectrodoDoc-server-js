@@ -47,16 +47,15 @@ exports.validationCSR = (string) => {
 };
 
 exports.getUserFromToken = async(token) => {
-  let decodedToken;
   if (token && token.indexOf('Bearer ') === 0) {
     const tokenString = token.split(' ')[1];
     try {
-      decodedToken = await jwt.verify(tokenString, '482solutions'.toString('base64'));
+      return (await jwt.verify(tokenString, '482solutions'.toString('base64'))).data;
     } catch (e) {
       return null;
     }
   }
-  return decodedToken.data;
+  return null;
 };
 
 exports.sendTransaction = async({ identity, transaction, network: networkOptions }) => {

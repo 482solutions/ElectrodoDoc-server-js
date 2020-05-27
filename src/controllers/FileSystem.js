@@ -1,6 +1,12 @@
 import utils from '../utils/writer';
 import {
-  CreateFolder, GetFolder, DownloadFile, UploadFile, Search,
+  CreateFolder,
+  DownloadFile,
+  GetFolder,
+  Search,
+  UpdateFile,
+  UploadFile,
+  Versions,
 } from '../service/FileSystemService';
 
 export const createFolder = (req, res) => {
@@ -53,10 +59,35 @@ export const uploadFile = (req, res) => {
     });
 };
 
+export const updateFile = (req, res) => {
+  const token = req.headers.authorization;
+  const hash = req.swagger.params.hash.value;
+  const file = req.swagger.params.file.value;
+  UpdateFile(hash, file, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
+};
+
 export const search = (req, res) => {
   const token = req.headers.authorization;
   const name = req.swagger.params.name.value;
   Search(name, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
+};
+
+export const versions = (req, res) => {
+  const token = req.headers.authorization;
+  const hash = req.swagger.params.hash.value;
+  Versions(hash, token)
     .then((response) => {
       utils.writeJson(res, response);
     })

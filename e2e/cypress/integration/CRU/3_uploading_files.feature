@@ -1,22 +1,44 @@
-#@test_case_2.3
-#@uploading_folders
-## ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.3'
-#
-#Feature: Uploading files
-#  As an editor or owner of the folder, I want to upload a new file so that I can view, update or share it
-#
-#  Rule: user should be registered.
-#    #  Before('Register new user, sign in', function () {});
-#
-##  Scenario: 1 New file
-##    Given The user is authorized
-##    And the user is located in his root folder or in the  folder where he has "Editors" rights
-##    When The user press Upload a new file button
-##    And Choose the needed file from its PC directory
-##    Then The file is uploaded
-##    And The user is the owner of this file
-##
-##  Scenario: 2 User can not upload file with the same name
+@test_case_2.3
+@uploading_folders
+# ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.3'
+
+Feature: Uploading files
+  As an editor or owner of the folder, I want to upload a new file so that I can view, update or share it
+
+  Rule: user should be registered.
+
+    Scenario: Create user and get JWT token
+      Given Send request for create user for upload
+
+    Scenario: 1 User can upload png file
+      When User send request for upload png file
+      Then Response status 200 upload
+
+    Scenario: 2 User can not upload file without auth
+      When User send request for upload file without auth
+      Then Response status 203 upload
+
+    Scenario: 3 User can not upload file with incorrect token
+      When User send request for upload file with incorrect token
+      Then Response status 203 upload
+
+    Scenario: 4 User can not upload file with incorrect parentFolder
+      When User send request for upload file with incorrect parentFolder
+      Then Response status 404 upload
+
+    Scenario: 5 User can not upload file without parentFolder
+      When User send request for upload file without parentFolder
+      Then Response status 422 upload
+
+    Scenario: 6 User can not upload file without file name
+      When User send request for upload file without file name
+      Then Response status 422 upload
+
+    Scenario: 7 User can not upload file without file
+      When User send request for upload file without file
+      Then Response status 422 upload
+
+##  Scenario: 3 User can not upload file with the same name
 ##    Given The user is authorized
 ##    And the user is located in his root folder or in the  folder where he has "Editors" rights
 ##    When The user press Upload a new file button
@@ -24,7 +46,7 @@
 ##    Then The file is not uploaded
 ##    And The user gets error notification "The file with this name already exists."
 ##
-##  Scenario: 3 User can not upload two files at the same time
+##  Scenario: 4 User can not upload two files at the same time
 ##    Given The user is authorized
 ##    And the user is located in his root folder or in the  folder where he has "Editors" rights
 ##    When The user press Upload a new file button

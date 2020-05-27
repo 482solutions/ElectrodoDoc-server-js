@@ -2,6 +2,9 @@ import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { decode, getLogin, getPassword } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 import { sha256 } from 'js-sha256'
+// import connection from '../../../../../src/database/connect';
+// import dbrequestor from '../../../../../src/database/utils';
+// import configDB from '../../../../../src/database/configDB';
 
 const jwt = require('jsonwebtoken');
 
@@ -81,7 +84,7 @@ Given(/^I sending a request for create new user$/, () => {
   })
 })
 
-Given(/^I send request for getting JWT token with username$/, () => {
+Given(/^I send request for getting JWT token with username$/, async () => {
   cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
     cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
@@ -100,6 +103,8 @@ Given(/^I send request for getting JWT token with username$/, () => {
       })
     })
   })
+  // const conn = connection(configDB);
+  // await dbrequestor.query(conn, 'SELECT * FROM public.Users');
 })
 
 Then(/^Response body contains valid JWT token$/, () => {

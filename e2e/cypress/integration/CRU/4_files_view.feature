@@ -1,34 +1,33 @@
-#@test_case_2.4
-#@files_view
-## ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.4'
-#
-#Feature: Files view
-#  As a user (any role), I want to view the available file so that I can use it
+@test_case_2.4
+@files_view
+# ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.4'
 
-#  Background: Register new user
-#    Given The application is opened
-#    And there is no open session
-#    When Register new user
-#    And Login as new user
-#    Then The user locate on dashboard
-#    And The user press Upload a new file button
-#    And Choose the needed file from its PC directory
-#    And The file is uploaded
-#
-#  Scenario: 1 File view
-#    Given The user located on root dashboard
-#    And the user has access to any available file
-#    When The user double click the file
-#    Then The file is downloaded
+Feature: Files view
+  As a user (any role), I want to view the available file so that I can use it
 
-#  (проверить то, что файл содержит те же данные)
-#  cy.download().should('include', '') - get certificate
-#
-#  cy.get('.certificate-card-content').should('be.visible').then(() => {
-#            cy.downloadFile(
-#                basicURL + randomName + '/download',
-#                '../Downloads',
-#                'cert.pem',
-#            ).readFile('../Downloads/cert.pem')
-#                .should('include', '')
-#        });
+  Rule: user should be registered.
+
+    Scenario: Create user and get JWT token
+      Given Send request for create user for viewing file
+      When The user send request for upload file
+
+    Scenario: 1 File view
+      When User sends a request for a file from the root folder
+      Then Response status 200 file view
+
+    Scenario: 2 User can not send request to view file without auth
+      When User sends a request for a file from the root folder without auth
+      Then Response status 203 file view
+
+    Scenario: 3 User can not send request to view file with empty auth
+      When User sends a request for a file from the root folder with empty auth
+      Then Response status 203 file view
+
+    Scenario: 4 User can not get file by incorrect hash
+      When User sends a request for a file by incorrect hash
+      Then Response status 404 file view
+
+    Scenario: 5 User can not get file without hash
+      When User sends a request for a file without hash
+      Then Response status 404 file view
+

@@ -6,10 +6,8 @@ import configDB from '../database/configDB';
 import connection from '../database/connect';
 import { redisClient } from '../adapter/redis';
 
-
 import DB from '../database/utils';
 import { FileStorage } from '../FileStorage';
-
 
 const redisGet = promisify(redisClient.get).bind(redisClient);
 const conn = connection(configDB);
@@ -83,14 +81,16 @@ export const DownloadFile = async (cid, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
-  const fileFromDB = (await DB.getFile(conn, cid))[0];
+  const fileFromDB = (await DB.getFile(conn, cid));
+  if (fileFromDB.length === 0) {
+    return { code: 404, payload: { message: 'File not found.' } };
+  }
   const file = await fileStorage.getFileByHash(cid);
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
-  return { code: 200, payload: { name: fileFromDB.name, type: fileFromDB.type, file } };
+  return { code: 200, payload: { name: fileFromDB[0].name, type: fileFromDB[0].type, file } };
 };
-
 
 /**
  * Get folder
@@ -115,7 +115,6 @@ export const GetFolder = async (hash, token) => {
   }
   return { code: 200, payload: { folder: folderList[0] } };
 };
-
 
 /**
  * Saves file to IPFS and adds returned `cid` to parent folder's `files` list

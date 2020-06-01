@@ -107,8 +107,7 @@ When(/^User send request for upload png file$/, () => {
         }).then((response) => {
           return response.json()
         }).then((data) => {
-          console.log('data', data)
-          //TODO: expect(login).to.equal(data.folder.name)
+          expect(login).to.equal(data.folder.name)
         })
       })
   })

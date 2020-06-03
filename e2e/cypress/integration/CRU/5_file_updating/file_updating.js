@@ -44,7 +44,7 @@ Then(/^Response status 422 updating$/, () => {
 Given(/^Send request for create user for updating file$/, () => {
   cy.request({
     method: 'POST',
-    url: basic + '/user',
+    url: `${basic}/user`,
     headers: headers,
     body: {
       'login': login,

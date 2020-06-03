@@ -19,7 +19,7 @@ Feature:  File updating
       When The user send request for updating file "TestUpload.txt" with incorrect bearer
       Then Response status 203 updating
 
-    Scenario: 3 User can not update file if auth is empty
+    Scenario: 3 User can not update file if bearer is empty
       When The user send request for updating file "TestUpload.txt" and bearer is empty
       Then Response status 203 updating
 

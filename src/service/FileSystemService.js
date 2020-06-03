@@ -66,12 +66,13 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
 /**
  * Retrieves file's contents as a string
  *
+ * @param hash
  * @param {string|CID} cid - IPFS identifier of the file
  * @param {string} token
  *
  * @returns {string} file contents
  */
-export const DownloadFile = async (cid, token) => {
+export const DownloadFile = async (hash, cid, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -81,7 +82,7 @@ export const DownloadFile = async (cid, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
-  const fileFromDB = (await DB.getFile(conn, cid));
+  const fileFromDB = (await DB.getFile(conn, hash));
   if (fileFromDB.length === 0) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
@@ -120,13 +121,13 @@ export const GetFolder = async (hash, token) => {
  * Saves file to IPFS and adds returned `cid` to parent folder's `files` list
  *
  * @param {string} name
- * @param {string} parentName
+ * @param parentFolderHash
  * @param {string|Buffer} contents file data
  * @param {} token
  *
  * @returns {object} parent updated parent folder
  * */
-export const UploadFile = async (name, parentName, contents, token) => {
+export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -139,23 +140,28 @@ export const UploadFile = async (name, parentName, contents, token) => {
   if (!name) {
     return { code: 422, payload: { message: 'Name is not specified' } };
   }
-  if (!parentName) {
+  if (!parentFolderHash) {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
 
+  const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
   /* Get list of files in parent folder */
-  const parentFolder = (await DB.getFolder(conn, parentName))[0];
+  const parentFolder = (await DB.getFolder(conn, parentFolderHash))[0];
 
   if (parentFolder === undefined) {
     return { code: 404, payload: { message: 'Parent folder not found.' } };
   }
   const files = JSON.parse(parentFolder.files);
-
-  files.push({ name, hash: cid });
-  await DB.insertFile(conn, name, cid, parentFolder.hash, contents.mimetype);
+  files.push({ name, hash: fileHash });
+  const versions = []
+  const version = {
+    cid, time: Math.floor(new Date() / 1000)
+  };
+  versions.push(version)
+  await DB.insertFile(conn, name, fileHash, JSON.stringify(versions), parentFolder.hash, contents.mimetype);
   await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
-  const folderListAfter = await DB.getFolder(conn, parentName);
+  const folderListAfter = await DB.getFolder(conn, parentFolderHash);
   return { code: 200, payload: { folder: folderListAfter[0] } };
 };
 

@@ -7,7 +7,7 @@ Feature:  Viewing previous version
 
   Rule: user should be registered.
 
-    Scenario: Create user and upload file with 2 versions
+    Scenario: Create user and get JWT token
       Given Send request for create user for updating file
       And The user send request for upload file 1 version
 #      First version of the file should contain text "Hello, World!"
@@ -35,26 +35,31 @@ Feature:  Viewing previous version
       Then Response status 404 previous version
 
 
-#    /versions/{hash}:
+#    /file/{hash}/{cid}:
 #    get:
-
+#    tags:
+#    - "file_system"
+#    summary: "Download file"
+#    description: "Downloading file from current folder"
+#    operationId: "downloadFile"
 #    parameters:
 #    - name: "hash"
 #    in: "path"
-#    description: "The folder or file name"
+#    description: "The file hash"
 #    required: true
 #    type: "string"
-
+#    - name: "cid"
+#    in: "path"
+#    description: "The file version"
+#    required: true
+#    type: "string"
 #    responses:
 #    "200":
-#    description: "Versions of file"
-
+#    description: "File to download"
 #    "203":
 #    description: "Not Authorized"
-
 #    "404":
-#    description: "File with this hash not found"
-
+#    description: "File not found"
 #    security:
 #    - Bearer: []
 

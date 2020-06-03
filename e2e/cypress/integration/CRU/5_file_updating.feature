@@ -33,7 +33,6 @@ Feature:  File updating
       Then Response status 422 updating
 
 
-
 #    put:
 #    - "multipart/form-data"
 

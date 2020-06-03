@@ -2,22 +2,14 @@ import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'http://localhost:1823/api/v1'
-
+const basic = 'api/v1'
 const headers = {
   'content-type': 'application/json'
 }
 
-let user
-let token
-let login
-let email
-let password
-let cert
-let csr
-let privateKey
+let user, token, login, email, password, cert, csr, privateKey
 
-before('Get user data', () => {
+before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
@@ -25,7 +17,10 @@ before('Get user data', () => {
   privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
 })
 
-//------------------------------------------------------------------------------------------
+
+/*
+  Expect response status:
+ */
 
 When(/^Response status 200 upload$/, () => {
   expect(200).to.eq(user.status)
@@ -43,7 +38,9 @@ Then(/^Response status 422 upload$/, () => {
   expect(422).to.eq(user.status)
 })
 
-//------------------------------------------------------------------------------------------
+/*
+  Implementation of the steps from **.feature
+ */
 Given(/^Send request for create user for upload$/, () => {
   cy.request({
     method: 'POST',

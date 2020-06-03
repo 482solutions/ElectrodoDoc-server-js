@@ -9,25 +9,16 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user
-let token
-let login
-let email
-let password
-let cert
-let csr
-let privateKey
-let folderData
+let user, token, login, email, password, cert, csr, privateKey, folderData
 
-let getHashFromFile = (fileName, resp) => {
-  let files = JSON.parse(resp.body.files)
-  for (let key in files) {
-    if (fileName === files[key].name) {
-      return files[key].hash
-      //TODO add CID
-    }
-  }
-}
+// let getHashFromFile = (fileName, resp) => {
+//   let files = JSON.parse(resp.body.files)
+//   for (let key in files) {
+//     if (fileName === files[key].name) {
+//       return files[key].hash
+//     }
+//   }
+// }
 
 let getHashFromFolder = (folderName, resp) => {
   let foldersN = JSON.parse(resp.body.folder.folders)
@@ -39,7 +30,7 @@ let getHashFromFolder = (folderName, resp) => {
   }
 }
 
-before('Get user data', () => {
+before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
@@ -47,8 +38,9 @@ before('Get user data', () => {
   privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
 })
 
-//------------------------------------------------------------------------------------------
-
+/*
+  Expect response status:
+ */
 When(/^Response status 200 search$/, () => {
   expect(200).to.eq(user.status)
 })
@@ -61,9 +53,11 @@ Then(/^Response status 404 search$/, () => {
   expect(404).to.eq(user.status)
 })
 
-//------------------------------------------------------------------------------------------
+/*
+  Implementation of the steps from **.feature
+ */
 
-Given(/^Send request for create user for search$/,  () => {
+Given(/^Send request for create user for search$/, () => {
   cy.request({
     method: 'POST',
     url: basic + '/user',
@@ -102,14 +96,14 @@ Given(/^Send request for create user for search$/,  () => {
   })
 })
 
-When(/^User send request for create folder "([^"]*)" in root folder$/,  (folderName) => {
+When(/^User send request for create folder "([^"]*)" in root folder$/, (folderName) => {
   headers.Authorization = 'Bearer ' + token
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
-      'name': 'testFolder',
+      'name': folderName,
       'parentFolder': sha256(login)
     },
   }).then((resp) => {
@@ -117,7 +111,7 @@ When(/^User send request for create folder "([^"]*)" in root folder$/,  (folderN
   })
 })
 
-When(/^The user send request for upload new file to testFolder with name "([^"]*)"$/,  (fileName) => {
+When(/^The user send request for upload new file to testFolder with name "([^"]*)"$/, (fileName) => {
   let testFolderHash = getHashFromFolder('testFolder', user)
 
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
@@ -151,7 +145,7 @@ When(/^The user send request for upload new file to testFolder with name "([^"]*
   cy.wait(2000)
 })
 
-When(/^The user send request for search file by name from list (.*)$/, function (fileName) {
+When(/^The user send request for search file by name from list (.*)$/, (fileName) => {
   let name = fileName
   headers.Authorization = `Bearer ${token}`
   cy.request({
@@ -173,9 +167,9 @@ When(/^The user send request for search file by name from list (.*)$/, function 
     }
     expect('1file.png').to.equal(resp.body.files[countFiles].name)
   })
-});
+})
 
-When(/^The user send request for search file by invalid name from list (.*)$/, function (nameToUpper) {
+When(/^The user send request for search file by invalid name from list (.*)$/, (nameToUpper) => {
   let name = nameToUpper
   headers.Authorization = `Bearer ${token}`
   cy.request({
@@ -186,9 +180,9 @@ When(/^The user send request for search file by invalid name from list (.*)$/, f
   }).then((resp) => {
     user = resp
   })
-});
+})
 
-When(/^Send request for for search file without auth$/, function () {
+When(/^Send request for for search file without auth$/, () => {
   headers.Authorization = `Bearer `
   cy.request({
     failOnStatusCode: false,
@@ -198,8 +192,9 @@ When(/^Send request for for search file without auth$/, function () {
   }).then((resp) => {
     user = resp
   })
-});
-When(/^Send request for for search file empty auth$/, function () {
+})
+
+When(/^Send request for for search file empty auth$/, () => {
   headers.Authorization = ``
   cy.request({
     failOnStatusCode: false,
@@ -209,4 +204,4 @@ When(/^Send request for for search file empty auth$/, function () {
   }).then((resp) => {
     user = resp
   })
-});
+})

@@ -2,8 +2,7 @@ import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'http://localhost:1823/api/v1'
-
+const basic = 'api/v1'
 const headers = {
   'content-type': 'application/json'
 }
@@ -15,12 +14,11 @@ let getHashFromFile = (fileName, folders) => {
   for (let key in files) {
     if (fileName === files[key].name) {
       return files[key].hash
-      //TODO add CID
     }
   }
 }
 
-before('Get user data', () => {
+before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
@@ -48,7 +46,7 @@ Then(/^Response status 404 view$/, () => {
   Implementation of the steps from **.feature
  */
 
-Given(/^Send request for create user for viewing file$/, function () {
+Given(/^Send request for create user for viewing file$/, () => {
   cy.request({
     method: 'POST',
     url: basic + '/user',
@@ -87,7 +85,7 @@ Given(/^Send request for create user for viewing file$/, function () {
   })
 })
 
-When(/^The user send request for upload file$/, function () {
+When(/^The user send request for upload file$/, () => {
   cy.readFile('cypress/fixtures/mockTest.txt').then((str) => {
     let blob = new Blob([str], { type: 'text/plain' })
     const myHeaders = new Headers({
@@ -117,59 +115,68 @@ When(/^The user send request for upload file$/, function () {
   }).as('Send txt').wait(2000)
 })
 
-When(/^User sends a request for a file from the root folder$/, function () {
-  let hash = getHashFromFile('mockTest', folderData)
+When(/^User sends a request for a file from the root folder$/, () => {
+  let cid = getHashFromFile('mockTest', folderData)
+  let hash = sha256(`${sha256(login)}'mockTest'`)
+
   headers.Authorization = 'Bearer ' + token
   cy.request({
     headers: headers,
     method: 'GET',
-    url: `${basic}/file/${hash}`
+    url: `${basic}/file/${hash}/${cid}`
   }).then((resp) => {
     user = resp
   })
 })
 
-When(/^User sends a request for a file from the root folder without auth$/, function () {
-  let hash = getHashFromFile('mockTest', folderData)
+When(/^User sends a request for a file from the root folder without auth$/, () => {
+  let cid = getHashFromFile('mockTest', folderData)
+  let hash = sha256(`${sha256(login)}'mockTest'`)
+
   cy.request({
     method: 'GET',
-    url: `${basic}/file/${hash}`
+    url: `${basic}/file/${hash}/${cid}`
   }).then((resp) => {
     user = resp
-    console.log(resp)
   })
 });
 
-When(/^User sends a request for a file from the root folder with empty auth$/, function () {
-  let hash = getHashFromFile('mockTest', folderData)
+When(/^User sends a request for a file from the root folder with empty auth$/, () => {
+  let cid = getHashFromFile('mockTest', folderData)
+  let hash = sha256(`${sha256(login)}'mockTest'`)
+
   headers.Authorization = 'Bearer '
   cy.request({
     headers: headers,
     method: 'GET',
-    url: `${basic}/file/${hash}`
+    url: `${basic}/file/${hash}/${cid}`
   }).then((resp) => {
     user = resp
   })
 });
 
-When(/^User sends a request for a file by incorrect hash$/, function () {
+When(/^User sends a request for a file by incorrect hash$/, () => {
+  let cid = getHashFromFile('mockTest', folderData)
+
   headers.Authorization = 'Bearer ' + token
   cy.request({
     headers: headers,
     method: 'GET',
-    url: `${basic}/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+    url: `${basic}/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
 });
 
-When(/^User sends a request for a file without hash$/, function () {
+When(/^User sends a request for a file without hash$/, () => {
+  let cid = getHashFromFile('mockTest', folderData)
+
   headers.Authorization = 'Bearer ' + token
   cy.request({
     headers: headers,
     method: 'GET',
-    url: `${basic}/file/*`,
+    url: `${basic}/file/*/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
     user = resp

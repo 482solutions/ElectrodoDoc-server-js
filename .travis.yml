@@ -1,13 +1,13 @@
-language: node_js
-node_js:
- - "stable"
-services:
-  - docker
-script:
-  - npm run lint:js
-  - sudo docker system prune -a -f
-  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
-  
-  - docker-compose up --build -d
-  - cd ./e2e && npm i && npm run cypress:run
-
+#language: node_js
+#node_js:
+# - "stable"
+#services:
+#  - docker
+#script:
+#  - npm run lint:js
+#  - sudo docker system prune -a -f
+#  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
+#
+#  - docker-compose up --build -d
+#  - cd ./e2e && npm i && npm run cypress:run
+#

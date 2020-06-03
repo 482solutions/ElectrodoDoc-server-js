@@ -8,15 +8,7 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user
-let token
-let login
-let email
-let password
-let cert
-let csr
-let privateKey
-let folderData
+let user, token, login, email, password, cert, csr, privateKey, folderData
 
 let getHashFromFile = (fileName, folders) => {
   let files = JSON.parse(folders.folder.files)
@@ -36,21 +28,26 @@ before('Get user data', () => {
   privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
 })
 
-//------------------------------------------------------------------------------------------
+/*
+  Expect response status:
+ */
 
-When(/^Response status 200 file view$/, () => {
+When(/^Response status 200 view$/, () => {
   expect(200).to.eq(user.status)
 })
 
-Then(/^Response status 203 file view$/, () => {
+Then(/^Response status 203 view$/, () => {
   expect(203).to.eq(user.status)
 })
 
-Then(/^Response status 404 file view$/, () => {
+Then(/^Response status 404 view$/, () => {
   expect(404).to.eq(user.status)
 })
 
-//------------------------------------------------------------------------------------------
+/*
+  Implementation of the steps from **.feature
+ */
+
 Given(/^Send request for create user for viewing file$/, function () {
   cy.request({
     method: 'POST',

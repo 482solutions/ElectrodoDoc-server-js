@@ -1,31 +1,62 @@
-#@test_case_2.5
-#@files_view
-## ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.5'
-#
-#Feature:  File updating
-#  As an owner or editor, I want to update the file so that the correct version could be used.
+@test_case_2.5
+@files_view
+# ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_2.5'
 
-#  Background: Register new user
-#    Given The application is opened
-#    And there is no open session
-#    When Register new user
-#    And Login as new user
-#    Then The user locate on dashboard
-#    And Upload file "test_positive"
-#
-#  Scenario: 1 File updating
-#    Given The user has access to the file with owner or editor rights
-#    When The user press the Update button
-#    And Choose the new file from his computer
-##    внести изменения в сущетвующий файл
-#    And the chosen file has the same name "test_positive"
-#    Then The new version of the file is updated
-#    And The last version remains in the system
-#
-#  Scenario: 2 File updating
-#    Given The user has access to the file with owner or editor rights
-#    And User want to upload the file with name "test_positive"
-#    When The user press the Update button
-#    And Choose the file with name 'test_negative' from its PC directory
-#    Then File is not uploaded
-#    And The user is notified that a "The file you try to update has a different name"
+Feature:  File updating
+  As an owner or editor, I want to update the file so that the correct version could be used.
+
+  Rule: user should be registered.
+
+    Scenario: Create user and get JWT token
+      Given Send request for create user for updating file
+      And The user send request for upload file "TestUpload.txt"
+
+    Scenario: 1 File updating
+      When The user send request for updating file "TestUpload.txt"
+      Then Response status 200 updating
+
+    Scenario: 2 User can not update file with incorrect bearer
+      When The user send request for updating file "TestUpload.txt" with incorrect bearer
+      Then Response status 203 updating
+
+    Scenario: 3 User can not update file if auth is empty
+      When The user send request for updating file "TestUpload.txt" and bearer is empty
+      Then Response status 203 updating
+
+    Scenario: 4 User can not update file if the file is not exist
+      When The user send request for updating file "TestUpload.txt" if the file is not exist
+      Then Response status 404 updating
+
+    Scenario: 5 User can not update file if the file is invalid
+        #hash = 4 invalid
+      When The user send request for updating file "TestUpload.txt" if the file is invalid
+      Then Response status 422 updating
+
+
+
+#    put:
+#    - "multipart/form-data"
+
+#    parameters:
+#    - name: "hash"
+#    in: "formData"
+#    required: true
+#    type: "string"
+
+#    - name: "file"
+#    in: "formData"
+#    description: "File to upload."
+#    required: true
+#    type: "file"
+
+#    responses:
+#    "200":
+#    description: "Updated folder with this file"
+#    "203":
+#    description: "Not Authorized"
+#    "404":
+#    description: "Folder not exist" //hash = 64 invalid
+#    "422":
+#    description: "Invalid file hash supplied" //hash = 4 symbols
+#    security:
+#    - Bearer: []

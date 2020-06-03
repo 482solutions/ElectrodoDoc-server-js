@@ -13,21 +13,21 @@ Feature: Files view
 
     Scenario: 1 File view
       When User sends a request for a file from the root folder
-      Then Response status 200 file view
+      Then Response status 200 view
 
     Scenario: 2 User can not send request to view file without auth
       When User sends a request for a file from the root folder without auth
-      Then Response status 203 file view
+      Then Response status 203 view
 
     Scenario: 3 User can not send request to view file with empty auth
       When User sends a request for a file from the root folder with empty auth
-      Then Response status 203 file view
+      Then Response status 203 view
 
     Scenario: 4 User can not get file by incorrect hash
       When User sends a request for a file by incorrect hash
-      Then Response status 404 file view
+      Then Response status 404 view
 
     Scenario: 5 User can not get file without hash
       When User sends a request for a file without hash
-      Then Response status 404 file view
+      Then Response status 404 view
 

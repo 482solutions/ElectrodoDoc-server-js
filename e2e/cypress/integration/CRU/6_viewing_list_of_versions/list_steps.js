@@ -178,7 +178,8 @@ When(/^The user send request for list of previous version with incorrect bearer$
   cy.request({
     method: 'GET',
     headers: headers,
-    url: `${basic}/versions/${hash}`
+    url: `${basic}/versions/${hash}`,
+    failOnStatusCode: false
   }).then((resp) => {
     // user = resp
     console.log(resp)
@@ -191,7 +192,8 @@ When(/^The user send request for list if bearer is empty$/, function () {
   cy.request({
     method: 'GET',
     headers: headers,
-    url: `${basic}/versions/${hash}`
+    url: `${basic}/versions/${hash}`,
+    failOnStatusCode: false
   }).then((resp) => {
     // user = resp
     console.log(resp)
@@ -204,7 +206,8 @@ When(/^The user send request for get list with incorrect hash$/, function () {
   cy.request({
     method: 'GET',
     headers: headers,
-    url: `${basic}/versions/${hash}`
+    url: `${basic}/versions/${hash}`,
+    failOnStatusCode: false
   }).then((resp) => {
     // user = resp
     console.log(resp)

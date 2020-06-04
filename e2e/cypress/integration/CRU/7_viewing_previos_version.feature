@@ -8,14 +8,13 @@ Feature:  Viewing previous version
   Rule: user should be registered.
 
     Scenario: Create user and get JWT token
-      Given Send request for create user for updating file
+      Given Send request for create user for getting previous version
       And The user send request for upload file 1 version
 #      First version of the file should contain text "Hello, World!"
       And Change file 1 version
       And The user send request for updating file to 2 version
 #      Second version of the file should contain text "Good morning!"
       And Send request for list of the previous versions
-#      Get list of hash
 
     Scenario: 1 Viewing previous version
       When The user send request for viewing previous version
@@ -33,33 +32,3 @@ Feature:  Viewing previous version
     Scenario: 4 User can not get previous version with incorrect hash
       When The user send request for viewing previous version with incorrect hash
       Then Response status 404 previous version
-
-
-#    /file/{hash}/{cid}:
-#    get:
-#    tags:
-#    - "file_system"
-#    summary: "Download file"
-#    description: "Downloading file from current folder"
-#    operationId: "downloadFile"
-#    parameters:
-#    - name: "hash"
-#    in: "path"
-#    description: "The file hash"
-#    required: true
-#    type: "string"
-#    - name: "cid"
-#    in: "path"
-#    description: "The file version"
-#    required: true
-#    type: "string"
-#    responses:
-#    "200":
-#    description: "File to download"
-#    "203":
-#    description: "Not Authorized"
-#    "404":
-#    description: "File not found"
-#    security:
-#    - Bearer: []
-

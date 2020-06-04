@@ -31,7 +31,7 @@ export function getPassword () {
 
 export function getLogin () {
   return generate({
-    length: 10,
+    length: 12,
     lowercase: true,
     uppercase: true,
   })

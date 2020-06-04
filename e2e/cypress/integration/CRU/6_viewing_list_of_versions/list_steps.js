@@ -1,5 +1,5 @@
-import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin } from '../../../support/commands'
+import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
+import { getLogin, getPassword } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
 const basic = 'api/v1'
@@ -8,6 +8,15 @@ const headers = {
 }
 
 let user, token, login, email, password, cert, csr, privateKey, folderData
+
+let getFileHash = (nameOfFile) => {
+  let files = JSON.parse(folderData.folder.files)
+  for (let key in files) {
+    if (nameOfFile === files[key].name) {
+      return files[key].hash
+    }
+  }
+}
 
 before(() => {
   login = getLogin() + 'list'
@@ -112,11 +121,11 @@ Given(/^The user send request for upload txt file$/, () => {
   }).as('Send txt').wait(2000)
 });
 
-Given(/^Change txt file$/, function () {
+Given(/^Change txt file$/, () => {
   cy.writeFile('cypress/fixtures/TestUpload.txt', textAfter)
 });
 
-Given(/^The user send request for updating txt file$/, function () {
+Given(/^The user send request for updating txt file$/,  () => {
   cy.readFile('cypress/fixtures/TestUpload.txt').then((str) => {
 
     expect(str).to.equal(textAfter)
@@ -125,13 +134,13 @@ Given(/^The user send request for updating txt file$/, function () {
     const myHeaders = new Headers({
       'Authorization': `Bearer ${token}`
     })
+
     let formData = new FormData()
-    formData.append('name', 'TestUpload')
-    formData.append('parentFolder', user.body.folder)
+    formData.append('hash', getFileHash('TestUpload'))
     formData.append('file', blob)
 
     fetch(`${basic}/file`, {
-      method: 'POST',
+      method: 'PUT',
       headers: myHeaders,
       body: formData,
       redirect: 'follow'
@@ -147,6 +156,59 @@ Given(/^The user send request for updating txt file$/, function () {
       console.log(data)
     })
   }).as('Send txt').wait(2000)
+})
+
+When(/^Send request for list of the previous versions of txt file$/, () => {
+  const hash = getFileHash('TestUpload')
+  headers.Authorization = `Bearer ${token}`
+  cy.request({
+    method: 'GET',
+    headers: headers,
+    url: `${basic}/versions/${hash}`
+  }).then((resp) => {
+    // user = resp
+    expect(resp.body.files.length).to.equal(2)
+    console.log(resp)
+  })
+});
+
+When(/^The user send request for list of previous version with incorrect bearer$/, () => {
+  const hash = getFileHash('TestUpload')
+  headers.Authorization = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
+  cy.request({
+    method: 'GET',
+    headers: headers,
+    url: `${basic}/versions/${hash}`
+  }).then((resp) => {
+    // user = resp
+    console.log(resp)
+  })
+});
+
+When(/^The user send request for list if bearer is empty$/, function () {
+  const hash = getFileHash('TestUpload')
+  headers.Authorization = `Bearer `
+  cy.request({
+    method: 'GET',
+    headers: headers,
+    url: `${basic}/versions/${hash}`
+  }).then((resp) => {
+    // user = resp
+    console.log(resp)
+  })
+});
+
+When(/^The user send request for get list with incorrect hash$/, function () {
+  const hash = getFileHash('Test')
+  headers.Authorization = `Bearer ${token}`
+  cy.request({
+    method: 'GET',
+    headers: headers,
+    url: `${basic}/versions/${hash}`
+  }).then((resp) => {
+    // user = resp
+    console.log(resp)
+  })
 });
 
 after(() => {

@@ -193,7 +193,7 @@ When(/^User send request for upload file with incorrect token$/, function () {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
         const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`)
+        myHeaders.set('Authorization', `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`)
 
         let formData = new FormData()
         formData.append('name', '5file')

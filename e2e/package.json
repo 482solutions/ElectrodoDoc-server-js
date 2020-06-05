@@ -9,7 +9,7 @@
   "scripts": {
     "test": "cypress run --spec \"**/*.feature\"",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run --spec \"cypress/integration/auth/**/*,**/1_creating_folders.feature,**/2_open_folders.feature,**/3_uploading_file.feature,**/4_files_view.feature,**/8_search.feature\"",
+    "cypress:run": "cypress run --spec \"cypress/integration/auth/**/*,cypress/integration/CRU/**/*\"",
     "cypress:tags": "cypress run -e TAGS='@step'",
     "cypress:report": "cypress run --spec cypress/integration/auth/create_user.feature --reporter mochawesome && open ./mochawesome-report/mochawesome.html",
     "build": "docker ps -a -q | xargs -n 1 -P 8 -I {} docker stop {} && docker system prune -a -f && docker-compose down && docker-compose build && docker-compose up",

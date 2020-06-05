@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:1823",
+  "baseUrl": "http://192.168.88.42:1823",
   "projectId": "mxxwps",
   "video": false,
   "viewportWidth": 1280,
@@ -9,7 +9,7 @@
     "reportDir": "mochawesome-report",
     "overwrite": true,
     "html": true,
-    "json": true
+    "json": false
   }
 }
 

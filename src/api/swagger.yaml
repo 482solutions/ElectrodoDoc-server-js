@@ -244,7 +244,7 @@ paths:
         "203":
           description: "Not Authorized"
         "404":
-          description: "File not exist"
+          description: "Folder not exist"
         "422":
           description: "Invalid file hash supplied"
       security:
@@ -323,6 +323,8 @@ definitions:
       email:
         type: "string"
       password:
+        type: "string"
+      privateKey:
         type: "string"
       CSR:
         type: "string"

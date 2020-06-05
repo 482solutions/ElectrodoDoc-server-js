@@ -33,7 +33,7 @@ module.exports.getFileByName = async function getFileByName(conn, name) {
 };
 
 module.exports.getCerts = async function getCerts(conn, name) {
-  const result = await query(conn, `SELECT cert FROM public.Certs WHERE username = '${name}'`);
+  const result = await query(conn, `SELECT * FROM public.Certs WHERE username = '${name}'`);
   return result.rows;
 };
 
@@ -48,12 +48,12 @@ module.exports.insertFolder = async function insertFolder(conn, name, hash, pare
 };
 
 module.exports.insertFile = async function insertFile(conn, name, hash, versions, parentHash, type) {
-  await query(conn, `INSERT INTO public.Files (name, hash, versions, parentHash, type) VALUES ('${name}', '${hash}', '${versions}, '${parentHash}' , '${type}') `);
+  await query(conn, `INSERT INTO public.Files (name, hash, versions, parentHash, type) VALUES ('${name}', '${hash}', '${versions}', '${parentHash}' , '${type}') `);
   return true;
 };
 
-module.exports.insertCertData = async function insertCertData(conn, name, cert) {
-  await query(conn, `INSERT INTO public.Certs (username, cert) VALUES ('${name}', '${cert}')`);
+module.exports.insertCertData = async function insertCertData(conn, name, cert, privateKey) {
+  await query(conn, `INSERT INTO public.Certs (username, cert, privateKey) VALUES ('${name}', '${cert}', '${privateKey}')`);
   return true;
 };
 
@@ -64,5 +64,10 @@ module.exports.updateUser = async function updateUser(conn, name, col, value) {
 
 module.exports.updateFolder = async function updateFolder(conn, hash, col, value) {
   await query(conn, `UPDATE public.Folders SET ${col} = '${value}' WHERE hash = '${hash}' `);
+  return true;
+};
+
+module.exports.updateFile = async function updateFile(conn, hash, col, value) {
+  await query(conn, `UPDATE public.Files SET ${col} = '${value}' WHERE hash = '${hash}' `);
   return true;
 };

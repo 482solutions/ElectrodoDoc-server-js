@@ -15,7 +15,7 @@ import DB from '../database/utils';
 import { redisClient } from '../adapter/redis';
 
 
-const HOST = process.env.FABRIC_HOST || '167.71.49.240';
+const HOST = process.env.FABRIC_HOST || '172.28.0.3';
 const PORT = process.env.FABRIC_PORT || 7054;
 
 const ca = new FabricCAService(`http://${HOST}:${PORT}`);
@@ -76,7 +76,7 @@ export const changeUser = async (oldPassword, newPassword, token) => {
  * csr byte[]
  * no response value expected for this operation
  * */
-export const createUser = async (login, email, password, csr) => {
+export const createUser = async (login, email, password, privateKey, csr) => {
   if (!login || !login.match(/^[a-zA-Z0-9-_.]{2,20}$/g)) {
     return { code: 422, payload: { message: 'Username is not specified' } };
   }
@@ -97,6 +97,8 @@ export const createUser = async (login, email, password, csr) => {
   if (userList.length !== 0) {
     return { code: 409, payload: { message: 'User with the same name already exists.' } };
   }
+
+  const folder = sha256(login);
   /**
    *
    * @type {FabricCAServices.IEnrollResponse}
@@ -142,11 +144,30 @@ export const createUser = async (login, email, password, csr) => {
       csr,
     });
 
+    const response = await validator.sendTransaction({
+      identity: {
+        label: login,
+        certificate: userData.certificate,
+        privateKey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'saveFolder',
+        props: [login, folder],
+      },
+    });
+    console.log("Save folder ", response)
+
     gateway.disconnect();
-    const folder = sha256(login);
+
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertFolder(conn, login, folder, null);
-    await DB.insertCertData(conn, login, userData.certificate);
+    await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
   } catch (error) {
     // Disconnect from the gateway
@@ -192,6 +213,8 @@ export const logIn = async (login, password, certificate, privateKey) => {
   if (user.password !== password) {
     return { code: 400, payload: { message: 'Invalid password supplied.' } };
   }
+
+  const folder = sha256(user.username);
   const response = await validator.sendTransaction({
     identity: {
       label: user.username,
@@ -205,12 +228,13 @@ export const logIn = async (login, password, certificate, privateKey) => {
       contract: 'org.fabric.marketcontract',
     },
     transaction: {
-      name: 'registerUser',
-      props: [''],
+      name: 'getFolder',
+      props: [folder],
     },
   });
+  console.log("getFolder ", response)
   if (response === null
-    || response.userId.substring(86, 86 + user.username.length) !== user.username) {
+    || response.ownerId.substring(86, 86 + user.username.length) !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };
   }
 

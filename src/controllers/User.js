@@ -18,7 +18,7 @@ export const ChangeUser = (req, res) => {
 export const CreateUser = (req, res) => {
   const body = req.swagger.params.body.value;
 
-  createUser(body.login, body.email, body.password, body.CSR)
+  createUser(body.login, body.email, body.password, body.privateKey, body.CSR)
     .then((response) => {
       utils.writeJson(res, response);
     })

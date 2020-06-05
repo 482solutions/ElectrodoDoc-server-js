@@ -28,6 +28,7 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const username = await validator.getUserFromToken(token);
+  console.log("username ", username)
   const blackToken = await redisGet(token);
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
@@ -52,6 +53,27 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
       return { code: 409, payload: { message: 'Folder with the same already exist' } };
     }
   }
+
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'saveFolder',
+      props: [name, folderHash],
+    },
+  });
+  console.log("Save folder in FileSystemService", response)
+
   const child = {
     name, hash: folderHash,
   };
@@ -90,6 +112,27 @@ export const DownloadFile = async (hash, cid, token) => {
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
+
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'getFile',
+      props: [hash],
+    },
+  });
+  console.log("get file in FileSystemService", response)
+
   return { code: 200, payload: { name: fileFromDB[0].name, type: fileFromDB[0].type, file } };
 };
 
@@ -114,6 +157,26 @@ export const GetFolder = async (hash, token) => {
   if (folderList.length === 0) {
     return { code: 404, payload: { message: 'folder not found.' } };
   }
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'getFolder',
+      props: [hash],
+    },
+  });
+  console.log("get folder in FileSystemService", response)
+
   return { code: 200, payload: { folder: folderList[0] } };
 };
 
@@ -159,9 +222,31 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     cid, time: Math.floor(new Date() / 1000)
   };
   versions.push(version)
+
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'saveFile',
+      props: [name, fileHash, cid],
+    },
+  });
+  console.log("Save file in FileSystemService", response)
+
   await DB.insertFile(conn, name, fileHash, JSON.stringify(versions), parentFolder.hash, contents.mimetype);
   await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
   const folderListAfter = await DB.getFolder(conn, parentFolderHash);
+  console.log(folderListAfter[0])
   return { code: 200, payload: { folder: folderListAfter[0] } };
 };
 
@@ -174,7 +259,41 @@ export const UpdateFile = async (hash, file, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+  const cid = (await fileStorage.upload(contents.buffer)).toString();
+
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'updateFile',
+      props: [ hash, cid],
+    },
+  });
+  console.log("Update file in FileSystemService", response)
+
+  const oldFile = (await DB.getFile(conn, hash))[0];
+  if (oldFile === undefined) {
+    return { code: 404, payload: { message: 'Parent folder not found.' } };
+  }
+  const versions = JSON.parse(oldFile.versions);
+  const version = {
+    cid, time: Math.floor(new Date() / 1000)
+  };
+  versions.push(version)
+  await DB.updateFile(conn, hash, 'versions', JSON.stringify(versions));
+  const fileListAfter = await DB.getFolder(conn, hash);
+  console.log(fileListAfter[0])
+  return { code: 200, payload: { file: fileListAfter[0] } };
 };
 
 /**
@@ -220,5 +339,34 @@ export const Versions = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+
+  const fileFromDB = (await DB.getFile(conn, hash));
+  if (fileFromDB.length === 0) {
+    return { code: 404, payload: { message: 'File not found.' } };
+  }
+
+  const certsList = await DB.getCerts(conn, username);
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: {
+      name: 'getFile',
+      props: [hash],
+    },
+  });
+
+  if (response.versions === undefined){
+    return { code: 404, payload: { message: 'File does not exist in ledger' } };
+  }
+  console.log("get folder in FileSystemService", response)
+  return { code: 200, payload: { message: fileFromDB[0].versions } };
 };

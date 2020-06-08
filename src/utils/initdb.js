@@ -1,6 +1,7 @@
 import connection from '../database/connect';
 import dbrequestor from '../database/utils';
 import configDB from '../database/configDB';
+import { versions } from '../controllers/FileSystem';
 
 async function initdb() {
   const conn = connection(configDB);
@@ -9,7 +10,7 @@ async function initdb() {
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS folders');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS files');
-  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048));');
+  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048), privateKey character varying(2048));');
   await dbrequestor.query(conn, 'ALTER TABLE public.certs OWNER TO admin;');
   await dbrequestor.query(conn, `CREATE TABLE public.users (
       username character varying(100) NOT NULL,

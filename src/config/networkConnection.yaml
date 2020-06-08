@@ -80,7 +80,7 @@ organizations:
 #
 orderers:
   orderer_n1:
-    url: grpc://157.230.99.123:7050
+    url: grpc://172.28.0.5:7050
 
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
@@ -94,7 +94,7 @@ orderers:
 peers:
   peer1:
     # this URL is used to send endorsement and query requests
-    url: grpc://165.22.77.44:7051
+    url: grpc://172.28.0.4:7051
 
     grpcOptions:
       ssl-target-name-override: peer1
@@ -106,7 +106,7 @@ peers:
 #
 certificateAuthorities:
   ca-org1:
-    url: http://167.71.49.240:7054
+    url: http://172.28.0.3:7054
     # the properties specified under this object are passed to the 'http' client verbatim when
     # making the request to the Fabric-CA server
     httpOptions:

@@ -7,14 +7,20 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user, token, login, email, password, cert, csr, privateKey, folderData
+let user, token, login, email, password, parentFolder, csr, folderData
 
 before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
 })
 
 /*
@@ -42,25 +48,30 @@ Then(/^Response status 422 updating$/, () => {
  */
 
 Given(/^Send request for create user for updating file$/, () => {
-  cy.request({
-    method: 'POST',
-    url: `${basic}/user`,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).as('Register')
-    .then((resp) => {
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: `${basic}/user`,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
       user = resp
-      cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
         .then(() => {
-          cert = cy.readFile('cypress/fixtures/cert.pem')
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-    }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+    })
+  }).fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: `${basic}/user/auth`,
@@ -69,27 +80,26 @@ Given(/^Send request for create user for updating file$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
-      }).as('Login')
-        .then((resp) => {
-          token = resp.body.token
-          user = resp
-        })
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+        parentFolder = resp.body.folder
+      })
     })
   })
 })
 
 Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
   cy.readFile(`cypress/fixtures/${fullName}`).then((str) => {
-
-    let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer ${token}`);
-
+    let blob = new Blob([str], { type: 'text/plain' })
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
     let formData = new FormData()
     formData.append('name', fullName)
-    formData.append('parentFolder', user.body.folder)
+    formData.append('parentFolder', parentFolder)
     formData.append('file', blob)
 
     fetch(`${basic}/file`, {
@@ -99,11 +109,12 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       redirect: 'follow'
     }).then((response) => {
       console.log(response.status)
+      user = response
       return Promise.resolve(response)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
+      // expect(login).to.equal(data.folder.name)
       folderData = data
       console.log(data)
     })

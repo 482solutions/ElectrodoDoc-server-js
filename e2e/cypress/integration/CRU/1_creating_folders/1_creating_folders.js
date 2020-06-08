@@ -8,14 +8,15 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user, token, login, email, password, cert, csr, privateKey
+let user, token, login, email, password, csr, parentFolder
 
 before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
     .readFile('cypress/fixtures/privateKey.pem')
     .then((text) => {
       expect(text).to.include('-----BEGIN PRIVATE KEY-----')
@@ -37,93 +38,104 @@ When(/^Response status 201$/, () => {
 
 Then(/^Response status 203$/, () => {
   expect(203).to.eq(user.status)
-});
+})
 
 Then(/^Response status 409$/, () => {
   expect(409).to.eq(user.status)
-});
+})
 
 Then(/^Response status 422$/, () => {
   expect(422).to.eq(user.status)
-});
+})
 
 /*
   Implementation of the steps from **.feature
  */
 
 Given(/^Send request for create user and get token$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/user',
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).then((resp) => {
-    user = resp
-    cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
-      .then(() => {
-        cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
-          expect(text).to.include('-----BEGIN CERTIFICATE-----')
-          expect(text).to.include('-----END CERTIFICATE-----')
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: `${basic}/user`,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
+      user = resp
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+        .then(() => {
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-      })
+    })
   }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+    cy.fixture('privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
-        url: basic + '/user/auth',
+        url: `${basic}/user/auth`,
         headers: headers,
         body: {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
       }).then((resp) => {
         token = resp.body.token
         user = resp
+        parentFolder = resp.body.folder
       })
     })
   })
-});
+})
 
 Given(/^User send request for create folder in root folder with name (.*) from list$/, (foldersName) => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
       'name': foldersName,
-      'parentFolder':  sha256(login)
+      'parentFolder': parentFolder
     },
   }).then((resp) => {
     user = resp
   })
-});
+})
 
-Given(/^User send request for create folder in user's folder with name (.*) from list$/,  (names) => {
-  headers.Authorization = 'Bearer ' + token
-  cy.request({
-    method: 'POST',
-    url: basic + '/folder',
-    headers: headers,
-    body: {
-      //TODO
-      'name': names,
-      'parentFolder': ''//хеш созданной ранее папки sha256('Folder-1')
-    },
-  }).then((resp) => {
-    user = resp
-  })
-});
+Given(/^User send request for create folder in user's folder with name "([^"]*)"$/, (name) => {
+  let folders = JSON.parse(user.body.folder.folders)
+  for (let key in folders) {
+    if (name === folders[key].name) {
+      let folder = folders[key].hash
+      if (folder !== undefined) {
+        headers.Authorization = `Bearer ${token}`
+        cy.request({
+          method: 'POST',
+          url: basic + '/folder',
+          headers: headers,
+          body: {
+            'name': name,
+            'parentFolder': folder
+          },
+        }).then((resp) => {
+          user = resp
+        })
+      }
+    }
+  }
+})
 
 Given(/^User send request for create folder in root folder without name$/, () => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
@@ -136,54 +148,55 @@ Given(/^User send request for create folder in root folder without name$/, () =>
   }).then((resp) => {
     user = resp
   })
-});
+})
 
 Given(/^User send request for create folder in root folder with name (.*) from list than 64 characters and more$/, (bigName) => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
       'name': bigName,
-      'parentFolder':  sha256(login)
+      'parentFolder': sha256(login)
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})
+
 Given(/^User send request for create folder in root folder with existing name (.*) from list$/, (existingName) => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
       'name': existingName,
-      'parentFolder':  sha256(login)
+      'parentFolder': sha256(login)
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})
 
 Given(/^User send request for create folder with spaces in folders name$/, function () {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
       'name': '     ',
-      'parentFolder':  sha256(login)
+      'parentFolder': sha256(login)
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})
 
 Given(/^User send request for create folder without auth$/, function () {
   headers.Authorization = 'Bearer '
@@ -193,10 +206,10 @@ Given(/^User send request for create folder without auth$/, function () {
     headers: headers,
     body: {
       'name': 'qwerty',
-      'parentFolder':  sha256(login)
+      'parentFolder': sha256(login)
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})

@@ -8,13 +8,7 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user
-let token
-let login
-let email
-let password
-let csr
-
+let user, token, login, email, password, csr
 
 beforeEach(() => {
   login = getLogin() + 'JWT'
@@ -39,25 +33,28 @@ Then(/^I got response status 203 out$/, () => {
 });
 
 Given(/^I send request for create user and get token$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).then((resp) => {
-    user = resp
-    cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
-      .then(() => {
-        cy.readFile('cypress/fixtures/cert.pem').then((text) => {
-          expect(text).to.include('-----BEGIN CERTIFICATE-----')
-          expect(text).to.include('-----END CERTIFICATE-----')
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: basic,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem,
+      },
+    }).then((resp) => {
+      user = resp
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+        .then(() => {
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-      })
+    })
   })
 
   cy.readFile('cypress/fixtures/cert.pem').then((certificate) => {
@@ -103,7 +100,7 @@ Given(/^I send request for logout without token$/, () => {
 })
 
 Given(/^I send request for logout with incorrect token$/,  () => {
-  headers.Authorization = 'Bearer ' + 'incorrectToken'
+  headers.Authorization = 'Bearer incorrectToken'
   cy.request({
     method: 'DELETE',
     url: basic + '/logout',

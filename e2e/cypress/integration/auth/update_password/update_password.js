@@ -9,21 +9,20 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user
-let token
-let login
-let email
-let password
-let cert
-let csr
-let privateKey
+let user, token, login, email, password, csr
 
 before('Get user data', () => {
-  login = getLogin() + 'JWT'
+  login = getLogin() + 'auth'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
 })
 
 When(/^I got response status 200 in update$/, () => {
@@ -43,40 +42,35 @@ Then(/^I got response status 422 in update$/, () => {
 });
 
 Given(/^I send request for create new user and getting JWT token$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).then((resp) => {
-    user = resp
-    cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
-      .then(() => {
-        cert = cy.readFile('cypress/fixtures/cert.pem').then((text) => {
-          expect(text).to.include('-----BEGIN CERTIFICATE-----')
-          expect(text).to.include('-----END CERTIFICATE-----')
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: basic,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
+      user = resp
+      console.log(resp.body)
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+        .then(() => {
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-      })
     })
-  cy.wait(2000)
-
+  })
 })
 
 Then(/^I send request for getting JWT token$/, () => {
-  privateKey = cy.readFile('cypress/fixtures/privateKey.pem').then((text) => {
-    expect(text).to.include('-----BEGIN PRIVATE KEY-----')
-    expect(text).to.include('-----END PRIVATE KEY-----')
-  })
-
-  cy.fixture('cert.pem').then((cert) => {
-
-    cy.fixture('privateKey.pem').then((privateKey) => {
-
+  cy.readFile('cypress/fixtures/cert.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: basic + '/auth',
@@ -85,19 +79,18 @@ Then(/^I send request for getting JWT token$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
       }).then((resp) => {
-        token = resp.body.token
         user = resp
+        token = resp.body.token
       })
     })
   })
-  cy.wait(2000)
-});
+})
 
 Given(/^I send request for update password$/, () => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'PUT',
     url: basic,
@@ -108,11 +101,11 @@ Given(/^I send request for update password$/, () => {
     }
   }).then((resp) => {
     user = resp
-    cy.log(user)
+    console.log(resp.body)
   })
 })
 
-Given(/^I send request for update password without auth$/, () => {
+Given(/^I send request for update password without Bearer$/, () => {
   headers.Authorization = 'Bearer '
   cy.request({
     method: 'PUT',
@@ -124,13 +117,13 @@ Given(/^I send request for update password without auth$/, () => {
     },
     failOnStatusCode: false
   }).then((resp) => {
-    user = resp
-    cy.log(user)
+    // user = resp
+    console.log(resp.body)
   })
 });
 
 Given(/^I send request for update password to empty new password$/, () => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'PUT',
     url: basic,
@@ -142,12 +135,12 @@ Given(/^I send request for update password to empty new password$/, () => {
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
-    cy.log(user)
+    console.log(resp.body)
   })
 });
 
 Given(/^I send request for update password update request with the same data$/, () => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'PUT',
     url: basic,
@@ -159,11 +152,11 @@ Given(/^I send request for update password update request with the same data$/, 
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
-    cy.log(user)
+    console.log(resp.body)
   })
 });
 Given(/^I send request for update password without old password$/, () => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'PUT',
     url: basic,
@@ -175,6 +168,6 @@ Given(/^I send request for update password without old password$/, () => {
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
-    cy.log(user)
+    console.log(resp.body)
   })
 });

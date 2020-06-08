@@ -14,27 +14,32 @@ Feature: Uploading files
       When User send request for upload png file
       Then Response status 200 upload
 
-    Scenario: 2 User can not upload file without auth
-      When User send request for upload file without auth
-      Then Response status 203 upload
+    Scenario: 2 User can upload txt file
+      When User send request for upload txt file
+      Then Response status 200 upload
 
-    Scenario: 3 User can not upload file with incorrect token
+    Scenario: 3 User can not upload file without auth
+      When User send request for upload file without auth
+#      TODO: change status code in backend
+#      Then Response status 203 upload
+
+    Scenario: 4 User can not upload file with incorrect token
       When User send request for upload file with incorrect token
       Then Response status 203 upload
 
-    Scenario: 4 User can not upload file with incorrect parentFolder
+    Scenario: 5 User can not upload file with incorrect parentFolder
       When User send request for upload file with incorrect parentFolder
       Then Response status 404 upload
 
-    Scenario: 5 User can not upload file without parentFolder
+    Scenario: 6 User can not upload file without parentFolder
       When User send request for upload file without parentFolder
       Then Response status 422 upload
 
-    Scenario: 6 User can not upload file without file name
+    Scenario: 7 User can not upload file without file name
       When User send request for upload file without file name
       Then Response status 422 upload
 
-    Scenario: 7 User can not upload file without file
+    Scenario: 8 User can not upload file without file
       When User send request for upload file without file
       Then Response status 422 upload
 

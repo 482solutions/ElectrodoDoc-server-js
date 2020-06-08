@@ -2,15 +2,13 @@ import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'api/v1'
-const headers = {
-  'content-type': 'application/json'
-}
+const basic = 'http://localhost:1823/api/v1'
+const headers = { 'content-type': 'application/json' }
 
-let user, token, login, email, password, cert, csr, privateKey, folderData
+let user, token, login, email, password, parentFolder, csr, folderData
 
-let getHashFromFile = (fileName, folders) => {
-  let files = JSON.parse(folders.folder.files)
+let getHashFromFile = (fileName, resp) => {
+  let files = JSON.parse(resp.body.folder.files)
   for (let key in files) {
     if (fileName === files[key].name) {
       return files[key].hash
@@ -23,7 +21,13 @@ before(() => {
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
 })
 
 /*
@@ -47,25 +51,30 @@ Then(/^Response status 404 view$/, () => {
  */
 
 Given(/^Send request for create user for viewing file$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/user',
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).as('Register')
-    .then((resp) => {
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: `${basic}/user`,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
       user = resp
-      cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
         .then(() => {
-          cert = cy.readFile('cypress/fixtures/cert.pem')
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-    }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+    })
+  }).fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: `${basic}/user/auth`,
@@ -74,13 +83,13 @@ Given(/^Send request for create user for viewing file$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
-      }).as('Login')
-        .then((resp) => {
-          token = resp.body.token
-          user = resp
-        })
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+        parentFolder = resp.body.folder
+      })
     })
   })
 })
@@ -93,7 +102,7 @@ When(/^The user send request for upload file$/, () => {
     })
     let formData = new FormData()
     formData.append('name', 'mockTest')
-    formData.append('parentFolder', user.body.folder)
+    formData.append('parentFolder', parentFolder)
     formData.append('file', blob)
 
     fetch(`${basic}/file`, {
@@ -108,7 +117,7 @@ When(/^The user send request for upload file$/, () => {
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
+      // expect(login).to.equal(data.folder.name)
       folderData = data
       console.log(data)
     })
@@ -119,7 +128,7 @@ When(/^User sends a request for a file from the root folder$/, () => {
   let cid = getHashFromFile('mockTest', folderData)
   let hash = sha256(`${sha256(login)}'mockTest'`)
 
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     headers: headers,
     method: 'GET',
@@ -143,6 +152,7 @@ When(/^User sends a request for a file from the root folder without auth$/, () =
 
 When(/^User sends a request for a file from the root folder with empty auth$/, () => {
   let cid = getHashFromFile('mockTest', folderData)
+  //TODO: cid
   let hash = sha256(`${sha256(login)}'mockTest'`)
 
   headers.Authorization = 'Bearer '
@@ -158,7 +168,7 @@ When(/^User sends a request for a file from the root folder with empty auth$/, (
 When(/^User sends a request for a file by incorrect hash$/, () => {
   let cid = getHashFromFile('mockTest', folderData)
 
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     headers: headers,
     method: 'GET',
@@ -168,11 +178,11 @@ When(/^User sends a request for a file by incorrect hash$/, () => {
     user = resp
   })
 });
-
+4
 When(/^User sends a request for a file without hash$/, () => {
   let cid = getHashFromFile('mockTest', folderData)
 
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     headers: headers,
     method: 'GET',

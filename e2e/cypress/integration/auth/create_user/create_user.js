@@ -5,11 +5,7 @@ import { getCSR } from '../../../support/csr'
 
 const basic = 'api/v1/user'
 
-let user
-let login
-let email
-let password
-let csr
+let user, login, email, password, csr
 
 const headers = {
   'content-type': 'application/json'
@@ -45,6 +41,7 @@ Given(/^I send request for "POST" user$/, async () => {
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -65,6 +62,7 @@ Given(/^I send request for POST user without login$/, () => {
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -99,6 +97,7 @@ Given(/^I send request for POST user without csr$/, () => {
       'login': login,
       'email': password,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': ''
     },
     failOnStatusCode: false
@@ -116,6 +115,7 @@ Given(/^I send request for POST user without email$/, () => {
       'login': login,
       'email': '',
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -133,6 +133,7 @@ Given(/^I send a request for "POST" user twice$/, () => {
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -146,6 +147,7 @@ Given(/^I send a request for "POST" user twice$/, () => {
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -163,6 +165,7 @@ Given(/^I send request for POST user with login in field email$/, () => {
       'login': login,
       'email': login,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -180,6 +183,7 @@ Given(/^I send request for POST user with email in field login$/, () => {
       'login': email,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -188,50 +192,52 @@ Given(/^I send request for POST user with email in field login$/, () => {
   })
 })
 
-// Given(/^I send request for POST user with username that contain 2 uppercase letters$/, () => {
-//   let login = generate({
-//     length: 2,
-//     lowercase: false
-//   })
-//   let csr = getCSR({ username: login })
-//   cy.request({
-//     method: 'POST',
-//     url: basic,
-//     headers: headers,
-//     body: {
-//       'login': login,
-//       'email': email,
-//       'password': password,
-//       'CSR': csr.csrPem
-//     },
-//   }).then((resp) => {
-//     expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
-//     expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
-//     user = resp
-//   })
-// })
-// Given(/^I send request for POST user with username that contain 2 lowercase letters$/, () => {
-//   let login = generate({
-//     length: 2,
-//     uppercase: false
-//   })
-//   let csr = getCSR({ username: login })
-//   cy.request({
-//     method: 'POST',
-//     url: basic,
-//     headers: headers,
-//     body: {
-//       'login': login,
-//       'email': email,
-//       'password': password,
-//       'CSR': csr.csrPem
-//     },
-//   }).then((resp) => {
-//     expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
-//     expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
-//     user = resp
-//   })
-// })
+Given(/^I send request for POST user with username that contain 2 uppercase letters$/, () => {
+  let login = generate({
+    length: 2,
+    lowercase: false
+  })
+  let csr = getCSR({ username: login })
+  cy.request({
+    method: 'POST',
+    url: basic,
+    headers: headers,
+    body: {
+      'login': login,
+      'email': email,
+      'password': password,
+      'privateKey': csr.privateKeyPem,
+      'CSR': csr.csrPem
+    },
+  }).then((resp) => {
+    expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
+    expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
+    user = resp
+  })
+})
+Given(/^I send request for POST user with username that contain 2 lowercase letters$/, () => {
+  let login = generate({
+    length: 2,
+    uppercase: false
+  })
+  let csr = getCSR({ username: login })
+  cy.request({
+    method: 'POST',
+    url: basic,
+    headers: headers,
+    body: {
+      'login': login,
+      'email': email,
+      'password': password,
+      'privateKey': csr.privateKeyPem,
+      'CSR': csr.csrPem
+    },
+  }).then((resp) => {
+    expect(resp.body.cert).to.contain('-----BEGIN CERTIFICATE-----')
+    expect(resp.body.cert).to.contain('-----END CERTIFICATE-----')
+    user = resp
+  })
+})
 
 Given(/^I send request for POST user with username that contain 20 uppercase letters$/, () => {
   let login = generate({
@@ -247,6 +253,7 @@ Given(/^I send request for POST user with username that contain 20 uppercase let
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -270,6 +277,7 @@ Given(/^I send request for POST user with username that contain 20 lowercase let
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -293,6 +301,7 @@ Given(/^I send request for POST user with username that contain 3 uppercase lett
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -316,6 +325,7 @@ Given(/^I send request for POST user with username that contain 3 lowercase lett
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -339,6 +349,7 @@ Given(/^I send request for POST user with username that contain 19 uppercase let
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -362,6 +373,7 @@ Given(/^I send request for POST user with username that contain 19 lowercase let
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -386,6 +398,7 @@ Given(/^I send request for POST user with username that contain only numbers$/, 
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -408,6 +421,7 @@ Given(/^I send request for POST user with username that contain letters in upper
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
   }).then((resp) => {
@@ -431,6 +445,7 @@ Given(/^I send request for POST user with username that contain 2 words with upp
       'login': login + '  ' + login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -453,6 +468,7 @@ Given(/^I send request for POST user with username that contain only 1 letter$/,
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -475,6 +491,7 @@ Given(/^I send request for POST user with username that contain 21 characters$/,
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -494,6 +511,7 @@ Given(/^I send request for POST user with username that contain only spaces$/, (
       'login': login,
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -511,6 +529,7 @@ Given(/^I send request for POST user with email that contain 2 @@$/, () => {
       'login': login,
       'email': login + '@@gmail.com',
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -532,6 +551,7 @@ Given(/^I send request for POST user with password that contain 101 characters$/
         numbers: true,
         symbols: true,
       }),
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -553,6 +573,7 @@ Given(/^I send request for POST user with password that contain 100 characters$/
         numbers: true,
         symbols: true,
       }),
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
@@ -569,13 +590,14 @@ Given(/^I send request for POST user without field password$/, function () {
     body: {
       'login': login,
       'email': email,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})
 
 Given(/^I send request for POST user without field email$/, function () {
   cy.request({
@@ -585,13 +607,14 @@ Given(/^I send request for POST user without field email$/, function () {
     body: {
       'login': login,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})
 
 Given(/^I send request for POST user without field login$/, function () {
   cy.request({
@@ -601,10 +624,11 @@ Given(/^I send request for POST user without field login$/, function () {
     body: {
       'email': email,
       'password': password,
+      'privateKey': csr.privateKeyPem,
       'CSR': csr.csrPem
     },
     failOnStatusCode: false
   }).then((resp) => {
     user = resp
   })
-});
+})

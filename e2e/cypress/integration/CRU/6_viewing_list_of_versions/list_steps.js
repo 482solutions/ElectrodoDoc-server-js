@@ -2,29 +2,35 @@ import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { getLogin, getPassword } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'api/v1'
-const headers = {
-  'content-type': 'application/json'
-}
+const basic = 'http://localhost:1823/api/v1'
+const headers = { 'content-type': 'application/json' }
 
-let user, token, login, email, password, cert, csr, privateKey, folderData
+let user, token, login, email, password, parentFolder, csr, folderData, data
 
-let getFileHash = (nameOfFile) => {
-  let files = JSON.parse(folderData.folder.files)
+before(() => {
+  login = getLogin() + 'JWT'
+  password = getPassword()
+  email = login + '@gmail.com'
+  csr = getCSR({ username: login })
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
+})
+
+let getHashFromFile = (fileName, files) => {
   for (let key in files) {
-    if (nameOfFile === files[key].name) {
+    if (fileName === files[key].name) {
       return files[key].hash
     }
   }
 }
 
-before(() => {
-  login = getLogin() + 'list'
-  password = getPassword()
-  email = login + '@gmail.com'
-  csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
-})
+const textBefore = 'Good night!'
+const textAfter = 'Good morning!'
 
 /*
   Expect response status:
@@ -47,25 +53,30 @@ Then(/^Response status 404 list$/, function () {
  */
 
 Given(/^Send request for create user for getting list of versions$/, () => {
-  cy.request({
-    method: 'POST',
-    url: `${basic}/user`,
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).as('Register')
-    .then((resp) => {
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: `${basic}/user`,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
       user = resp
-      cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
         .then(() => {
-          cert = cy.readFile('cypress/fixtures/cert.pem')
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-    }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+    })
+  }).fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: `${basic}/user/auth`,
@@ -74,25 +85,23 @@ Given(/^Send request for create user for getting list of versions$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
-      }).as('Login')
-        .then((resp) => {
-          token = resp.body.token
-          // user = resp
-        })
+      }).then((resp) => {
+        token = resp.body.token
+        user = resp
+        parentFolder = resp.body.folder
+      })
     })
   })
 });
-
-const textBefore = 'Hello, World!'
-const textAfter = 'Good Morning!'
 
 Given(/^The user send request for upload txt file$/, () => {
   cy.writeFile('cypress/fixtures/TestUpload.txt', textBefore)
   cy.readFile('cypress/fixtures/TestUpload.txt').then((str) => {
 
     expect(str).to.equal(textBefore)
+
     let blob = new Blob([str], { type: 'text/plain' })
     const myHeaders = new Headers({
       'Authorization': `Bearer ${token}`
@@ -108,7 +117,6 @@ Given(/^The user send request for upload txt file$/, () => {
       body: formData,
       redirect: 'follow'
     }).then((response) => {
-      console.log(response.status)
       user = response
       return Promise.resolve(response)
     }).then((response) => {
@@ -116,7 +124,6 @@ Given(/^The user send request for upload txt file$/, () => {
     }).then((data) => {
       expect(login).to.equal(data.folder.name)
       folderData = data
-      console.log(data)
     })
   }).as('Send txt').wait(2000)
 });
@@ -127,25 +134,21 @@ Given(/^Change txt file$/, () => {
 
 Given(/^The user send request for updating txt file$/,  () => {
   cy.readFile('cypress/fixtures/TestUpload.txt').then((str) => {
-
-    expect(str).to.equal(textAfter)
-
     let blob = new Blob([str], { type: 'text/plain' })
     const myHeaders = new Headers({
       'Authorization': `Bearer ${token}`
     })
-
     let formData = new FormData()
-    formData.append('hash', getFileHash('TestUpload'))
+    formData.append('name', 'TestUpload.txt')
+    formData.append('parentFolder', parentFolder)
     formData.append('file', blob)
 
     fetch(`${basic}/file`, {
-      method: 'PUT',
+      method: 'POST',
       headers: myHeaders,
       body: formData,
       redirect: 'follow'
     }).then((response) => {
-      console.log(response.status)
       user = response
       return Promise.resolve(response)
     }).then((response) => {
@@ -153,23 +156,50 @@ Given(/^The user send request for updating txt file$/,  () => {
     }).then((data) => {
       expect(login).to.equal(data.folder.name)
       folderData = data
-      console.log(data)
     })
-  }).as('Send txt').wait(2000)
+  }).as('Send txt').wait(5000)
 })
 
 When(/^Send request for list of the previous versions of txt file$/, () => {
-  const hash = getFileHash('TestUpload')
-  headers.Authorization = `Bearer ${token}`
-  cy.request({
-    method: 'GET',
-    headers: headers,
-    url: `${basic}/versions/${hash}`
-  }).then((resp) => {
-    // user = resp
-    expect(resp.body.files.length).to.equal(2)
-    console.log(resp)
-  })
+  let files = JSON.parse(folderData.folder.files)
+  let hashFile = getHashFromFile('TestUpload.txt', files)
+
+  cy.writeFile(`cypress/fixtures/TestUpload.txt`, textAfter).as('Write text to the file')
+  cy.readFile(`cypress/fixtures/TestUpload.txt`).then((str) => {
+
+    expect(str).to.equal(textAfter)
+
+    let blob = new Blob([str], {type: 'text/plain'})
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
+
+    let formData = new FormData()
+    formData.append('hash', hashFile)
+    formData.append('file', blob)
+
+    fetch(`${basic}/file`, {
+      method: 'PUT',
+      headers: myHeaders,
+      body: formData,
+    }).then((response) => {
+      user = response
+      return Promise.resolve(user)
+    }).then((response) => {
+      return response.json()
+    }).then((data) => {
+      data =
+      // let files = JSON.parse(data.file.files)
+      // expect(files[0].versions[0].cid).to.not.equal(files[1].versions[1].cid)
+      expect(JSON.parse(data.file.files).length).to.equal(2)
+
+    })
+  }).as('Update txt file').wait(5000)
+});
+
+Then(/^Response should contain 2 different cid$/, function () {
+  let files = JSON.parse(data.file.files)
+  expect(files[0].versions[0].cid).to.not.equal(files[1].versions[1].cid)
 });
 
 When(/^The user send request for list of previous version with incorrect bearer$/, () => {

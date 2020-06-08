@@ -262,6 +262,8 @@ export const UpdateFile = async (hash, file, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
+  file.fieldname = file.fieldname + Math.floor(new Date() / 1000)
+  console.log(file.buffer.toString('utf-8'))
   const cid = (await fileStorage.upload(file.buffer)).toString();
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({

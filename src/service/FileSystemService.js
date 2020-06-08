@@ -262,8 +262,7 @@ export const UpdateFile = async (hash, file, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  const cid = (await fileStorage.upload(contents.buffer)).toString();
-
+  const cid = (await fileStorage.upload(file.buffer)).toString();
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
     identity: {
@@ -283,7 +282,6 @@ export const UpdateFile = async (hash, file, token) => {
     },
   });
   console.log("Update file in FileSystemService", response)
-
   const oldFile = (await DB.getFile(conn, hash))[0];
   if (oldFile === undefined) {
     return { code: 404, payload: { message: 'Parent folder not found.' } };
@@ -293,9 +291,12 @@ export const UpdateFile = async (hash, file, token) => {
     cid, time: Math.floor(new Date() / 1000)
   };
   versions.push(version)
+  const parentFolder = (await DB.getFolder(conn, oldFile.parenthash))[0];
+  const files = JSON.parse(parentFolder.files);
+  files.push({ name: oldFile.name, hash, versions });
   await DB.updateFile(conn, hash, 'versions', JSON.stringify(versions));
-  const fileListAfter = await DB.getFolder(conn, hash);
-  console.log(fileListAfter[0])
+  await DB.updateFolder(conn, oldFile.parenthash, 'files', JSON.stringify(files));
+  const fileListAfter = await DB.getFolder(conn, oldFile.parenthash);
   return { code: 200, payload: { file: fileListAfter[0] } };
 };
 

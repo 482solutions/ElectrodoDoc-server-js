@@ -1,8 +1,6 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
-import { sha256 } from 'js-sha256'
-// import { versions } from '../../../../../src/controllers/FileSystem'
 
 const basic = 'http://localhost:1823/api/v1'
 const headers = { 'content-type': 'application/json' }
@@ -128,7 +126,6 @@ When(/^The user send request for upload file$/, () => {
     }).then((data) => {
       expect(login).to.equal(data.folder.name)
       folderData = data
-      // console.log(data)
     })
   }).as('Send txt').wait(5000)
 })

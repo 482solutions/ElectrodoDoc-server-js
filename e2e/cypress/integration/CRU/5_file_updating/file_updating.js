@@ -2,10 +2,8 @@ import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
 
-const basic = 'api/v1'
-const headers = {
-  'content-type': 'application/json'
-}
+const basic = 'http://localhost:1823/api/v1'
+const headers = { 'content-type': 'application/json' }
 
 let user, token, login, email, password, parentFolder, csr, folderData
 
@@ -22,6 +20,17 @@ before(() => {
       expect(text).to.include('-----END PRIVATE KEY-----')
     })
 })
+
+let getHashFromFile = (fileName, files) => {
+  for (let key in files) {
+    if (fileName === files[key].name) {
+      return files[key].hash
+    }
+  }
+}
+
+const textBefore = 'Good night!'
+const textAfter = 'Good morning!'
 
 /*
   Expect response status:
@@ -93,6 +102,8 @@ Given(/^Send request for create user for updating file$/, () => {
 
 Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
   cy.readFile(`cypress/fixtures/${fullName}`).then((str) => {
+    expect(str).to.equal(textBefore)
+
     let blob = new Blob([str], { type: 'text/plain' })
     const myHeaders = new Headers({
       'Authorization': `Bearer ${token}`
@@ -108,39 +119,30 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       body: formData,
       redirect: 'follow'
     }).then((response) => {
-      console.log(response.status)
       user = response
       return Promise.resolve(response)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      // expect(login).to.equal(data.folder.name)
+      expect(login).to.equal(data.folder.name)
       folderData = data
-      console.log(data)
     })
-  }).as('Send txt file').wait(2000)
+  }).as('Send txt').wait(5000)
 })
 
-const getFileHash = (nameOfFile) => {
-  let files = JSON.parse(folderData.folder.files)
-  for (let key in files) {
-    if (nameOfFile === files[key].name) {
-      return files[key].hash
-    }
-  }
-}
-
 When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
-  let hashFile = getFileHash(fileName)
-  const text = 'Good morning!'
-  cy.writeFile(`cypress/fixtures/${fileName}`, text).as('Write text to the file')
+  let files = JSON.parse(folderData.folder.files)
+  let hashFile = getHashFromFile(fileName, files)
+
+  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
   cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-    expect(str).to.equal(text)
+    expect(str).to.equal(textAfter)
 
     let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer ${user.body.token}`);
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
 
     let formData = new FormData()
     formData.append('hash', hashFile)
@@ -151,29 +153,28 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
       headers: myHeaders,
       body: formData,
     }).then((response) => {
-      console.log(response.status)
       return Promise.resolve(response)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-      console.log(data)
+      expect(JSON.parse(data.file.files).length).to.equal(2)
     })
-  }).as('Update txt file').wait(2000)
+  }).as('Update txt file').wait(5000)
 });
 
 When(/^The user send request for updating file "([^"]*)" and bearer is empty$/, function (fileName) {
-  let hashFile = getFileHash(fileName)
-  const text = 'Good morning!'
-  cy.writeFile(`cypress/fixtures/${fileName}`, text).as('Write text to the file')
+  let files = JSON.parse(folderData.folder.files)
+  let hashFile = getHashFromFile(fileName, files)
+
+  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
   cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-    expect(str).to.equal(text)
+    expect(str).to.equal(textAfter)
 
     let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer `);
+    const myHeaders = new Headers({
+      'Authorization': `Bearer `
+    })
 
     let formData = new FormData()
     formData.append('hash', hashFile)
@@ -184,28 +185,26 @@ When(/^The user send request for updating file "([^"]*)" and bearer is empty$/, 
       headers: myHeaders,
       body: formData,
     }).then((response) => {
-      console.log(response.status)
-      return Promise.resolve(response)
+      user = response
+      return Promise.resolve(user)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-      console.log(data)
+      expect(data.message).to.equal('Not Authorized')
     })
   }).as('Update txt file').wait(2000)
 });
 
 When(/^The user send request for updating file "([^"]*)" if the file is not exist$/, (fileName) => {
-  const text = 'Good night!'
-  cy.writeFile(`cypress/fixtures/${fileName}`, text).as('Write text to the file')
+  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
   cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-    expect(str).to.equal(text)
+    expect(str).to.equal(textAfter)
 
     let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer ${user.body.token}`);
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
 
     let formData = new FormData()
     formData.append('hash', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
@@ -216,31 +215,29 @@ When(/^The user send request for updating file "([^"]*)" if the file is not exis
       headers: myHeaders,
       body: formData,
     }).then((response) => {
-      console.log(response.status)
-      return Promise.resolve(response)
+      user = response
+      return Promise.resolve(user)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-      console.log(data)
+      expect(data.message).to.equal('Parent folder not found.')
     })
   }).as('Update txt file').wait(2000)
 });
 
 When(/^The user send request for updating file "([^"]*)" if the file is invalid$/, (fileName) => {
-  const text = 'Good night!'
-  cy.writeFile(`cypress/fixtures/${fileName}`, text).as('Write text to the file')
+  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
   cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-    expect(str).to.equal(text)
+    expect(str).to.equal(textAfter)
 
     let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer ${user.body.token}`);
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
 
     let formData = new FormData()
-    formData.append('hash', 'hkjvjhv')
+    formData.append('hash', 'sfnsjdkf')
     formData.append('file', blob)
 
     fetch(`${basic}/file`, {
@@ -248,29 +245,29 @@ When(/^The user send request for updating file "([^"]*)" if the file is invalid$
       headers: myHeaders,
       body: formData,
     }).then((response) => {
-      console.log(response.status)
-      return Promise.resolve(response)
+      user = response
+      return Promise.resolve(user)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-      console.log(data)
+      expect(data.message).to.equal('Parent folder not found.')
     })
   }).as('Update txt file').wait(2000)
 });
 
 When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/, (fileName) => {
-  const text = 'Good night!'
-  let hashFile = getFileHash(fileName)
-  cy.writeFile(`cypress/fixtures/${fileName}`, text).as('Write text to the file')
+  let files = JSON.parse(folderData.folder.files)
+  let hashFile = getHashFromFile(fileName, files)
+
+  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
   cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-    expect(str).to.equal(text)
+    expect(str).to.equal(textAfter)
 
     let blob = new Blob([str], {type: 'text/plain'})
-    const myHeaders = new Headers();
-    myHeaders.set("Authorization", `Bearer jhbhblk`);
+    const myHeaders = new Headers({
+      'Authorization': `Bearer kmrglekdn`
+    })
 
     let formData = new FormData()
     formData.append('hash', hashFile)
@@ -279,16 +276,18 @@ When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/
     fetch(`${basic}/file`, {
       method: 'PUT',
       headers: myHeaders,
-      body: formData.set(hash, blob, fileName),
+      body: formData,
     }).then((response) => {
-      console.log(response.status)
-      return Promise.resolve(response)
+      user = response
+      return Promise.resolve(user)
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-      console.log(data)
+      expect(data.message).to.equal('Not Authorized')
     })
   }).as('Update txt file').wait(2000)
 });
+
+after(() => {
+  cy.writeFile('cypress/fixtures/TestUpload.txt', textBefore)
+})

@@ -30,32 +30,5 @@ Feature:  File updating
     Scenario: 5 User can not update file if the file is invalid
         #hash = 4 invalid
       When The user send request for updating file "TestUpload.txt" if the file is invalid
-      Then Response status 422 updating
+      Then Response status 404 updating
 
-
-#    put:
-#    - "multipart/form-data"
-
-#    parameters:
-#    - name: "hash"
-#    in: "formData"
-#    required: true
-#    type: "string"
-
-#    - name: "file"
-#    in: "formData"
-#    description: "File to upload."
-#    required: true
-#    type: "file"
-
-#    responses:
-#    "200":
-#    description: "Updated folder with this file"
-#    "203":
-#    description: "Not Authorized"
-#    "404":
-#    description: "Folder not exist" //hash = 64 invalid
-#    "422":
-#    description: "Invalid file hash supplied" //hash = 4 symbols
-#    security:
-#    - Bearer: []

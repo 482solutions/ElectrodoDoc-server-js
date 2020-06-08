@@ -1,14 +1,23 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
 import { getCSR } from '../../../support/csr'
+import { sha256 } from 'js-sha256'
+// import { versions } from '../../../../../src/controllers/FileSystem'
 
 const basic = 'http://localhost:1823/api/v1'
 const headers = { 'content-type': 'application/json' }
 
 let user, token, login, email, password, parentFolder, csr, folderData
 
-let getHashFromFile = (fileName, resp) => {
-  let files = JSON.parse(resp.body.folder.files)
+let getCidFromFile = (fileName, files) => {
+  for (let key in files) {
+    if (fileName === files[key].name) {
+      return files[key].versions[0].cid
+    }
+  }
+}
+
+let getHashFromFile = (fileName, files) => {
   for (let key in files) {
     if (fileName === files[key].name) {
       return files[key].hash
@@ -117,16 +126,17 @@ When(/^The user send request for upload file$/, () => {
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      // expect(login).to.equal(data.folder.name)
+      expect(login).to.equal(data.folder.name)
       folderData = data
-      console.log(data)
+      // console.log(data)
     })
-  }).as('Send txt').wait(2000)
+  }).as('Send txt').wait(5000)
 })
 
 When(/^User sends a request for a file from the root folder$/, () => {
-  let cid = getHashFromFile('mockTest', folderData)
-  let hash = sha256(`${sha256(login)}'mockTest'`)
+  let files = JSON.parse(folderData.folder.files)
+  let cid = getCidFromFile('mockTest', files)
+  let hash = getHashFromFile('mockTest', files)
 
   headers.Authorization = `Bearer ${token}`
   cy.request({
@@ -135,12 +145,15 @@ When(/^User sends a request for a file from the root folder$/, () => {
     url: `${basic}/file/${hash}/${cid}`
   }).then((resp) => {
     user = resp
+    expect(resp.body.name).to.equal('mockTest')
+    expect(resp.body.file).to.equal('Hello, world!')
   })
 })
 
 When(/^User sends a request for a file from the root folder without auth$/, () => {
-  let cid = getHashFromFile('mockTest', folderData)
-  let hash = sha256(`${sha256(login)}'mockTest'`)
+  let files = JSON.parse(folderData.folder.files)
+  let cid = getCidFromFile('mockTest', files)
+  let hash = getHashFromFile('mockTest', files)
 
   cy.request({
     method: 'GET',
@@ -151,9 +164,9 @@ When(/^User sends a request for a file from the root folder without auth$/, () =
 });
 
 When(/^User sends a request for a file from the root folder with empty auth$/, () => {
-  let cid = getHashFromFile('mockTest', folderData)
-  //TODO: cid
-  let hash = sha256(`${sha256(login)}'mockTest'`)
+  let files = JSON.parse(folderData.folder.files)
+  let cid = getCidFromFile('mockTest', files)
+  let hash = getHashFromFile('mockTest', files)
 
   headers.Authorization = 'Bearer '
   cy.request({
@@ -166,7 +179,8 @@ When(/^User sends a request for a file from the root folder with empty auth$/, (
 });
 
 When(/^User sends a request for a file by incorrect hash$/, () => {
-  let cid = getHashFromFile('mockTest', folderData)
+  let files = JSON.parse(folderData.folder.files)
+  let cid = getCidFromFile('mockTest', files)
 
   headers.Authorization = `Bearer ${token}`
   cy.request({
@@ -178,9 +192,10 @@ When(/^User sends a request for a file by incorrect hash$/, () => {
     user = resp
   })
 });
-4
+
 When(/^User sends a request for a file without hash$/, () => {
-  let cid = getHashFromFile('mockTest', folderData)
+  let files = JSON.parse(folderData.folder.files)
+  let cid = getCidFromFile('mockTest', files)
 
   headers.Authorization = `Bearer ${token}`
   cy.request({

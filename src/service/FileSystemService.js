@@ -215,13 +215,16 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (parentFolder === undefined) {
     return { code: 404, payload: { message: 'Parent folder not found.' } };
   }
-  const files = JSON.parse(parentFolder.files);
-  files.push({ name, hash: fileHash });
+
   const versions = []
   const version = {
     cid, time: Math.floor(new Date() / 1000)
   };
   versions.push(version)
+  const files = JSON.parse(parentFolder.files);
+  files.push({ name, hash: fileHash, versions });
+
+
 
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({

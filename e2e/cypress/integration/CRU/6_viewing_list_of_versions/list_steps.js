@@ -5,7 +5,7 @@ import { getCSR } from '../../../support/csr'
 const basic = 'http://localhost:1823/api/v1'
 const headers = { 'content-type': 'application/json' }
 
-let user, token, login, email, password, parentFolder, csr, folderData, data
+let user, token, login, email, password, parentFolder, csr, folderData, resp
 
 before(() => {
   login = getLogin() + 'JWT'
@@ -107,7 +107,7 @@ Given(/^The user send request for upload txt file$/, () => {
       'Authorization': `Bearer ${token}`
     })
     let formData = new FormData()
-    formData.append('name', 'TestUpload')
+    formData.append('name', 'TestUpload.txt')
     formData.append('parentFolder', user.body.folder)
     formData.append('file', blob)
 
@@ -125,7 +125,7 @@ Given(/^The user send request for upload txt file$/, () => {
       expect(login).to.equal(data.folder.name)
       folderData = data
     })
-  }).as('Send txt').wait(2000)
+  }).as('Send txt').wait(5000)
 });
 
 Given(/^Change txt file$/, () => {
@@ -133,34 +133,6 @@ Given(/^Change txt file$/, () => {
 });
 
 Given(/^The user send request for updating txt file$/,  () => {
-  cy.readFile('cypress/fixtures/TestUpload.txt').then((str) => {
-    let blob = new Blob([str], { type: 'text/plain' })
-    const myHeaders = new Headers({
-      'Authorization': `Bearer ${token}`
-    })
-    let formData = new FormData()
-    formData.append('name', 'TestUpload.txt')
-    formData.append('parentFolder', parentFolder)
-    formData.append('file', blob)
-
-    fetch(`${basic}/file`, {
-      method: 'POST',
-      headers: myHeaders,
-      body: formData,
-      redirect: 'follow'
-    }).then((response) => {
-      user = response
-      return Promise.resolve(response)
-    }).then((response) => {
-      return response.json()
-    }).then((data) => {
-      expect(login).to.equal(data.folder.name)
-      folderData = data
-    })
-  }).as('Send txt').wait(5000)
-})
-
-When(/^Send request for list of the previous versions of txt file$/, () => {
   let files = JSON.parse(folderData.folder.files)
   let hashFile = getHashFromFile('TestUpload.txt', files)
 
@@ -188,59 +160,73 @@ When(/^Send request for list of the previous versions of txt file$/, () => {
     }).then((response) => {
       return response.json()
     }).then((data) => {
-      data =
-      // let files = JSON.parse(data.file.files)
-      // expect(files[0].versions[0].cid).to.not.equal(files[1].versions[1].cid)
-      expect(JSON.parse(data.file.files).length).to.equal(2)
-
+      user = data
+      expect(JSON.parse(user.file.files).length).to.equal(2)
     })
   }).as('Update txt file').wait(5000)
+})
+
+When(/^Send request for list of the previous versions of txt file$/, () => {
+  let files = JSON.parse(folderData.folder.files)
+  let hash = getHashFromFile('TestUpload.txt', files)
+  headers.Authorization = `Bearer ${token}`
+
+  cy.request({
+    method: 'GET',
+    headers: headers,
+    url: `${basic}/versions/${hash}`,
+  }).then((data) => {
+    user = data
+  })
 });
 
 Then(/^Response should contain 2 different cid$/, function () {
-  let files = JSON.parse(data.file.files)
-  expect(files[0].versions[0].cid).to.not.equal(files[1].versions[1].cid)
+  let versions = JSON.parse(user.body.message)
+  expect(versions[0].cid).to.not.equal(versions[1].cid)
 });
 
 When(/^The user send request for list of previous version with incorrect bearer$/, () => {
-  const hash = getFileHash('TestUpload')
+  let files = JSON.parse(folderData.folder.files)
+  let hash = getHashFromFile('TestUpload.txt', files)
   headers.Authorization = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
+
   cy.request({
     method: 'GET',
     headers: headers,
     url: `${basic}/versions/${hash}`,
     failOnStatusCode: false
-  }).then((resp) => {
-    // user = resp
-    console.log(resp)
+  }).then((data) => {
+    user = data
   })
 });
 
 When(/^The user send request for list if bearer is empty$/, function () {
-  const hash = getFileHash('TestUpload')
+  let files = JSON.parse(folderData.folder.files)
+  let hash = getHashFromFile('TestUpload.txt', files)
   headers.Authorization = `Bearer `
+
   cy.request({
     method: 'GET',
     headers: headers,
     url: `${basic}/versions/${hash}`,
     failOnStatusCode: false
-  }).then((resp) => {
-    // user = resp
-    console.log(resp)
+  }).then((data) => {
+    user = data
   })
 });
 
 When(/^The user send request for get list with incorrect hash$/, function () {
-  const hash = getFileHash('Test')
+  let files = JSON.parse(folderData.folder.files)
+  let hash = getHashFromFile('Tes', files)
   headers.Authorization = `Bearer ${token}`
+
   cy.request({
     method: 'GET',
     headers: headers,
     url: `${basic}/versions/${hash}`,
     failOnStatusCode: false
-  }).then((resp) => {
-    // user = resp
-    console.log(resp)
+  }).then((data) => {
+    user = data
   })
 });
 

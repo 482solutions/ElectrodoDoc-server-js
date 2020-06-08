@@ -17,15 +17,15 @@ Feature:  Viewing previous version
       When Send request for list of the previous versions of txt file
       Then Response status 200 list
       And Response should contain 2 different cid
-#
-#    Scenario: 2 User can not get list with incorrect bearer
-#      When The user send request for list of previous version with incorrect bearer
-#      Then Response status 203 list
-#
-#    Scenario: 3 User can not get list if bearer is empty
-#      When The user send request for list if bearer is empty
-#      Then Response status 203 list
-#
-#    Scenario: 4 User can not get list with incorrect hash
-#      When The user send request for get list with incorrect hash
-#      Then Response status 404 list
+
+    Scenario: 2 User can not get list with incorrect bearer
+      When The user send request for list of previous version with incorrect bearer
+      Then Response status 203 list
+
+    Scenario: 3 User can not get list if bearer is empty
+      When The user send request for list if bearer is empty
+      Then Response status 203 list
+
+    Scenario: 4 User can not get list with incorrect hash
+      When The user send request for get list with incorrect hash
+      Then Response status 404 list

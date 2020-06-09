@@ -1,5 +1,12 @@
 {
-  "baseUrl": "http://localhost:1823",
+  "baseUrl": "http://localhost:1823/api/v1",
+  "env": {
+    "respStatus": null,
+    "rootFolder": null,
+    "login": null,
+    "password": null,
+    "email": null
+  },
   "projectId": "mxxwps",
   "video": false,
   "viewportWidth": 1280,

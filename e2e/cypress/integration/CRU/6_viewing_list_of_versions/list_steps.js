@@ -5,7 +5,7 @@ import { getCSR } from '../../../support/csr'
 const basic = 'http://localhost:1823/api/v1'
 const headers = { 'content-type': 'application/json' }
 
-let user, token, login, email, password, parentFolder, csr, folderData, resp
+let user, token, login, email, password, parentFolder, csr, folderData
 
 before(() => {
   login = getLogin() + 'JWT'

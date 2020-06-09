@@ -28,9 +28,9 @@ before(() => {
   Expect response status:
  */
 
-When(/^Response status 200$/, () => {
-  expect(200).to.eq(user.status)
-})
+// When(/^Response status 200$/, () => {
+//   expect(200).to.eq(user.status)
+// })
 When(/^Response status 201$/, () => {
   expect(201).to.eq(user.status)
 })

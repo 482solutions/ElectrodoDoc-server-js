@@ -9,41 +9,44 @@ const headers = {
   'content-type': 'application/json'
 }
 
-let user, token, login, email, password, cert, csr, privateKey, folderData
-
-// let getHashFromFile = (fileName, resp) => {
-//   let files = JSON.parse(resp.body.files)
-//   for (let key in files) {
-//     if (fileName === files[key].name) {
-//       return files[key].hash
-//     }
-//   }
-// }
-
-let getHashFromFolder = (folderName, resp) => {
-  let foldersN = JSON.parse(resp.body.folder.folders)
-  for (let key in foldersN) {
-    if ('testFolder' === foldersN[key].name) {
-      return foldersN[key].hash
-      //TODO add CID
-    }
-  }
-}
+let user, token, login, email, password, parentFolder, csr, folderData, createdFolder
 
 before(() => {
   login = getLogin() + 'JWT'
   password = getPassword()
   email = login + '@gmail.com'
   csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+
+  cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
 })
+
+let getHashFromFile = (fileName, files) => {
+  for (let key in files) {
+    if (fileName === files[key].name) {
+      return files[key].hash
+    }
+  }
+}
+
+let getHashFromFolder = (folderName, folders) => {
+  for (let key in folders) {
+    if (folderName === folders[key].name) {
+      return folders[key].hash
+    }
+  }
+}
 
 /*
   Expect response status:
  */
-When(/^Response status 200 search$/, () => {
-  expect(200).to.eq(user.status)
-})
+// When(/^Response status 200$/, () => {
+//   expect(200).to.eq(Cypress.env('respStatus'))
+// })
 
 Then(/^Response status 203 search$/, () => {
   expect(203).to.eq(user.status)
@@ -58,25 +61,30 @@ Then(/^Response status 404 search$/, () => {
  */
 
 Given(/^Send request for create user for search$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/user',
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).as('Register')
-    .then((resp) => {
-      user = resp
-      cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
+  cy.readFile('cypress/fixtures/privateKey.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: `${basic}/user`,
+      headers: headers,
+      body: {
+        'login': login,
+        'email': email,
+        'password': password,
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
+      expect(resp.status).to.equal(201)
+      cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
         .then(() => {
-          cert = cy.readFile('cypress/fixtures/cert.pem')
+          cy.readFile('cypress/fixtures/cert.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
         })
-    }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
+    })
+  }).fixture('cert.pem').then((cert) => {
+    cy.fixture('privateKey.pem').then((key) => {
       cy.request({
         method: 'POST',
         url: `${basic}/user/auth`,
@@ -85,64 +93,64 @@ Given(/^Send request for create user for search$/, () => {
           'login': login,
           'password': password,
           'certificate': cert,
-          'privateKey': privateKey,
+          'privateKey': key,
         },
-      }).as('Login')
-        .then((resp) => {
-          token = resp.body.token
-          user = resp
-        })
+      }).then((resp) => {
+        token = resp.body.token
+        parentFolder = resp.body.folder
+        // Cypress.env('respStatus', resp.status)
+        expect(resp.status).to.equal(200)
+      })
     })
   })
 })
 
 When(/^User send request for create folder "([^"]*)" in root folder$/, (folderName) => {
-  headers.Authorization = 'Bearer ' + token
+  headers.Authorization = `Bearer ${token}`
   cy.request({
     method: 'POST',
     url: basic + '/folder',
     headers: headers,
     body: {
       'name': folderName,
-      'parentFolder': sha256(login)
+      'parentFolder': parentFolder
     },
-  }).then((resp) => {
-    user = resp
+  }).then((createdFolder) => {
+    expect(createdFolder.status).to.equal(201)
+    console.log(createdFolder.body)
+    //todo: вытащить хеш папки
+    return Promise.resolve(createdFolder)
   })
 })
 
 When(/^The user send request for upload new file to testFolder with name "([^"]*)"$/, (fileName) => {
-  let testFolderHash = getHashFromFolder('testFolder', user)
+  // console.log(createdFolder)
+  cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
 
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
-    Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer ${token}`)
+    let blob = new Blob([str], { type: 'text/plain' })
+    const myHeaders = new Headers({
+      'Authorization': `Bearer ${token}`
+    })
+    let formData = new FormData()
+    formData.append('name', fileName)
+    formData.append('parentFolder', createdFolder)
+    formData.append('file', blob)
 
-        let formData = new FormData()
-        formData.append('name', fileName)
-        formData.append('parentFolder', testFolderHash)
-        formData.append('file', blob)
-
-        fetch(`${basic}/file`, {
-          method: 'POST',
-          headers: myHeaders,
-          body: formData,
-          redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
-        }).then((response) => {
-          return response.json()
-        }).then((data) => {
-          folderData = data
-          expect(testFolderHash).to.equal(folderData.folder.hash)
-        })
-      })
-  })
-  cy.wait(2000)
+    fetch(`${basic}/file`, {
+      method: 'POST',
+      headers: myHeaders,
+      body: formData,
+      redirect: 'follow'
+    }).then((response) => {
+      expect(response.status).to.equal(201)
+      return Promise.resolve(response)
+    }).then((response) => {
+      return response.json()
+    }).then((data) => {
+      expect(login).to.equal(data.folder.name)
+      folderData = data
+    })
+  }).as('Send txt').wait(5000)
 })
 
 When(/^The user send request for search file by name from list (.*)$/, (fileName) => {

@@ -1,6 +1,5 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
 import { getPassword, getLogin } from '../../../support/commands'
-import { sha256 } from 'js-sha256'
 
 const headers = {
   'content-type': 'application/json'

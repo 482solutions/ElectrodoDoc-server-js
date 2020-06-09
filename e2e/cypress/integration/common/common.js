@@ -13,6 +13,10 @@ Then(/^Response status 203$/, () => {
   expect(203).to.eq(Cypress.env('respStatus'))
 })
 
+Then(/^Response status 404$/, () => {
+  expect(404).to.eq(Cypress.env('respStatus'))
+})
+
 Then(/^Response status 409$/, () => {
   expect(409).to.eq(Cypress.env('respStatus'))
 })

@@ -8,26 +8,27 @@ Feature: Files view
   Rule: user should be registered.
 
     Scenario: Create user and get JWT token
-      Given Send request for create user for viewing file
-      When The user send request for upload file
+      Given Send request for create user and get token
+      When User send request for upload txt file
+      Then Response status 200
 
     Scenario: 1 File view
       When User sends a request for a file from the root folder
-      Then Response status 200 view
+      Then Response status 200
 
-    Scenario: 2 User can not send request to view file without auth
-      When User sends a request for a file from the root folder without auth
-      Then Response status 203 view
+    Scenario: 2 User can not send request to view file with incorrect cid
+      When User sends a request for a file from the root folder with incorrect cid
+      Then Response status 404
 
     Scenario: 3 User can not send request to view file with empty auth
       When User sends a request for a file from the root folder with empty auth
-      Then Response status 203 view
+      Then Response status 203
 
     Scenario: 4 User can not get file by incorrect hash
       When User sends a request for a file by incorrect hash
-      Then Response status 404 view
+      Then Response status 404
 
     Scenario: 5 User can not get file without hash
       When User sends a request for a file without hash
-      Then Response status 404 view
+      Then Response status 404
 

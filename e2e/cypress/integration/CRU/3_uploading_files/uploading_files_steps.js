@@ -50,33 +50,6 @@ When(/^User send request for upload png file$/, () => {
   cy.wait(4000)
 })
 
-When(/^User send request for upload txt file$/, function () {
-  cy.readFile('cypress/fixtures/mockTest.txt').then((str) => {
-    let blob = new Blob([str], { type: 'text/plain' })
-
-    let formData = new FormData()
-    formData.append('name', 'mockTest')
-    formData.append('parentFolder', Cypress.env('rootFolder'))
-    formData.append('file', blob)
-
-    fetch(`${URL}/file`, {
-      method: 'POST',
-      headers: myHeaders,
-      body: formData,
-      redirect: 'follow'
-    }).then((resp) => {
-      Cypress.env('respStatus', resp.status)
-      return Promise.resolve(resp)
-    })
-      .then((resp) => {
-        return resp.json()
-      })
-      .then((data) => {
-        expect(Cypress.env('login')).to.equal(data.folder.name)
-      })
-  }).as('Send txt').wait(4000)
-});
-
 When(/^User send request for upload file without auth$/, function () {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')

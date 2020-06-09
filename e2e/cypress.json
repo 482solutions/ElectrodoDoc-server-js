@@ -5,7 +5,8 @@
     "rootFolder": null,
     "login": null,
     "password": null,
-    "email": null
+    "email": null,
+    "filesInRoot": null
   },
   "projectId": "mxxwps",
   "video": false,

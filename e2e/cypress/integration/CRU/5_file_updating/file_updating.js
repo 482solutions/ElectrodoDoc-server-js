@@ -1,5 +1,5 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin, getCidFromFile, getHashFromFile } from '../../../support/commands'
+import { getPassword, getLogin, getHashFromFile } from '../../../support/commands'
 
 const basic = 'http://localhost:1823/api/v1'
 

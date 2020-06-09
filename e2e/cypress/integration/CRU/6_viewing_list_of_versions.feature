@@ -8,24 +8,23 @@ Feature:  Viewing previous version
   Rule: user should be registered.
 
     Scenario: Create user and upload file with 2 versions
-      Given Send request for create user for getting list of versions
-      And The user send request for upload txt file
-      And Change txt file
-      And The user send request for updating txt file
+      Given Send request for create user and get token
+      And The user send request for upload file "TestUpload.txt"
+      And The user send request for updating file "TestUpload.txt"
 
     Scenario: 1 Get list of previous versions
-      When Send request for list of the previous versions of txt file
-      Then Response status 200 list
+      When Send request for list of the previous versions of "TestUpload.txt" file
+      Then Response status 200
       And Response should contain 2 different cid
 
     Scenario: 2 User can not get list with incorrect bearer
       When The user send request for list of previous version with incorrect bearer
-      Then Response status 203 list
+      Then Response status 203
 
     Scenario: 3 User can not get list if bearer is empty
       When The user send request for list if bearer is empty
-      Then Response status 203 list
+      Then Response status 203
 
     Scenario: 4 User can not get list with incorrect hash
       When The user send request for get list with incorrect hash
-      Then Response status 404 list
+      Then Response status 404

@@ -6,7 +6,8 @@
     "login": null,
     "password": null,
     "email": null,
-    "filesInRoot": null
+    "filesInRoot": null,
+    "versions": null
   },
   "projectId": "mxxwps",
   "video": false,

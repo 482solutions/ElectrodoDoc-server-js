@@ -81,5 +81,5 @@ Given(/^Send request for create user and get token$/, () => {
         Cypress.env('rootFolder', resp.body.folder)
       })
     })
-  })
+  }).wait(5000)
 })

@@ -9,7 +9,7 @@ Feature: Files view
 
     Scenario: Create user and get JWT token
       Given Send request for create user and get token
-      When User send request for upload txt file
+      When The user send request for upload file "mockTest.txt"
       Then Response status 200
 
     Scenario: 1 File view

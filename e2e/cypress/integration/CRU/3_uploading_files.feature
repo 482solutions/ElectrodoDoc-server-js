@@ -13,9 +13,9 @@ Feature: Uploading files
     Scenario: 1 User can upload png file
       When User send request for upload png file
       Then Response status 200
-
+#
     Scenario: 2 User can upload txt file
-      When User send request for upload txt file
+      When The user send request for upload file "mockTest.txt"
       Then Response status 200
 
     Scenario: 3 User can not upload file without auth
@@ -40,7 +40,7 @@ Feature: Uploading files
 
     Scenario: 8 User can not upload file without file
       When User send request for upload file without file
-      Then Response status 422
+      Then Response status 400
 
 ##  Scenario: 3 User can not upload file with the same name
 ##    Given The user is authorized

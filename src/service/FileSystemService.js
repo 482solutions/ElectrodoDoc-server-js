@@ -206,6 +206,11 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (!parentFolderHash) {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
+  console.log(contents)
+  if (!contents.buffer || contents.buffer.length === 0) {
+    return { code: 422, payload: { message: 'File is required' } };
+  }
+
 
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();

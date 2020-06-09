@@ -47,10 +47,10 @@ When(/^User send request for upload png file$/, () => {
       })
     })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
 
-When(/^User send request for upload file without auth$/, function () {
+When(/^User send request for upload file without auth$/, () => {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
@@ -71,9 +71,9 @@ When(/^User send request for upload file without auth$/, function () {
         })
       })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file with incorrect parentFolder$/, function () {
+When(/^User send request for upload file with incorrect parentFolder$/, () => {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
@@ -94,9 +94,9 @@ When(/^User send request for upload file with incorrect parentFolder$/, function
         })
       })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file without parentFolder$/, function () {
+When(/^User send request for upload file without parentFolder$/, () => {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
@@ -117,9 +117,9 @@ When(/^User send request for upload file without parentFolder$/, function () {
         })
       })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file with incorrect token$/, function () {
+When(/^User send request for upload file with incorrect token$/, () => {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
@@ -140,9 +140,9 @@ When(/^User send request for upload file with incorrect token$/, function () {
         })
       })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file without file name$/, function () {
+When(/^User send request for upload file without file name$/, () => {
   cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
       .then((blob) => {
@@ -163,10 +163,10 @@ When(/^User send request for upload file without file name$/, function () {
         })
       })
   })
-  cy.wait(4000)
+  cy.wait(5000)
 })
 
-When(/^User send request for upload file without file$/, function () {
+When(/^User send request for upload file without file$/, () => {
   let formData = new FormData()
   formData.append('name', 'empty')
   formData.append('parentFolder', Cypress.env('rootFolder'))
@@ -181,4 +181,5 @@ When(/^User send request for upload file without file$/, function () {
     Cypress.env('respStatus', resp.status)
     return Promise.resolve(resp)
   })
+  cy.wait(5000)
 })

@@ -1,4 +1,4 @@
-import { When } from 'cypress-cucumber-preprocessor/steps'
+import { Given } from 'cypress-cucumber-preprocessor/steps'
 
 const URL = "http://localhost:1823/api/v1"
 
@@ -6,12 +6,12 @@ const myHeaders = new Headers({
   'Authorization': `Bearer ${Cypress.env('token')}`
 })
 
-When(/^User send request for upload txt file$/, () => {
-  cy.readFile('cypress/fixtures/mockTest.txt').then((str) => {
+Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
+  cy.readFile(`cypress/fixtures/${fullName}`).then((str) => {
     let blob = new Blob([str], { type: 'text/plain' })
 
     let formData = new FormData()
-    formData.append('name', 'mockTest')
+    formData.append('name', fullName)
     formData.append('parentFolder', Cypress.env('rootFolder'))
     formData.append('file', blob)
 

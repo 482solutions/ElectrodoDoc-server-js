@@ -8,27 +8,26 @@ Feature:  File updating
   Rule: user should be registered.
 
     Scenario: Create user and get JWT token
-      Given Send request for create user for updating file
+      Given Send request for create user and get token
       And The user send request for upload file "TestUpload.txt"
 
     Scenario: 1 File updating
       When The user send request for updating file "TestUpload.txt"
-      Then Response status 200 updating
+      Then Response status 200
 
     Scenario: 2 User can not update file with incorrect bearer
       When The user send request for updating file "TestUpload.txt" with incorrect bearer
-      Then Response status 203 updating
+      Then Response status 203
 
     Scenario: 3 User can not update file if bearer is empty
       When The user send request for updating file "TestUpload.txt" and bearer is empty
-      Then Response status 203 updating
+      Then Response status 203
 
     Scenario: 4 User can not update file if the file is not exist
       When The user send request for updating file "TestUpload.txt" if the file is not exist
-      Then Response status 404 updating
+      Then Response status 404
 
     Scenario: 5 User can not update file if the file is invalid
-        #hash = 4 invalid
       When The user send request for updating file "TestUpload.txt" if the file is invalid
-      Then Response status 404 updating
+      Then Response status 400
 

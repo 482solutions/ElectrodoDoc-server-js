@@ -1,12 +1,14 @@
 {
   "baseUrl": "http://localhost:1823/api/v1",
   "env": {
+    "RETRIES": 2,
     "respStatus": null,
     "rootFolder": null,
     "login": null,
     "password": null,
     "email": null,
     "filesInRoot": null,
+    "foldersInRoot": null,
     "versions": null
   },
   "projectId": "mxxwps",

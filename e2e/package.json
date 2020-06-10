@@ -7,7 +7,7 @@
     "doc": "../docs"
   },
   "scripts": {
-    "test": "cypress run --spec \"cypress/integration/auth/**.feature\"",
+    "test": "cypress run --spec \"cypress/integration/CRU/**.feature\"",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --spec \"cypress/integration/auth/**/*,cypress/integration/CRU/**/*\"",
     "cypress:tags": "cypress run -e TAGS='@step'",
@@ -30,6 +30,7 @@
     "cypress-cucumber-preprocessor": "^1.9.1",
     "cypress-downloadfile": "^1.1.0",
     "cypress-file-upload": "^4.0.6",
+    "cypress-plugin-retries": "^1.5.2",
     "eslint-plugin-cypress": "^2.10.3",
     "expect.js": "~0.3.1",
     "js-sha256": "^0.9.0",

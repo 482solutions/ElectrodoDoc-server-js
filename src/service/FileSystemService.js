@@ -211,7 +211,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     return { code: 422, payload: { message: 'File is required' } };
   }
 
-
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
   /* Get list of files in parent folder */
@@ -228,7 +227,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   versions.push(version);
   const files = JSON.parse(parentFolder.files);
   files.push({ name, hash: fileHash, versions });
-
 
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({

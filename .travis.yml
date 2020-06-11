@@ -8,7 +8,7 @@ script:
   - npm run lint:js
   - sudo docker system prune -a -f
   - git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
-  - cd woden-network && git checkout feature/WGRND-630 && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
+  - cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
   - cd ..
 #  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
 

@@ -4,7 +4,7 @@ info:
   description: "Specification for Woden REST API"
   version: "1.0.0"
   title: "Woden"
-host: "localhost:8080"
+host: "localhost:1823"
 basePath: "/api/v1"
 schemes:
   - "http"
@@ -297,6 +297,32 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+  /permissions:
+    put:
+      tags:
+        - "permissions"
+      summary: "Change permissions"
+      description: "After change permissions target user get selected permittions\
+        \ for file or folder"
+      operationId: "ChangePermissions"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/changePermissions"
+      responses:
+        "200":
+          description: "Permissions have been changed"
+        "203":
+          description: "Not Authorized"
+        "403":
+          description: "Forbidden"
+        "422":
+          description: "Invalid data"
+      x-swagger-router-controller: "Permissions"
 securityDefinitions:
   Bearer:
     type: "apiKey"
@@ -337,4 +363,12 @@ definitions:
       certificate:
         type: "string"
       privateKey:
+        type: "string"
+  changePermissions:
+    properties:
+      email:
+        type: "string"
+      hash:
+        type: "string"
+      permission:
         type: "string"

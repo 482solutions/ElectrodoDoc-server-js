@@ -1,7 +1,7 @@
 {
   "baseUrl": "http://localhost:1823/api/v1",
   "env": {
-    "RETRIES": 0,
+    "RETRIES": 3,
     "respStatus": null,
     "rootFolder": null,
     "login": null,

@@ -153,7 +153,7 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
-  /file/{hash}:
+  /file/{hash}/{cid}:
     get:
       tags:
         - "file_system"
@@ -164,6 +164,11 @@ paths:
         - name: "hash"
           in: "path"
           description: "The file hash"
+          required: true
+          type: "string"
+        - name: "cid"
+          in: "path"
+          description: "The file version"
           required: true
           type: "string"
       responses:
@@ -318,6 +323,8 @@ definitions:
       email:
         type: "string"
       password:
+        type: "string"
+      privateKey:
         type: "string"
       CSR:
         type: "string"

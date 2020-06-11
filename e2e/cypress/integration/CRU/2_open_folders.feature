@@ -8,13 +8,13 @@ Feature: Open folders
   Rule: user should be registered.
 
     Scenario: 1 Create user and get JWT token
-      Given Send request for create user
+      Given Send request for create user and get token
 
     Scenario Outline: 2 Create folders in root folder
       When The user sent a request to create a folder in the root folder with the name <Names>
       Then Response status 201
       Examples: Folder's Name
-        | Names                 |
+        | Names                |
         | F                    |
         | Folder-1             |
         | folder2              |

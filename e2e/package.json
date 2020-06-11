@@ -7,9 +7,9 @@
     "doc": "../docs"
   },
   "scripts": {
-    "test": "cypress run --spec \"**/*.feature\"",
+    "test": "cypress run --spec \" \"",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run --spec \"cypress/integration/auth/**/*,**/1_creating_folders.feature,**/2_open_folders.feature,**/3_uploading_file.feature,**/4_files_view.feature,**/8_search.feature\"",
+    "cypress:run": "cypress run --spec \"cypress/integration/auth/**/*,cypress/integration/CRU/**/*\"",
     "cypress:tags": "cypress run -e TAGS='@step'",
     "cypress:report": "cypress run --spec cypress/integration/auth/create_user.feature --reporter mochawesome && open ./mochawesome-report/mochawesome.html",
     "build": "docker ps -a -q | xargs -n 1 -P 8 -I {} docker stop {} && docker system prune -a -f && docker-compose down && docker-compose build && docker-compose up",
@@ -26,10 +26,11 @@
     "superagent": "3.7.0"
   },
   "devDependencies": {
-    "cypress": "4.5.0",
+    "cypress": "4.8.0",
     "cypress-cucumber-preprocessor": "^1.9.1",
     "cypress-downloadfile": "^1.1.0",
     "cypress-file-upload": "^4.0.6",
+    "cypress-plugin-retries": "^1.5.2",
     "eslint-plugin-cypress": "^2.10.3",
     "expect.js": "~0.3.1",
     "js-sha256": "^0.9.0",

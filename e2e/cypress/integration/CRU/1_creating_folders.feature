@@ -26,6 +26,10 @@ Feature: Creating folders
         | Папка                |
         | 資料夾                  |
 
+    Scenario: User can create folder in users's folder
+      Given User send request for create folder in user's folder with name "F"
+      Then Response status 201
+#
     Scenario Outline: User cannot create folder with existing name
       Given User send request for create folder in root folder with existing name <existingName> from list
       Then Response status 409

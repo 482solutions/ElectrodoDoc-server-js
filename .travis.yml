@@ -4,10 +4,15 @@ node_js:
 services:
   - docker
 script:
+  - npm run fix:js
   - npm run lint:js
   - sudo docker system prune -a -f
-  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
-  
-  - docker-compose up --build -d
+  - git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
+  - cd woden-network && git checkout feature/WGRND-630 && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
+  - cd ..
+#  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
+
+  - sudo docker-compose up --build -d
+  - sleep 60
   - cd ./e2e && npm i && npm run cypress:run
 

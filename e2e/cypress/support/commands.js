@@ -31,9 +31,32 @@ export function getPassword () {
 
 export function getLogin () {
   return generate({
-    length: 10,
+    length: 12,
     lowercase: true,
     uppercase: true,
   })
 }
 
+export function getCidFromFile (fileName, files) {
+  for (let key in files) {
+    if (fileName === files[key].name) {
+      return files[key].versions[0].cid
+    }
+  }
+}
+
+export function getHashFromFile (fileName, files) {
+  for (let key in files) {
+    if (fileName === files[key].name) {
+      return files[key].hash
+    }
+  }
+}
+
+export function getHashFromFolder (folderName, folders) {
+  for (let key in folders) {
+    if (folderName === folders[key].name) {
+      return folders[key].hash
+    }
+  }
+}

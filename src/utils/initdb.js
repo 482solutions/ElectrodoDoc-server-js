@@ -9,7 +9,7 @@ async function initdb() {
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS folders');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS files');
-  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048));');
+  await dbrequestor.query(conn, 'CREATE TABLE public.certs (username character varying(100), cert character varying(2048), privateKey character varying(2048));');
   await dbrequestor.query(conn, 'ALTER TABLE public.certs OWNER TO admin;');
   await dbrequestor.query(conn, `CREATE TABLE public.users (
       username character varying(100) NOT NULL,
@@ -25,6 +25,7 @@ async function initdb() {
   await dbrequestor.query(conn, `CREATE TABLE public.files (
       name character varying(100) NOT NULL,
       hash character varying(100) NOT NULL,
+      versions character varying(4096),
       type character varying(100) NOT NULL,
       parentHash character varying(100));`);
   await dbrequestor.query(conn, 'ALTER TABLE public.users OWNER TO admin;');

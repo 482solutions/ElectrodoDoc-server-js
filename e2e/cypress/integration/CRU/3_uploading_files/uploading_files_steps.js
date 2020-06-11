@@ -1,266 +1,196 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin } from '../../../support/commands'
-import { getCSR } from '../../../support/csr'
 
-const basic = 'http://localhost:1823/api/v1'
+const URL = 'http://localhost:1823/api/v1'
 
-const headers = {
-  'content-type': 'application/json'
-}
-
-let user
-let token
-let login
-let email
-let password
-let cert
-let csr
-let privateKey
-
-before('Get user data', () => {
-  login = getLogin() + 'JWT'
-  password = getPassword()
-  email = login + '@gmail.com'
-  csr = getCSR({ username: login })
-  privateKey = cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
+const emptyBearer = new Headers({
+  'Authorization': `Bearer `
 })
 
-//------------------------------------------------------------------------------------------
-
-When(/^Response status 200 upload$/, () => {
-  expect(200).to.eq(user.status)
-})
-
-Then(/^Response status 203 upload$/, () => {
-  expect(203).to.eq(user.status)
-})
-
-Then(/^Response status 404 upload$/, () => {
-  expect(404).to.eq(user.status)
-})
-
-Then(/^Response status 422 upload$/, () => {
-  expect(422).to.eq(user.status)
-})
-
-//------------------------------------------------------------------------------------------
-Given(/^Send request for create user for upload$/, () => {
-  cy.request({
-    method: 'POST',
-    url: basic + '/user',
-    headers: headers,
-    body: {
-      'login': login,
-      'email': email,
-      'password': password,
-      'CSR': csr.csrPem
-    },
-  }).as('Register')
-    .then((resp) => {
-      user = resp
-      cert = cy.writeFile('cypress/fixtures/cert.pem', resp.body.cert)
-        .then(() => {
-          cert = cy.readFile('cypress/fixtures/cert.pem')
-        })
-    }).fixture('cert.pem').then((cert) => {
-    cy.fixture('privateKey.pem').then((privateKey) => {
-      cy.request({
-        method: 'POST',
-        url: `${basic}/user/auth`,
-        headers: headers,
-        body: {
-          'login': login,
-          'password': password,
-          'certificate': cert,
-          'privateKey': privateKey,
-        },
-      }).as('Login')
-        .then((resp) => {
-          token = resp.body.token
-          user = resp
-        })
-    })
-  })
+const incorrectBearer = new Headers({
+  'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`
 })
 
 When(/^User send request for upload png file$/, () => {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
+  cy.wait(6000)
+  let token = Cypress.env('token')
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
+    Cypress.Blob.base64StringToBlob(logo, 'image/png').then(async (blob) => {
+
+      let formData = new FormData()
+      formData.append('name', 'image.png')
+      formData.append('parentFolder', Cypress.env('rootFolder'))
+      formData.append('file', blob)
+
+      const resp = await fetch(`${URL}/file`, {
+        method: 'POST',
+        headers: new Headers({
+          'Authorization': `Bearer ${token}`
+        }),
+        body: formData,
+        redirect: 'follow'
+      })
+      const result = await resp.json()
+
+      if (expect(200).to.eq(resp.status)) {
+        Cypress.env('respStatus', resp.status)
+        Cypress.env('filesInRoot', result.folder.files)
+        await expect(Cypress.env('login')).to.equal(result.folder.name)
+      }
+    })
+  }).as('Send png')
+  cy.wait(6000)
+})
+
+When(/^User send request for upload file without auth$/, () => {
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer ${token}`)
+      .then(async (blob) => {
 
         let formData = new FormData()
         formData.append('name', '1file')
-        formData.append('parentFolder', user.body.folder)
+        formData.append('parentFolder', Cypress.env('rootFolder'))
         formData.append('file', blob)
 
-        fetch(`${basic}/file`, {
+        const resp = await fetch(`${URL}/file`, {
           method: 'POST',
-          headers: myHeaders,
+          headers: emptyBearer,
           body: formData,
           redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
-        }).then((response) => {
-          return response.json()
-        }).then((data) => {
-          expect(login).to.equal(data.folder.name)
         })
+
+        if (expect(203).to.eq(resp.status)) {
+          Cypress.env('respStatus', resp.status)
+        }
       })
   })
-  cy.wait(2000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file without auth$/, function () {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
-    Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer `)
 
-        let formData = new FormData()
-        formData.append('name', '1file')
-        formData.append('parentFolder', user.body.folder)
-        formData.append('file', blob)
-
-        fetch(`${basic}/file`, {
-          method: 'POST',
-          headers: myHeaders,
-          body: formData,
-          redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
-        })
-      })
-  })
-  cy.wait(2000)
-})
-When(/^User send request for upload file with incorrect parentFolder$/, function () {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
+When(/^User send request for upload file with incorrect parentFolder$/, () => {
+  let token = Cypress.env('token')
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer ${token}`)
+      .then(async (blob) => {
 
         let formData = new FormData()
         formData.append('name', '1file')
         formData.append('parentFolder', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         formData.append('file', blob)
 
-        fetch(`${basic}/file`, {
+        const resp = await fetch(`${URL}/file`, {
           method: 'POST',
-          headers: myHeaders,
+          headers: new Headers({
+            'Authorization': `Bearer ${token}`
+          }),
           body: formData,
           redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
         })
+
+        if (expect(404).to.eq(resp.status)) {
+          Cypress.env('respStatus', resp.status)
+        }
       })
   })
-  cy.wait(2000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file without parentFolder$/, function () {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
+
+When(/^User send request for upload file without parentFolder$/, () => {
+  let token = Cypress.env('token')
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer ${token}`)
+      .then(async (blob) => {
 
         let formData = new FormData()
         formData.append('name', '1file')
         formData.append('parentFolder', '')
         formData.append('file', blob)
 
-        fetch(`${basic}/file`, {
+        const resp = await fetch(`${URL}/file`, {
           method: 'POST',
-          headers: myHeaders,
+          headers: await new Headers({
+            'Authorization': `Bearer ${token}`
+          }),
           body: formData,
           redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
         })
+
+        if (expect(422).to.eq(resp.status)) {
+          Cypress.env('respStatus', resp.status)
+        }
       })
   })
-  cy.wait(2000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file with incorrect token$/, function () {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
+
+When(/^User send request for upload file with incorrect token$/, () => {
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`)
+      .then(async (blob) => {
 
         let formData = new FormData()
         formData.append('name', '5file')
-        formData.append('parentFolder', user.body.folder)
+        formData.append('parentFolder', Cypress.env('rootFolder'))
         formData.append('file', blob)
 
-        fetch(`${basic}/file`, {
+        const resp = await fetch(`${URL}/file`, {
           method: 'POST',
-          headers: myHeaders,
+          headers: await incorrectBearer,
           body: formData,
           redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
         })
+
+        if (expect(203).to.eq(resp.status)) {
+          Cypress.env('respStatus', resp.status)
+        }
       })
   })
-  cy.wait(2000)
+  cy.wait(5000)
 })
-When(/^User send request for upload file without file name$/, function () {
-  cy.readFile('cypress/fixtures/image.png', 'base64').then((logo) => {
+When(/^User send request for upload file without file name$/, () => {
+  let token = Cypress.env('token')
+  cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png')
-      .then((blob) => {
-        const myHeaders = new Headers()
-        myHeaders.set('Authorization', `Bearer ${token}`)
+      .then(async (blob) => {
 
         let formData = new FormData()
         formData.append('name', '')
-        formData.append('parentFolder', user.body.folder)
+        formData.append('parentFolder', Cypress.env('rootFolder'))
         formData.append('file', blob)
 
-        fetch(`${basic}/file`, {
+        const resp = await fetch(`${URL}/file`, {
           method: 'POST',
-          headers: myHeaders,
+          headers: await new Headers({
+            'Authorization': `Bearer ${token}`
+          }),
           body: formData,
           redirect: 'follow'
-        }).then((response) => {
-          console.log(response.status)
-          user = response
-          return Promise.resolve(response)
         })
+
+        if (expect(422).to.eq(resp.status)) {
+          Cypress.env('respStatus', resp.status)
+        }
       })
   })
-  cy.wait(2000)
+  cy.wait(5000)
 })
 
-When(/^User send request for upload file without file$/, function () {
-  const myHeaders = new Headers()
-  myHeaders.set('Authorization', `Bearer ${token}`)
-
+When(/^User send request for upload file without file$/, async () => {
   let formData = new FormData()
   formData.append('name', 'empty')
-  formData.append('parentFolder', user.body.folder)
+  formData.append('parentFolder', Cypress.env('rootFolder'))
   formData.append('file', '')
 
-  fetch(`${basic}/file`, {
+  const resp = await fetch(`${URL}/file`, {
     method: 'POST',
-    headers: myHeaders,
+    headers: await new Headers({
+      'Authorization': `Bearer ${incorrectBearer}`
+    }),
     body: formData,
     redirect: 'follow'
-  }).then((response) => {
-    console.log(response.status)
-    user = response
-    return Promise.resolve(response)
   })
-});
+
+  if (expect(400).to.eq(resp.status)) {
+    Cypress.env('respStatus', resp.status)
+  }
+  cy.wait(4000)
+})

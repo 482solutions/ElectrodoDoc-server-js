@@ -24,7 +24,8 @@ export const createFolder = (req, res) => {
 export const downloadFile = (req, res) => {
   const token = req.headers.authorization;
   const hash = req.swagger.params.hash.value;
-  DownloadFile(hash, token)
+  const cid = req.swagger.params.cid.value;
+  DownloadFile(hash, cid, token)
     .then((response) => {
       utils.writeJson(res, response);
     })

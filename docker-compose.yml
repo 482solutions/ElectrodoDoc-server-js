@@ -42,8 +42,10 @@ services:
       - '5432:5432'
     volumes:
       - database_postgres:/var/lib/postgresql
+#    networks:
+#      - woden
     networks:
-      - woden
+      - front_default
 
 #  pgadmin:
 #    image: dpage/pgadmin4
@@ -73,8 +75,6 @@ services:
     container_name: ipfs
     depends_on:
       - redis
-    #    networks:
-    #      - woden
     network_mode: service:backend
     volumes:
       - $HOME/ipfs/staging:/export
@@ -96,7 +96,10 @@ volumes:
 #    file: ./networkConnection.yaml
 
 # Networks to be created to facilitate communication between containers
-networks:
-  woden:
-    driver: bridge
+#networks:
+#  woden:
+#    driver: bridge
 
+networks:
+  front_default:
+    external: true

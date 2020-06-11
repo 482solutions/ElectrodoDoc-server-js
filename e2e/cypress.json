@@ -1,5 +1,16 @@
 {
-  "baseUrl": "http://localhost:1823",
+  "baseUrl": "http://localhost:1823/api/v1",
+  "env": {
+    "RETRIES": 3,
+    "respStatus": null,
+    "rootFolder": null,
+    "login": null,
+    "password": null,
+    "email": null,
+    "filesInRoot": null,
+    "foldersInRoot": null,
+    "versions": null
+  },
   "projectId": "mxxwps",
   "video": false,
   "viewportWidth": 1280,
@@ -9,7 +20,7 @@
     "reportDir": "mochawesome-report",
     "overwrite": true,
     "html": true,
-    "json": true
+    "json": false
   }
 }
 

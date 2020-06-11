@@ -53,3 +53,10 @@ export function getHashFromFile (fileName, files) {
   }
 }
 
+export function getHashFromFolder (folderName, folders) {
+  for (let key in folders) {
+    if (folderName === folders[key].name) {
+      return folders[key].hash
+    }
+  }
+}

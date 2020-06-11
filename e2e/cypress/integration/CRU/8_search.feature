@@ -7,35 +7,26 @@ Feature:  Search of files and folders
   Rule: user should be registered and has files in folders.
 
     Scenario: Create user and upload file to folder
-      Given Send request for create user for search
+      Given Send request for create user and get token
       When User send request for create folder "testFolder" in root folder
       And The user send request for upload new file to testFolder with name "mockTest.txt"
-#
-#    Scenario Outline: 1 Search file
-#      When The user send request for search file by name from list <fileName>
-#      Then Response status 200 search
-#      Examples: fileName
-#        | fileName  |
-#        | 1file.png |
-#        | 1file     |
-#        | 1         |
-#        | file      |
-#        | .png      |
-#
-#    Scenario Outline: 2 Search file by word in the uppercase
-#      When The user send request for search file by invalid name from list <nameToUpper>
-#      Then Response status 404 search
-#      Examples: nameToUpper
-#        | nameToUpper |
-#        | 1FILE.png   |
-#        | 1FILE       |
-#        | FILE        |
-#        | .PNG        |
-#
-#    Scenario: 3 User can not search file without auth
-#      When Send request for for search file without auth
-#      Then Response status 203 search
-#
-#    Scenario: 4 User can not search file with empty auth
-#      When Send request for for search file empty auth
-#      Then Response status 203 search
+
+    Scenario Outline: 1 Search file
+      When The user send request for search file by name from list <fileName>
+      Then Response status 200
+      Examples: fileName
+        | fileName     |
+        | mockTest.txt |
+        | mockTest     |
+        | mock         |
+        | Test         |
+        | .txt         |
+        | t            |
+
+    Scenario: 2 User can not search file without auth
+      When Send request for for search file without auth
+      Then Response status 203
+
+    Scenario: 3 User can not search file with empty auth
+      When Send request for for search file empty auth
+      Then Response status 203

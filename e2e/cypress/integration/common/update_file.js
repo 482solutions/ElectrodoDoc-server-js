@@ -4,39 +4,44 @@ import { getHashFromFile } from '../../support/commands'
 const basic = 'http://localhost:1823/api/v1'
 
 const textAfter = 'Good morning!'
+const textBefore = 'Good night!'
 
 When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
   const files = JSON.parse(Cypress.env('filesInRoot'))
   let hashFile = getHashFromFile(fileName, files)
 
-  cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
-  cy.readFile(`cypress/fixtures/${fileName}`).then((str) => {
+  cy.readFile(`cypress/fixtures/${fileName}`).then((str1) => {
+    expect(str1).to.equal(textBefore)
 
-    expect(str).to.equal(textAfter)
+    cy.writeFile(`cypress/fixtures/${fileName}`, textAfter).as('Write text to the file')
+    cy.readFile(`cypress/fixtures/${fileName}`).then((str2) => {
 
-    let blob = new Blob([str], {type: 'text/plain'})
+      expect(str2).to.equal(textAfter)
 
-    const myHeaders = new Headers({
-      'Authorization':  `Bearer ${Cypress.env('token')}`
-    })
+      let blob = new Blob([str2], { type: 'text/plain' })
 
-    let formData = new FormData()
-    formData.append('hash', hashFile)
-    formData.append('file', blob)
-
-    fetch(`${basic}/file`, {
-      method: 'PUT',
-      headers: myHeaders,
-      body: formData,
-    }).then((resp) => {
-      Cypress.env('respStatus', resp.status)
-      return Promise.resolve(resp)
-    })
-      .then((resp) => {
-        return resp.json()
+      const myHeaders = new Headers({
+        'Authorization': `Bearer ${Cypress.env('token')}`
       })
-      .then((data) => {
-        expect(Cypress.env('login')).to.equal(data.file.name)
+
+      let formData = new FormData()
+      formData.append('hash', hashFile)
+      formData.append('file', blob)
+
+      fetch(`${basic}/file`, {
+        method: 'PUT',
+        headers: myHeaders,
+        body: formData,
+      }).then((resp) => {
+        Cypress.env('respStatus', resp.status)
+        return Promise.resolve(resp)
       })
-  }).as('Update txt file').wait(6000)
-});
+        .then((resp) => {
+          return resp.json()
+        })
+        .then((data) => {
+          expect(Cypress.env('login')).to.equal(data.file.name)
+        })
+    }).as('Update txt file').wait(6000)
+  })
+})

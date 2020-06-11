@@ -1,15 +1,8 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin } from '../../../support/commands'
 
 const headers = {
   'content-type': 'application/json'
 }
-
-before(() => {
-  Cypress.env('login', getLogin())
-  Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
-})
 
 Given(/^User send request for create folder in root folder with name (.*) from list$/, (foldersName) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
@@ -22,13 +15,13 @@ Given(/^User send request for create folder in root folder with name (.*) from l
       'parentFolder': Cypress.env('rootFolder')
     },
   }).then((resp) => {
+    Cypress.env('foldersInRoot', resp.body.folder.folders)
     Cypress.env('respStatus', resp.status)
-  })
+  }).wait(2000)
 })
 
 Given(/^User send request for create folder in user's folder with name "([^"]*)"$/, (name) => {
-  let rootFolder = Cypress.env('rootFolder')
-  let folders = JSON.parse(rootFolder.folders)
+  let folders = JSON.parse(Cypress.env('foldersInRoot'))
 
   for (let key in folders) {
     if (name === folders[key].name) {
@@ -45,6 +38,7 @@ Given(/^User send request for create folder in user's folder with name "([^"]*)"
             'parentFolder': folder
           },
         }).then((resp) => {
+          expect(resp.body.folder.name).to.eq(name)
           Cypress.env('respStatus', resp.status)
         })
       }
@@ -100,7 +94,7 @@ Given(/^User send request for create folder in root folder with existing name (.
   })
 })
 
-Given(/^User send request for create folder with spaces in folders name$/,  () => {
+Given(/^User send request for create folder with spaces in folders name$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   cy.request({
     method: 'POST',

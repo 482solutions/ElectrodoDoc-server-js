@@ -1,7 +1,6 @@
 import connection from '../database/connect';
 import dbrequestor from '../database/utils';
 import configDB from '../database/configDB';
-import { versions } from '../controllers/FileSystem';
 
 async function initdb() {
   const conn = connection(configDB);

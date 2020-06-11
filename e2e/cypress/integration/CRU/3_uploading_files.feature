@@ -13,7 +13,7 @@ Feature: Uploading files
     Scenario: 1 User can upload png file
       When User send request for upload png file
       Then Response status 200
-#
+
     Scenario: 2 User can upload txt file
       When The user send request for upload file "mockTest.txt"
       Then Response status 200

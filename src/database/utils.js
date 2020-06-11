@@ -1,5 +1,4 @@
 import query from './query';
-import { versions } from '../controllers/FileSystem';
 
 module.exports.query = query;
 
@@ -47,8 +46,14 @@ module.exports.insertFolder = async function insertFolder(conn, name, hash, pare
   return true;
 };
 
-module.exports.insertFile = async function insertFile(conn, name, hash, versions, parentHash, type) {
-  await query(conn, `INSERT INTO public.Files (name, hash, versions, parentHash, type) VALUES ('${name}', '${hash}', '${versions}', '${parentHash}' , '${type}') `);
+module.exports.insertFile = async function insertFile(conn,
+  name,
+  hash,
+  versions,
+  parentHash,
+  type) {
+  await query(conn,
+    `INSERT INTO public.Files (name, hash, versions, parentHash, type) VALUES ('${name}', '${hash}', '${versions}', '${parentHash}', '${type}')`);
   return true;
 };
 

@@ -1,23 +1,17 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin, getCidFromFile, getHashFromFile } from '../../../support/commands'
+import { getCidFromFile, getHashFromFile } from '../../../support/commands'
 
 const headers = {
   'content-type': 'application/json'
 }
 
-before(() => {
-  Cypress.env('login', getLogin())
-  Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
-})
-
-const files = JSON.parse(Cypress.env('filesInRoot'))
-
 When(/^User sends a request for a file from the root folder$/, () => {
+  const files = JSON.parse(Cypress.env('filesInRoot'))
+  cy.wait(3000)
   expect(files.length).to.equal(1)
 
-  let cid = getCidFromFile('mockTest', files)
-  let hash = getHashFromFile('mockTest', files)
+  let cid = getCidFromFile('mockTest.txt', files)
+  let hash = getHashFromFile('mockTest.txt', files)
 
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   cy.request({
@@ -25,14 +19,16 @@ When(/^User sends a request for a file from the root folder$/, () => {
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
-    expect(resp.body.name).to.equal('mockTest')
-    expect(resp.body.file).to.equal('Hello, world!')
-
-    Cypress.env('respStatus', resp.status)
+    if (expect(200).to.eq(resp.status)) {
+      expect(resp.body.name).to.equal('mockTest.txt')
+      expect(resp.body.file).to.equal('Hello, world!')
+      Cypress.env('respStatus', resp.status)
+    }
   })
 })
 
 When(/^User sends a request for a file from the root folder with incorrect cid$/, () => {
+  const files = JSON.parse(Cypress.env('filesInRoot'))
   expect(files.length).to.equal(1)
 
   let hash = getHashFromFile('mockTest', files)
@@ -42,11 +38,14 @@ When(/^User sends a request for a file from the root folder with incorrect cid$/
     url: `/file/${hash}/incorrectCID`,
     failOnStatusCode: false
   }).then((resp) => {
-    Cypress.env('respStatus', resp.status)
+    if (expect(404).to.eq(resp.status)) {
+      Cypress.env('respStatus', resp.status)
+    }
   })
 });
 
 When(/^User sends a request for a file from the root folder with empty auth$/, () => {
+  const files = JSON.parse(Cypress.env('filesInRoot'))
   expect(files.length).to.equal(1)
 
   let cid = getCidFromFile('mockTest', files)
@@ -59,11 +58,14 @@ When(/^User sends a request for a file from the root folder with empty auth$/, (
     url: `/file/${hash}/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
-    Cypress.env('respStatus', resp.status)
+    if (expect(203).to.eq(resp.status)) {
+      Cypress.env('respStatus', resp.status)
+    }
   })
 });
 
 When(/^User sends a request for a file by incorrect hash$/, () => {
+  const files = JSON.parse(Cypress.env('filesInRoot'))
   expect(files.length).to.equal(1)
 
   let cid = getCidFromFile('mockTest', files)
@@ -74,11 +76,14 @@ When(/^User sends a request for a file by incorrect hash$/, () => {
     url: `/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
-    Cypress.env('respStatus', resp.status)
+    if (expect(404).to.eq(resp.status)) {
+      Cypress.env('respStatus', resp.status)
+    }
   })
 });
 
 When(/^User sends a request for a file without hash$/, () => {
+  const files = JSON.parse(Cypress.env('filesInRoot'))
   expect(files.length).to.equal(1)
 
   let cid = getCidFromFile('mockTest', files)
@@ -89,6 +94,8 @@ When(/^User sends a request for a file without hash$/, () => {
     url: `/file/*/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
-    Cypress.env('respStatus', resp.status)
+    if (expect(404).to.eq(resp.status)) {
+      Cypress.env('respStatus', resp.status)
+    }
   })
 });

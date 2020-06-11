@@ -1,15 +1,8 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin } from '../../../support/commands'
 
 const headers = {
   'content-type': 'application/json'
 }
-
-before(() => {
-  Cypress.env('login', getLogin())
-  Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
-})
 
 let parseResp
 
@@ -131,7 +124,6 @@ Given(/^The user sends a request for a folder without authorization$/, () => {
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    console.log(resp.body)
   })
 })
 

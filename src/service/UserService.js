@@ -161,7 +161,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         props: [login, folder],
       },
     });
-    console.log("Save folder ", response)
+    console.log('Save folder ', response);
 
     gateway.disconnect();
 
@@ -232,7 +232,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
       props: [folder],
     },
   });
-  console.log("getFolder ", response)
+  console.log('getFolder ', response);
   if (response === null
     || response.ownerId.substring(86, 86 + user.username.length) !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };

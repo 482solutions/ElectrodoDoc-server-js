@@ -1,13 +1,7 @@
 import { When, Then, Given } from 'cypress-cucumber-preprocessor/steps'
-import { getPassword, getLogin, getHashFromFile } from '../../../support/commands'
+import { getHashFromFile } from '../../../support/commands'
 
 const basic = 'http://localhost:1823/api/v1'
-
-before(() => {
-  Cypress.env('login', getLogin())
-  Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
-})
 
 const files = JSON.parse(Cypress.env('filesInRoot'))
 

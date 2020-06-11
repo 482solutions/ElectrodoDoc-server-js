@@ -42,7 +42,7 @@ export const changeUser = async (oldPassword, newPassword, token) => {
     return { code: 422, payload: 'You cannot change the password to the same' };
   }
 
-  if (!newPassword) {
+  if (!newPassword || newPassword.length !== 64) {
     return { code: 422, payload: 'New password is empty' };
   }
 

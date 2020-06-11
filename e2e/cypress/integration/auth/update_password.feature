@@ -21,6 +21,10 @@ Feature: Update user password
     Given I send request for update password to empty new password
     Then Response status 422
 
+  Scenario: User can not update password to new password with spaces
+    Given I send request for update password to new password with spaces
+    Then Response status 422
+
   Scenario: New password and old password can not be the same
     Given I send request for update password update request with the same data
     Then Response status 422

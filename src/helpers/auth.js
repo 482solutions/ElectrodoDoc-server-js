@@ -6,7 +6,6 @@ import path from 'path';
 
 const issuer = '482solutions';
 
-
 exports.verifyToken = function verifyToken(req, authOrSecDef, token, callback) {
   function sendError() {
     return { code: 404, payload: { message: 'Invalid token supplied.' } };

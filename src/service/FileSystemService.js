@@ -69,7 +69,7 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     },
     transaction: {
       name: 'saveFolder',
-      props: [name, folderHash],
+      props: [name, folderHash, parentFolderHash],
     },
   });
   console.log('Save folder in FileSystemService', response);
@@ -211,7 +211,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     return { code: 422, payload: { message: 'File is required' } };
   }
 
-
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
   /* Get list of files in parent folder */
@@ -229,7 +228,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   const files = JSON.parse(parentFolder.files);
   files.push({ name, hash: fileHash, versions });
 
-
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
     identity: {
@@ -245,7 +243,7 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     },
     transaction: {
       name: 'saveFile',
-      props: [name, fileHash, cid],
+      props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
     },
   });
   console.log('Save file in FileSystemService', response);

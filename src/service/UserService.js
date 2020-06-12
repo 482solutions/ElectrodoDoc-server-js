@@ -14,7 +14,6 @@ import connection from '../database/connect';
 import DB from '../database/utils';
 import { redisClient } from '../adapter/redis';
 
-
 const HOST = process.env.FABRIC_HOST || '172.28.0.3';
 const PORT = process.env.FABRIC_PORT || 7054;
 
@@ -64,7 +63,6 @@ export const changeUser = async (oldPassword, newPassword, token) => {
   await DB.updateUser(conn, username, 'password', newPassword);
   return { code: 200, payload: { message: 'User password successfully changed.' } };
 };
-
 
 /**
  * Create user
@@ -158,7 +156,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       },
       transaction: {
         name: 'saveFolder',
-        props: [login, folder],
+        props: [login, folder, 'root'],
       },
     });
     console.log('Save folder ', response);
@@ -175,7 +173,6 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     return { code: 400, payload: { message: error } };
   }
 };
-
 
 /**
  * Login user into the system
@@ -243,7 +240,6 @@ export const logIn = async (login, password, certificate, privateKey) => {
     { expiresIn: '1h' });
   return { code: 200, payload: { message: 'Welcome', token, folder: user.folder } };
 };
-
 
 /**
  * Logout user from the system

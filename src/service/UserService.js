@@ -234,7 +234,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
   });
   console.log('getFolder ', response);
   if (response === null
-    || response.ownerId.substring(86, 86 + user.username.length) !== user.username) {
+    || response.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };
   }
 

@@ -156,7 +156,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       },
       transaction: {
         name: 'saveFolder',
-        props: [login, folder],
+        props: [login, folder, 'root'],
       },
     });
     console.log('Save folder ', response);

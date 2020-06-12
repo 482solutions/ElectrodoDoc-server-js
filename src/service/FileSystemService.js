@@ -69,7 +69,7 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     },
     transaction: {
       name: 'saveFolder',
-      props: [name, folderHash],
+      props: [name, folderHash, parentFolderHash],
     },
   });
   console.log('Save folder in FileSystemService', response);
@@ -243,7 +243,7 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     },
     transaction: {
       name: 'saveFile',
-      props: [name, fileHash, cid],
+      props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
     },
   });
   console.log('Save file in FileSystemService', response);

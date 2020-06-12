@@ -1,6 +1,6 @@
 language: node_js
 node_js:
- - "stable"
+  - "stable"
 services:
   - docker
 script:
@@ -10,7 +10,7 @@ script:
   - git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
   - cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
   - cd ..
-#  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
+  #  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
 
   - sudo docker-compose up --build -d
   - sleep 60

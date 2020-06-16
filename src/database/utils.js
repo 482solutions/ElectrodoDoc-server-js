@@ -11,16 +11,6 @@ module.exports.getUserByEmail = async function getUser(conn, email) {
   return result.rows;
 };
 
-// module.exports.getFolder = async function getFolder(conn, hash) {
-//   const result = await query(conn, `SELECT * FROM public.Folders WHERE hash = '${hash}'`);
-//   return result.rows;
-// };
-
-// module.exports.getFile = async function getFile(conn, hash) {
-//   const result = await query(conn, `SELECT * FROM public.Files WHERE hash = '${hash}'`);
-//   return result.rows;
-// };
-
 module.exports.getFolderByName = async function getFolderByName(conn, name) {
   const result = await query(conn, `SELECT * FROM public.Folders WHERE name LIKE '%${name}%'`);
   return result.rows;
@@ -67,7 +57,3 @@ module.exports.updateFolder = async function updateFolder(conn, hash, col, value
   return true;
 };
 
-// module.exports.updateFile = async function updateFile(conn, hash, col, value) {
-//   await query(conn, `UPDATE public.Files SET ${col} = '${value}' WHERE hash = '${hash}' `);
-//   return true;
-// };

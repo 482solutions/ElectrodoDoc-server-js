@@ -28,7 +28,6 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const username = await validator.getUserFromToken(token);
-  console.log('username ', username);
   const blackToken = await redisGet(token);
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
@@ -41,16 +40,12 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
   if (!parentFolderHash) {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
-
-  const folderList = await DB.getFolder(conn, parentFolderHash);
-  if (folderList.length === 0) {
-    return { code: 404, payload: { message: 'Parent folder not found.' } };
-  }
-
-  const childrenFolders = JSON.parse(folderList[0].folders);
-  for (const item in childrenFolders) {
-    if (childrenFolders[item].name === name) {
-      return { code: 409, payload: { message: 'Folder with the same already exist' } };
+  const folders = await DB.getFolderByName(conn, name);
+  if (folders.length > 0) {
+    for (let i = 0; i < folders.length; i++) {
+      if (folders[i].hash === folderHash) {
+        return { code: 409, payload: { message: 'Folder already exist' } };
+      }
     }
   }
 
@@ -72,17 +67,11 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
       props: [name, folderHash, parentFolderHash],
     },
   });
-  console.log('Save folder in FileSystemService', response);
-
-  const child = {
-    name, hash: folderHash,
-  };
-  childrenFolders.push(child);
-  await DB.insertFolder(conn, name, folderHash, parentFolderHash);
-  await DB.updateFolder(conn, parentFolderHash, 'folders', JSON.stringify(childrenFolders));
-
-  const folderListAfter = await DB.getFolder(conn, parentFolderHash);
-  return { code: 201, payload: { folder: folderListAfter[0] } };
+  if (response.message && response.message === 'Folder already exist') {
+    return { code: 409, payload: { message: 'Folder already exist' } };
+  }
+  await DB.insertFolder(conn, name, folderHash);
+  return { code: 201, payload: { folder: response } };
 };
 
 /**
@@ -104,15 +93,6 @@ export const DownloadFile = async (hash, cid, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
-  const fileFromDB = (await DB.getFile(conn, hash));
-  if (fileFromDB.length === 0) {
-    return { code: 404, payload: { message: 'File not found.' } };
-  }
-  const file = await fileStorage.getFileByHash(cid);
-  if (file === null) {
-    return { code: 404, payload: { message: 'File not found.' } };
-  }
-
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
     identity: {
@@ -131,9 +111,17 @@ export const DownloadFile = async (hash, cid, token) => {
       props: [hash],
     },
   });
-  console.log('get file in FileSystemService', response);
+  if (response.message === 'File with this hash does not exist') {
+    return { code: 404, payload: { message: 'File with this hash does not exist' } };
+  }
+  const cidFromFabric = (!cid || cid.length !== 46)
+    ? response.versions[response.versions.length - 1].cid : cid;
 
-  return { code: 200, payload: { name: fileFromDB[0].name, type: fileFromDB[0].type, file } };
+  const file = await fileStorage.getFileByHash(cidFromFabric);
+  if (file === null) {
+    return { code: 404, payload: { message: 'File not found.' } };
+  }
+  return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
 };
 
 /**
@@ -152,11 +140,7 @@ export const GetFolder = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  const folderList = await DB.getFolder(conn, hash);
 
-  if (folderList.length === 0) {
-    return { code: 404, payload: { message: 'folder not found.' } };
-  }
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
     identity: {
@@ -175,9 +159,10 @@ export const GetFolder = async (hash, token) => {
       props: [hash],
     },
   });
-  console.log('get folder in FileSystemService', response);
-
-  return { code: 200, payload: { folder: folderList[0] } };
+  if (response === null) {
+    return { code: 404, payload: { message: 'Folder does not exist' } };
+  }
+  return { code: 200, payload: { folder: response } };
 };
 
 /**
@@ -206,27 +191,12 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (!parentFolderHash) {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
-  console.log(contents);
   if (!contents.buffer || contents.buffer.length === 0) {
     return { code: 422, payload: { message: 'File is required' } };
   }
 
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
-  /* Get list of files in parent folder */
-  const parentFolder = (await DB.getFolder(conn, parentFolderHash))[0];
-
-  if (parentFolder === undefined) {
-    return { code: 404, payload: { message: 'Parent folder not found.' } };
-  }
-
-  const versions = [];
-  const version = {
-    cid, time: Math.floor(new Date() / 1000),
-  };
-  versions.push(version);
-  const files = JSON.parse(parentFolder.files);
-  files.push({ name, hash: fileHash, versions });
 
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
@@ -246,14 +216,11 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
       props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
     },
   });
-  console.log('Save file in FileSystemService', response);
-
-  await DB.insertFile(conn,
-    name, fileHash, JSON.stringify(versions), parentFolder.hash, contents.mimetype);
-  await DB.updateFolder(conn, parentFolder.hash, 'files', JSON.stringify(files));
-  const folderListAfter = await DB.getFolder(conn, parentFolderHash);
-  console.log(folderListAfter[0]);
-  return { code: 200, payload: { folder: folderListAfter[0] } };
+  if (response.message && response.message === 'Parent folder with this hash does not exist') {
+    return { code: 404, payload: { message: 'Parent folder not found' } };
+  }
+  await DB.insertFile(conn, name, fileHash);
+  return { code: 200, payload: { folder: response } };
 };
 
 export const UpdateFile = async (hash, file, token) => {
@@ -284,23 +251,11 @@ export const UpdateFile = async (hash, file, token) => {
       props: [hash, cid],
     },
   });
-  console.log('Update file in FileSystemService', response);
-  const oldFile = (await DB.getFile(conn, hash))[0];
-  if (oldFile === undefined) {
-    return { code: 404, payload: { message: 'Parent folder not found.' } };
+  if (response.message === 'File with this hash does not exist') {
+    return { code: 404, payload: { message: 'File with this hash does not exist' } };
   }
-  const versions = JSON.parse(oldFile.versions);
-  const version = {
-    cid, time: Math.floor(new Date() / 1000),
-  };
-  versions.push(version);
-  const parentFolder = (await DB.getFolder(conn, oldFile.parenthash))[0];
-  const files = JSON.parse(parentFolder.files);
-  files.push({ name: oldFile.name, hash, versions });
-  await DB.updateFile(conn, hash, 'versions', JSON.stringify(versions));
-  await DB.updateFolder(conn, oldFile.parenthash, 'files', JSON.stringify(files));
-  const fileListAfter = await DB.getFolder(conn, oldFile.parenthash);
-  return { code: 200, payload: { file: fileListAfter[0] } };
+
+  return { code: 200, payload: { file: response } };
 };
 
 /**
@@ -346,12 +301,6 @@ export const Versions = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-
-  const fileFromDB = (await DB.getFile(conn, hash));
-  if (fileFromDB.length === 0) {
-    return { code: 404, payload: { message: 'File not found.' } };
-  }
-
   const certsList = await DB.getCerts(conn, username);
   const response = await validator.sendTransaction({
     identity: {
@@ -372,8 +321,7 @@ export const Versions = async (hash, token) => {
   });
 
   if (response.versions === undefined) {
-    return { code: 404, payload: { message: 'File does not exist in ledger' } };
+    return { code: 404, payload: { message: 'File not found' } };
   }
-  console.log('get folder in FileSystemService', response);
-  return { code: 200, payload: { message: fileFromDB[0].versions } };
+  return { code: 200, payload: { message: response.versions } };
 };

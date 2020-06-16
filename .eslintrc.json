@@ -16,6 +16,7 @@
   },
   "rules": {
     "space-before-function-paren": "off",
+    "no-plusplus": "off",
     "import/no-unresolved": "error",
     "class-methods-use-this": 0,
     "import/prefer-default-export": 0,

@@ -21,7 +21,7 @@ Given(/^User send request for create folder in root folder with name (.*) from l
 })
 
 Given(/^User send request for create folder in user's folder with name "([^"]*)"$/, (name) => {
-  let folders = JSON.parse(Cypress.env('foldersInRoot'))
+  let folders = Cypress.env('foldersInRoot')
 
   for (let key in folders) {
     if (name === folders[key].name) {
@@ -38,7 +38,7 @@ Given(/^User send request for create folder in user's folder with name "([^"]*)"
             'parentFolder': folder
           },
         }).then((resp) => {
-          expect(resp.body.folder.name).to.eq(name)
+          expect(resp.body.folder.folderName).to.eq(name)
           Cypress.env('respStatus', resp.status)
         })
       }

@@ -3,7 +3,7 @@ import { getHashFromFile } from '../../../support/commands'
 
 const basic = 'http://localhost:1823/api/v1'
 
-const files = JSON.parse(Cypress.env('filesInRoot'))
+const files = Cypress.env('filesInRoot')
 
 const textBefore = 'Good night!'
 const textAfter = 'Good morning!'
@@ -69,7 +69,7 @@ When(/^The user send request for updating file "([^"]*)" if the file is not exis
         return resp.json()
       })
       .then((data) => {
-        expect(data.message).to.equal('Parent folder not found.')
+        expect(data.message).to.equal('File with this hash does not exist')
       })
   }).as('Update txt file').wait(6000)
 });

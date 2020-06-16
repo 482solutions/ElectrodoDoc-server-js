@@ -27,7 +27,7 @@ When(/^The user send request for upload new file to testFolder with name "([^"]*
   cy.readFile(`cypress/fixtures/${fileName}`).then(async (str) => {
     let blob = new Blob([str], { type: 'text/plain' })
 
-    let folders = JSON.parse(Cypress.env('folderInRoot'))
+    let folders = Cypress.env('folderInRoot')
     const createdFolder = getHashFromFolder('testFolder', folders)
 
     let formData = new FormData()
@@ -47,7 +47,7 @@ When(/^The user send request for upload new file to testFolder with name "([^"]*
     const result = await resp.json()
     Cypress.env('respStatus', resp.status)
     Cypress.env('filesInRoot', result.folder.files)
-    expect('testFolder').to.equal(result.folder.name)
+    expect('testFolder').to.equal(result.folder.folderName)
   }).as('Send txt')
 })
 

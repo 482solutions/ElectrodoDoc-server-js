@@ -11,16 +11,6 @@ module.exports.getUserByEmail = async function getUser(conn, email) {
   return result.rows;
 };
 
-module.exports.getFolder = async function getFolder(conn, hash) {
-  const result = await query(conn, `SELECT * FROM public.Folders WHERE hash = '${hash}'`);
-  return result.rows;
-};
-
-module.exports.getFile = async function getFile(conn, hash) {
-  const result = await query(conn, `SELECT * FROM public.Files WHERE hash = '${hash}'`);
-  return result.rows;
-};
-
 module.exports.getFolderByName = async function getFolderByName(conn, name) {
   const result = await query(conn, `SELECT * FROM public.Folders WHERE name LIKE '%${name}%'`);
   return result.rows;
@@ -41,19 +31,14 @@ module.exports.insertUser = async function insertUser(conn, name, pass, email, f
   return true;
 };
 
-module.exports.insertFolder = async function insertFolder(conn, name, hash, parentHash) {
-  await query(conn, `INSERT INTO public.Folders (name, hash, parentHash, folders, files) VALUES ('${name}', '${hash}', '${parentHash}', '[]', '[]' ) `);
+module.exports.insertFolder = async function insertFolder(conn, name, hash) {
+  await query(conn, `INSERT INTO public.Folders (name, hash) VALUES ('${name}', '${hash}') `);
   return true;
 };
 
-module.exports.insertFile = async function insertFile(conn,
-  name,
-  hash,
-  versions,
-  parentHash,
-  type) {
+module.exports.insertFile = async function insertFile(conn, name, hash) {
   await query(conn,
-    `INSERT INTO public.Files (name, hash, versions, parentHash, type) VALUES ('${name}', '${hash}', '${versions}', '${parentHash}', '${type}')`);
+    `INSERT INTO public.Files (name, hash) VALUES ('${name}', '${hash}')`);
   return true;
 };
 
@@ -69,10 +54,5 @@ module.exports.updateUser = async function updateUser(conn, name, col, value) {
 
 module.exports.updateFolder = async function updateFolder(conn, hash, col, value) {
   await query(conn, `UPDATE public.Folders SET ${col} = '${value}' WHERE hash = '${hash}' `);
-  return true;
-};
-
-module.exports.updateFile = async function updateFile(conn, hash, col, value) {
-  await query(conn, `UPDATE public.Files SET ${col} = '${value}' WHERE hash = '${hash}' `);
   return true;
 };

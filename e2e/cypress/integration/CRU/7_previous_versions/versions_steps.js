@@ -11,14 +11,12 @@ Given(/^The user send request for viewing previous version "([^"]*)" file$/, (fi
   // const cid = versions[0].cid
   const files = Cypress.env('filesInRoot')
   const hash = getHashFromFile(fileName, files)
-  console.log(versions)
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   cy.request({
     headers: headers,
     method: 'GET',
     url: `/file/${hash}/${versions[0].cid}`
   }).then((resp) => {
-    console.log(resp)
     Cypress.env('respStatus', resp.status)
     expect(fileName).to.equal(resp.body.name)
     expect('Good night!').to.equal(resp.body.file)

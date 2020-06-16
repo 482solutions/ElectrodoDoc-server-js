@@ -29,7 +29,6 @@ When(/^User send request for upload png file$/, () => {
         body: formData,
         redirect: 'follow'
       }).then((response) => {
-        console.log(response.status)
         Cypress.env('respStatus', response.status)
         return response.json();
       }).then((result) => {

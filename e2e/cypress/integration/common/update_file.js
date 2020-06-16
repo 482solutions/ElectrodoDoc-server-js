@@ -40,8 +40,7 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
           return resp.json()
         })
         .then((data) => {
-          console.log(data)
-          // expect(Cypress.env('login')).to.equal(data.file.fildeName)
+          // expect(Cypress.env('login')).to.equal(data.file.fileName)
         })
     }).as('Update txt file').wait(6000)
   })

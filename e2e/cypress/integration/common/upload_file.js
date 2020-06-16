@@ -20,7 +20,6 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       body: formData,
       redirect: 'follow'
     }).then((response) => {
-      console.log(response.status)
       Cypress.env('respStatus', response.status)
       return response.json();
     }).then((result) => {

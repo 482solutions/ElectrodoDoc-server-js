@@ -28,7 +28,6 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const username = await validator.getUserFromToken(token);
-  console.log('username ', username);
   const blackToken = await redisGet(token);
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
@@ -42,7 +41,6 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
   const folders = await DB.getFolderByName(conn, name);
-  console.log('folders from database : ', folders);
   if (folders.length > 0) {
     for (let i = 0; i < folders.length; i++) {
       if (folders[i].hash === folderHash) {
@@ -69,11 +67,9 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
       props: [name, folderHash, parentFolderHash],
     },
   });
-  console.log('response from fabric ', response);
   if (response.message && response.message === 'Folder already exist') {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
-  console.log('Save folder in FileSystemService', response);
   await DB.insertFolder(conn, name, folderHash);
   return { code: 201, payload: { folder: response } };
 };
@@ -115,7 +111,6 @@ export const DownloadFile = async (hash, cid, token) => {
       props: [hash],
     },
   });
-  console.log(response);
   if (response.message === 'File with this hash does not exist') {
     return { code: 404, payload: { message: 'File with this hash does not exist' } };
   }
@@ -126,9 +121,6 @@ export const DownloadFile = async (hash, cid, token) => {
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
-
-  console.log('get file in FileSystemService', response);
-
   return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
 };
 
@@ -170,8 +162,6 @@ export const GetFolder = async (hash, token) => {
   if (response === null) {
     return { code: 404, payload: { message: 'Folder does not exist' } };
   }
-  console.log('get folder in FileSystemService', response);
-
   return { code: 200, payload: { folder: response } };
 };
 
@@ -201,7 +191,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (!parentFolderHash) {
     return { code: 422, payload: { message: 'Cant create folder without parent folder' } };
   }
-  console.log(contents);
   if (!contents.buffer || contents.buffer.length === 0) {
     return { code: 422, payload: { message: 'File is required' } };
   }
@@ -230,7 +219,6 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (response.message && response.message === 'Parent folder with this hash does not exist') {
     return { code: 404, payload: { message: 'Parent folder not found' } };
   }
-  console.log('Save file in FileSystemService', response);
   await DB.insertFile(conn, name, fileHash);
   return { code: 200, payload: { folder: response } };
 };
@@ -267,7 +255,6 @@ export const UpdateFile = async (hash, file, token) => {
     return { code: 404, payload: { message: 'File with this hash does not exist' } };
   }
 
-  console.log('Update file in FileSystemService', response);
   return { code: 200, payload: { file: response } };
 };
 
@@ -336,6 +323,5 @@ export const Versions = async (hash, token) => {
   if (response.versions === undefined) {
     return { code: 404, payload: { message: 'File not found' } };
   }
-  console.log('get folder in FileSystemService', response);
   return { code: 200, payload: { message: response.versions } };
 };

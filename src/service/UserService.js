@@ -157,10 +157,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         props: [login, folder, 'root'],
       },
     });
-    console.log('Save folder ', response);
-
     gateway.disconnect();
-    // await DB.insertFolder(conn, login, folder);
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
@@ -225,7 +222,6 @@ export const logIn = async (login, password, certificate, privateKey) => {
       props: [user.folder],
     },
   });
-  console.log('getFolder ', response);
   if (response === null
     || response.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };

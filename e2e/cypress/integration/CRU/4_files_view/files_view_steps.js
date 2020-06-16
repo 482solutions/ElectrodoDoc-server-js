@@ -9,7 +9,6 @@ When(/^User sends a request for a file from the root folder$/, () => {
   const files = Cypress.env('filesInRoot')
   cy.wait(3000)
   expect(files.length).to.equal(1)
-console.log(files)
   let cid = null
   let hash = getHashFromFile('mockTest.txt', files)
 
@@ -19,7 +18,6 @@ console.log(files)
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
-    console.log(resp)
     if (expect(200).to.eq(resp.status)) {
       expect(resp.body.name).to.equal('mockTest.txt')
       expect(resp.body.file).to.equal('Hello, world!')

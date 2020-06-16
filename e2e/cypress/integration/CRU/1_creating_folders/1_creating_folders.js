@@ -16,7 +16,6 @@ Given(/^User send request for create folder in root folder with name (.*) from l
     },
   }).then((resp) => {
     Cypress.env('foldersInRoot', resp.body.folder.folders)
-    console.log(Cypress.env('foldersInRoot'))
     Cypress.env('respStatus', resp.status)
   }).wait(2000)
 })
@@ -39,7 +38,6 @@ Given(/^User send request for create folder in user's folder with name "([^"]*)"
             'parentFolder': folder
           },
         }).then((resp) => {
-          console.log(resp.body)
           expect(resp.body.folder.folderName).to.eq(name)
           Cypress.env('respStatus', resp.status)
         })

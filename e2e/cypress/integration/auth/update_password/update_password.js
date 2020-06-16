@@ -98,3 +98,21 @@ Given(/^I send request for update password without old password$/, () => {
     }
   })
 });
+
+Given(/^I send request for update password to new password with spaces$/, function () {
+  headers.Authorization = `Bearer ${Cypress.env('token')}`
+  cy.request({
+    method: 'PUT',
+    url: '/user',
+    headers: headers,
+    body: {
+      'oldPassword': Cypress.env('password'),
+      'newPassword': ' '
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    if(expect(422).to.equal(resp.status)) {
+      Cypress.env('respStatus', resp.status)
+    }
+  })
+});

@@ -140,7 +140,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       csr,
     });
 
-    const response = await validator.sendTransaction({
+    await validator.sendTransaction({
       identity: {
         label: login,
         certificate: userData.certificate,

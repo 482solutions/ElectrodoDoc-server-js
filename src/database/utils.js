@@ -56,4 +56,3 @@ module.exports.updateFolder = async function updateFolder(conn, hash, col, value
   await query(conn, `UPDATE public.Folders SET ${col} = '${value}' WHERE hash = '${hash}' `);
   return true;
 };
-

@@ -7,8 +7,10 @@ const headers = {
 
 When(/^Send request for list of the previous versions of "([^"]*)" file$/, (filename) => {
   cy.wait(3000)
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
+
   let hash = getHashFromFile(filename, files)
+  console.log(hash)
   headers.Authorization = `Bearer ${Cypress.env('token')}`
 
   cy.request({
@@ -19,7 +21,7 @@ When(/^Send request for list of the previous versions of "([^"]*)" file$/, (file
     if (expect(200).to.eq(resp.status)) {
       Cypress.env('respStatus', resp.status)
       Cypress.env('versions', resp.body.message)
-      console.log( Cypress.env('versions'))
+      console.log(Cypress.env('versions'))
     }
   })
 })

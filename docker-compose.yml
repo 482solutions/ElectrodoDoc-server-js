@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    container_name: backends
+    container_name: backendss
     build: .
     depends_on:
       - postgres
@@ -30,7 +30,7 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: postgress
+    container_name: postgresss
     restart: always
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -63,7 +63,7 @@ services:
 
   redis:
     image: redis
-    container_name: rediss
+    container_name: redisss
     network_mode: service:backend
     volumes:
       - ./storage/redis:/data

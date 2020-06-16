@@ -6,11 +6,11 @@ const headers = {
 }
 
 When(/^User sends a request for a file from the root folder$/, () => {
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
   cy.wait(3000)
   expect(files.length).to.equal(1)
-
-  let cid = getCidFromFile('mockTest.txt', files)
+console.log(files)
+  let cid = null
   let hash = getHashFromFile('mockTest.txt', files)
 
   headers.Authorization = `Bearer ${Cypress.env('token')}`
@@ -19,6 +19,7 @@ When(/^User sends a request for a file from the root folder$/, () => {
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
+    console.log(resp)
     if (expect(200).to.eq(resp.status)) {
       expect(resp.body.name).to.equal('mockTest.txt')
       expect(resp.body.file).to.equal('Hello, world!')
@@ -28,7 +29,7 @@ When(/^User sends a request for a file from the root folder$/, () => {
 })
 
 When(/^User sends a request for a file from the root folder with incorrect cid$/, () => {
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
   expect(files.length).to.equal(1)
 
   let hash = getHashFromFile('mockTest', files)
@@ -45,10 +46,10 @@ When(/^User sends a request for a file from the root folder with incorrect cid$/
 });
 
 When(/^User sends a request for a file from the root folder with empty auth$/, () => {
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
   expect(files.length).to.equal(1)
 
-  let cid = getCidFromFile('mockTest', files)
+  let cid = null
   let hash = getHashFromFile('mockTest', files)
 
   headers.Authorization = `Bearer `
@@ -65,7 +66,7 @@ When(/^User sends a request for a file from the root folder with empty auth$/, (
 });
 
 When(/^User sends a request for a file by incorrect hash$/, () => {
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
   expect(files.length).to.equal(1)
 
   let cid = getCidFromFile('mockTest', files)
@@ -83,7 +84,7 @@ When(/^User sends a request for a file by incorrect hash$/, () => {
 });
 
 When(/^User sends a request for a file without hash$/, () => {
-  const files = JSON.parse(Cypress.env('filesInRoot'))
+  const files = Cypress.env('filesInRoot')
   expect(files.length).to.equal(1)
 
   let cid = getCidFromFile('mockTest', files)

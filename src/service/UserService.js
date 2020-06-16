@@ -125,9 +125,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     };
 
     await gateway.connect(connectionProfile, connectionOptions);
-
     const admin = await gateway.getCurrentIdentity();
-
     const secret = await ca.register({
       enrollmentID: login,
       enrollmentSecret: password,
@@ -162,9 +160,8 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     console.log('Save folder ', response);
 
     gateway.disconnect();
-
+    // await DB.insertFolder(conn, login, folder);
     await DB.insertUser(conn, login, password, email, folder);
-    await DB.insertFolder(conn, login, folder, null);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
   } catch (error) {
@@ -211,7 +208,6 @@ export const logIn = async (login, password, certificate, privateKey) => {
     return { code: 400, payload: { message: 'Invalid password supplied.' } };
   }
 
-  const folder = sha256(user.username);
   const response = await validator.sendTransaction({
     identity: {
       label: user.username,
@@ -226,7 +222,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
     },
     transaction: {
       name: 'getFolder',
-      props: [folder],
+      props: [user.folder],
     },
   });
   console.log('getFolder ', response);

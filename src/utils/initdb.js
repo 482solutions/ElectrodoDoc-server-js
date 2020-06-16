@@ -18,16 +18,10 @@ async function initdb() {
       folder character varying(100) );`);
   await dbrequestor.query(conn, `CREATE TABLE public.folders (
       name character varying(100) NOT NULL,
-      hash character varying(100) NOT NULL,
-      parentHash character varying(100),
-      folders character varying(4096),
-      files character varying(4096) );`);
+      hash character varying(100) NOT NULL);`);
   await dbrequestor.query(conn, `CREATE TABLE public.files (
       name character varying(100) NOT NULL,
-      hash character varying(100) NOT NULL,
-      versions character varying(4096),
-      type character varying(100) NOT NULL,
-      parentHash character varying(100));`);
+      hash character varying(100) NOT NULL);`);
   await dbrequestor.query(conn, 'ALTER TABLE public.users OWNER TO admin;');
   await dbrequestor.query(conn, 'ALTER TABLE public.folders OWNER TO admin;');
   await dbrequestor.query(conn, 'ALTER TABLE public.files OWNER TO admin;');

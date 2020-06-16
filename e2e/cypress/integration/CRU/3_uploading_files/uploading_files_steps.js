@@ -21,21 +21,21 @@ When(/^User send request for upload png file$/, () => {
       formData.append('parentFolder', Cypress.env('rootFolder'))
       formData.append('file', blob)
 
-      const resp = await fetch(`${URL}/file`, {
+      await fetch(`${URL}/file`, {
         method: 'POST',
         headers: new Headers({
           'Authorization': `Bearer ${token}`
         }),
         body: formData,
         redirect: 'follow'
-      })
-      const result = await resp.json()
-
-      if (expect(200).to.eq(resp.status)) {
-        Cypress.env('respStatus', resp.status)
+      }).then((response) => {
+        console.log(response.status)
+        Cypress.env('respStatus', response.status)
+        return response.json();
+      }).then((result) => {
         Cypress.env('filesInRoot', result.folder.files)
-        await expect(Cypress.env('login')).to.equal(result.folder.name)
-      }
+        expect(Cypress.env('login')).to.equal(result.folder.folderName)
+        });
     })
   }).as('Send png')
   cy.wait(6000)
@@ -74,7 +74,8 @@ When(/^User send request for upload file with incorrect parentFolder$/, () => {
 
         let formData = new FormData()
         formData.append('name', '1file')
-        formData.append('parentFolder', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        formData.append('parentFolder',
+          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         formData.append('file', blob)
 
         const resp = await fetch(`${URL}/file`, {

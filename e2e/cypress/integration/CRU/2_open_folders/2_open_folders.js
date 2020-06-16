@@ -17,7 +17,7 @@ When(/^The user sent a request to create a folder in the root folder with the na
       'parentFolder': Cypress.env('rootFolder')
     },
   }).then((resp) => {
-    parseResp = JSON.parse(resp.body.folder.folders)
+    parseResp = resp.body.folder.folders
     Cypress.env('respStatus', resp.status)
   })
 })

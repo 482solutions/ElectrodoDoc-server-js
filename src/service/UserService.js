@@ -48,7 +48,8 @@ export const changeUser = async (oldPassword, newPassword, token) => {
   let users;
   try {
     users = await DB.getUser(conn, username);
-  } catch (e) {
+  }
+  catch (e) {
     return { code: 500, payload: { message: 'Something happened with database connection.' } };
   }
   if (users.length === 0) {
@@ -140,7 +141,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       csr,
     });
 
-    await validator.sendTransaction({
+    const response = await validator.sendTransaction({
       identity: {
         label: login,
         certificate: userData.certificate,
@@ -158,10 +159,12 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       },
     });
     gateway.disconnect();
+    console.log(response)
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
-  } catch (error) {
+  }
+  catch (error) {
     // Disconnect from the gateway
     gateway.disconnect();
     return { code: 400, payload: { message: error } };
@@ -222,6 +225,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
       props: [user.folder],
     },
   });
+  console.log(response)
   if (response === null
     || response.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };

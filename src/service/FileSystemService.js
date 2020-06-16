@@ -323,5 +323,5 @@ export const Versions = async (hash, token) => {
   if (response.versions === undefined) {
     return { code: 404, payload: { message: 'File not found' } };
   }
-  return { code: 200, payload: { message: response.versions } };
+  return { code: 200, payload: { versions: response.versions } };
 };

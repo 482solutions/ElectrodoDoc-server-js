@@ -1,7 +1,11 @@
 import { promisify } from 'util';
 import validator from '../helpers/auth';
 import { redisClient } from '../adapter/redis';
+import DB from '../database/utils';
+import connection from '../database/connect';
+import configDB from '../database/configDB';
 
+const conn = connection(configDB);
 const redisGet = promisify(redisClient.get).bind(redisClient);
 /**
  * Change permissions
@@ -10,7 +14,7 @@ const redisGet = promisify(redisClient.get).bind(redisClient);
  * body ChangePermissions
  * no response value expected for this operation
  * */
-export const ChangePermissions = async (email, hash, permission, token) => {
+export const changePermissions = async (email, hash, permission, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -19,5 +23,51 @@ export const ChangePermissions = async (email, hash, permission, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+
+  const users = await DB.getUserByEmail(conn, email);
+  if (users.length === 0) {
+    return { code: 422, payload: { message: 'User for sharing not found.' } };
+  }
+  const userForShare = users[0];
+  const certsList = await DB.getCerts(conn, username);
+  let request
+  switch (permission) {
+    case ('owner') :
+      request = {
+        name: 'changeOwnership',
+        props: [hash, userForShare.username],
+      }
+      break;
+    case ('read') :
+      request = {
+        name: 'changePermissions',
+        props: [hash, userForShare.username, 'allow', 'read'],
+      }
+      break;
+    case ('write') :
+      request = {
+        name: 'changePermissions',
+        props: [hash, userForShare.username, 'allow', 'write'],
+      }
+      break;
+    default :
+      return { code: 422, payload: { message: 'No such permissions' } };
+  }
+  const response = await validator.sendTransaction({
+    identity: {
+      label: username,
+      certificate: certsList[0].cert,
+      privateKey: certsList[0].privatekey,
+      mspId: '482solutions',
+    },
+    network: {
+      channel: 'testchannel',
+      chaincode: 'electricitycc',
+      contract: 'org.fabric.marketcontract',
+    },
+    transaction: request,
+  });
+  console.log(response)
+  return { code: 200, payload: { response } };
+
 };

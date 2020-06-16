@@ -302,7 +302,7 @@ paths:
       tags:
         - "permissions"
       summary: "Change permissions"
-      description: "After change permissions target user get selected permittions\
+      description: "After change permissions target user get selected permissions\
         \ for file or folder"
       operationId: "ChangePermissions"
       produces:
@@ -322,6 +322,8 @@ paths:
           description: "Forbidden"
         "422":
           description: "Invalid data"
+      security:
+        - Bearer: []
       x-swagger-router-controller: "Permissions"
 securityDefinitions:
   Bearer:

@@ -24,6 +24,8 @@ export const changePermissions = async (email, hash, permission, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
 
+  const userThatShared = (await DB.getUser(conn, username))[0];
+
   const users = await DB.getUserByEmail(conn, email);
   if (users.length === 0) {
     return { code: 422, payload: { message: 'User for sharing not found.' } };
@@ -35,19 +37,19 @@ export const changePermissions = async (email, hash, permission, token) => {
     case ('owner') :
       request = {
         name: 'changeOwnership',
-        props: [hash, userForShare.username],
+        props: [hash, userForShare.username, userThatShared.folder, userForShare.folder],
       }
       break;
     case ('read') :
       request = {
         name: 'changePermissions',
-        props: [hash, userForShare.username, 'allow', 'read'],
+        props: [hash, userForShare.username, 'allow', 'read', userForShare.folder],
       }
       break;
     case ('write') :
       request = {
         name: 'changePermissions',
-        props: [hash, userForShare.username, 'allow', 'write'],
+        props: [hash, userForShare.username, 'allow', 'write', userForShare.folder],
       }
       break;
     default :

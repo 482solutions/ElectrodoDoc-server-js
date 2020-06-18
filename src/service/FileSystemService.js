@@ -216,6 +216,9 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
       props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
     },
   });
+  if (response.message && response.message === 'File already exist') {
+    return { code: 409, payload: { message: 'File already exist' } };
+  }
   if (response.message && response.message === 'Parent folder with this hash does not exist') {
     return { code: 404, payload: { message: 'Parent folder not found' } };
   }

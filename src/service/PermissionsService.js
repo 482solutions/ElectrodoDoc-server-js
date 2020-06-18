@@ -32,27 +32,27 @@ export const changePermissions = async (email, hash, permission, token) => {
   }
   const userForShare = users[0];
   const certsList = await DB.getCerts(conn, username);
-  let request
+  let request;
   switch (permission) {
-    case ('owner') :
+    case ('owner'):
       request = {
         name: 'changeOwnership',
         props: [hash, userForShare.username, userThatShared.folder, userForShare.folder],
-      }
+      };
       break;
-    case ('read') :
+    case ('read'):
       request = {
         name: 'changePermissions',
         props: [hash, userForShare.username, 'allow', 'read', userForShare.folder],
-      }
+      };
       break;
-    case ('write') :
+    case ('write'):
       request = {
         name: 'changePermissions',
         props: [hash, userForShare.username, 'allow', 'write', userForShare.folder],
-      }
+      };
       break;
-    default :
+    default:
       return { code: 422, payload: { message: 'No such permissions' } };
   }
   const response = await validator.sendTransaction({
@@ -69,7 +69,6 @@ export const changePermissions = async (email, hash, permission, token) => {
     },
     transaction: request,
   });
-  console.log(response)
+  console.log(response);
   return { code: 200, payload: { response } };
-
 };

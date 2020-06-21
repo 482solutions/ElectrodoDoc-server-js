@@ -1,0 +1,40 @@
+{
+  "baseUrl": "http://localhost:1823/api/v1",
+  "env": {
+    "RETRIES": 0,
+    "respStatus": null,
+    "rootFolder": null,
+    "login": null,
+    "password": null,
+    "email": null,
+    "filesInRoot": null,
+    "foldersInRoot": null,
+    "versions": null,
+
+    "rootFolder_2": null,
+    "login_2": null,
+    "password_2": null,
+    "email_2": null,
+    "filesInRoot_2": null,
+    "foldersInRoot_2": null,
+
+    "rootFolder_3": null,
+    "login_3": null,
+    "password_3": null,
+    "email_3": null,
+    "filesInRoot_3": null,
+    "foldersInRoot_3": null
+  },
+  "projectId": "mxxwps",
+  "video": false,
+  "viewportWidth": 1280,
+  "viewportHeight": 800,
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "mochawesome-report",
+    "overwrite": true,
+    "html": true,
+    "json": false
+  }
+}
+

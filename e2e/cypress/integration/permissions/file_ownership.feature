@@ -51,8 +51,8 @@ Feature:  Transfer file ownership
     Then Response status 422
     Examples: incPermission
       | incPermission |
-      | writer        |
-      | viewer        |
+      | write         |
+      | view          |
       | OWNER         |
 
   Scenario: 9 Transfer permissions with empty email

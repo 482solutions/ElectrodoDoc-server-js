@@ -30,7 +30,7 @@ Feature:  Transfer folder ownership
     Then Response status 200
     And Verify that the user3 has a folder "Transfer"
 
-  Scenario: 4 Transfer folder permissions from user2 to user3
+  Scenario: 4 User can not get ownership to father folder
     Given User1 send request for create folder in folder Transfer with name "Transfer_2"
     When User sends request to transfer of ownership to the "Transfer_2" to user2
     And Verify that the user2 has a folder "Transfer_2"

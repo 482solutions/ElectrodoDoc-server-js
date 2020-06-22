@@ -31,7 +31,10 @@ export const changePermissions = async (email, hash, permission, token) => {
 
   const users = await DB.getUserByEmail(conn, email);
   if (users.length === 0) {
-    return { code: 422, payload: { message: 'User for sharing not found.' } };
+    return { code: 422, payload: { message: 'User for sharing not found' } };
+  }
+  if (!hash || hash.length < 64) {
+    return { code: 422, payload: { message: 'Incorrect hash' } };
   }
   const userForShare = users[0];
   const certsList = await DB.getCerts(conn, username);

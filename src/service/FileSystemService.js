@@ -181,7 +181,10 @@ export const GetFolder = async (hash, token) => {
   if (response === null) {
     return { code: 404, payload: { message: 'Folder does not exist' } };
   }
-  return { code: 200, payload: { folder: response } };
+  return {
+    code: 200,
+    payload: { folder: response.folder, folders: response.folders, files: response.files },
+  };
 };
 
 /**

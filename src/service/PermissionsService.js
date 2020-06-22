@@ -55,7 +55,7 @@ export const changePermissions = async (email, hash, permission, token) => {
     default:
       return { code: 422, payload: { message: 'No such permissions' } };
   }
-  let response
+  let response;
   try {
     response = await validator.sendTransaction({
       identity: {

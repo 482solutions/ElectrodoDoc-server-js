@@ -50,25 +50,25 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
-      response = await validator.sendTransaction({
-        identity: {
-          label: username,
-          certificate: certsList[0].cert,
-          privateKey: certsList[0].privatekey,
-          mspId: '482solutions',
-        },
-        network: {
-          channel: 'testchannel',
-          chaincode: 'electricitycc',
-          contract: 'org.fabric.marketcontract',
-        },
-        transaction: {
-          name: 'saveFolder',
-          props: [name, folderHash, parentFolderHash],
-        },
-      });
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'saveFolder',
+        props: [name, folderHash, parentFolderHash],
+      },
+    });
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -99,9 +99,9 @@ export const DownloadFile = async (hash, cid, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
-     response = await validator.sendTransaction({
+    response = await validator.sendTransaction({
       identity: {
         label: username,
         certificate: certsList[0].cert,
@@ -154,7 +154,7 @@ export const GetFolder = async (hash, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
     response = await validator.sendTransaction({
       identity: {
@@ -176,7 +176,6 @@ export const GetFolder = async (hash, token) => {
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
-
 
   if (response === null) {
     return { code: 404, payload: { message: 'Folder does not exist' } };
@@ -218,7 +217,7 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   const cid = (await fileStorage.upload(contents.buffer)).toString();
 
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
     response = await validator.sendTransaction({
       identity: {
@@ -262,7 +261,7 @@ export const UpdateFile = async (hash, file, token) => {
   }
   const cid = (await fileStorage.upload(file.buffer)).toString();
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
     response = await validator.sendTransaction({
       identity: {
@@ -335,7 +334,7 @@ export const Versions = async (hash, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const certsList = await DB.getCerts(conn, username);
-  let response
+  let response;
   try {
     response = await validator.sendTransaction({
       identity: {

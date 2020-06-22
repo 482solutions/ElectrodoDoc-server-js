@@ -35,15 +35,12 @@ class FileStorage {
   async getFileByHash(cid) {
     let total;
     for await (const file of this.node.get(`/ipfs/${cid}`)) {
-      console.log(file.path)
-      if (!file.content) continue;
       const contents = new BufferList();
       for await (const chunk of file.content) {
         contents.append(chunk);
       }
 
       total = contents.toString('utf-8');
-      console.log(total)
     }
     return total;
   }

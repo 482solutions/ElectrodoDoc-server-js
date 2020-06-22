@@ -191,7 +191,6 @@ Given(/^User sends a request to transfer file ownership with Empty Bearer$/, () 
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
     expect('Not Authorized').to.equal(resp.body.message)
-    console.log(resp)
   }).wait(2000)
 })
 

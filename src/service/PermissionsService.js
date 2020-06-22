@@ -55,20 +55,26 @@ export const changePermissions = async (email, hash, permission, token) => {
     default:
       return { code: 422, payload: { message: 'No such permissions' } };
   }
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: request,
-  });
+  let response
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: request,
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+
   console.log(response);
   return { code: 200, payload: { response } };
 };

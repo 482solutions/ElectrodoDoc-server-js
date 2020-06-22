@@ -50,23 +50,28 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'saveFolder',
-      props: [name, folderHash, parentFolderHash],
-    },
-  });
+  let response
+  try {
+      response = await validator.sendTransaction({
+        identity: {
+          label: username,
+          certificate: certsList[0].cert,
+          privateKey: certsList[0].privatekey,
+          mspId: '482solutions',
+        },
+        network: {
+          channel: 'testchannel',
+          chaincode: 'electricitycc',
+          contract: 'org.fabric.marketcontract',
+        },
+        transaction: {
+          name: 'saveFolder',
+          props: [name, folderHash, parentFolderHash],
+        },
+      });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
   if (response.message && response.message === 'Folder already exist') {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
@@ -94,23 +99,29 @@ export const DownloadFile = async (hash, cid, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'getFile',
-      props: [hash],
-    },
-  });
+  let response
+  try {
+     response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'getFile',
+        props: [hash],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+
   if (response.message === 'File with this hash does not exist') {
     return { code: 404, payload: { message: 'File with this hash does not exist' } };
   }
@@ -121,6 +132,7 @@ export const DownloadFile = async (hash, cid, token) => {
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
+
   return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
 };
 
@@ -142,23 +154,30 @@ export const GetFolder = async (hash, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'getFolder',
-      props: [hash],
-    },
-  });
+  let response
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'getFolder',
+        props: [hash],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+
+
   if (response === null) {
     return { code: 404, payload: { message: 'Folder does not exist' } };
   }
@@ -199,23 +218,29 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   const cid = (await fileStorage.upload(contents.buffer)).toString();
 
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'saveFile',
-      props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
-    },
-  });
+  let response
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'saveFile',
+        props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+
   if (response.message && response.message === 'File already exist') {
     return { code: 409, payload: { message: 'File already exist' } };
   }
@@ -237,23 +262,28 @@ export const UpdateFile = async (hash, file, token) => {
   }
   const cid = (await fileStorage.upload(file.buffer)).toString();
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'updateFile',
-      props: [hash, cid],
-    },
-  });
+  let response
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'updateFile',
+        props: [hash, cid],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
   if (response.message === 'File with this hash does not exist') {
     return { code: 404, payload: { message: 'File with this hash does not exist' } };
   }
@@ -305,23 +335,28 @@ export const Versions = async (hash, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const certsList = await DB.getCerts(conn, username);
-  const response = await validator.sendTransaction({
-    identity: {
-      label: username,
-      certificate: certsList[0].cert,
-      privateKey: certsList[0].privatekey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'getFile',
-      props: [hash],
-    },
-  });
+  let response
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'getFile',
+        props: [hash],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
 
   if (response.versions === undefined) {
     return { code: 404, payload: { message: 'File not found' } };

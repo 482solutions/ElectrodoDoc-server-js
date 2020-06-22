@@ -19,7 +19,7 @@ When(/^Send request for list of the previous versions of "([^"]*)" file$/, (file
   }).then((resp) => {
     if (expect(200).to.eq(resp.status)) {
       Cypress.env('respStatus', resp.status)
-      Cypress.env('versions', resp.body.message)
+      Cypress.env('versions', resp.body.versions)
     }
   })
 })

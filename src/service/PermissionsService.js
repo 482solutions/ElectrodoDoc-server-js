@@ -9,7 +9,7 @@ const conn = connection(configDB);
 const redisGet = promisify(redisClient.get).bind(redisClient);
 /**
  * Change permissions
- * After change permissions target user get selected permittions for file or folder
+ * After change permissions target user get selected permissions for file or folder
  *
  * body ChangePermissions
  * no response value expected for this operation

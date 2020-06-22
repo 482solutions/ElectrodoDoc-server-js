@@ -38,6 +38,7 @@ When(/^The user send request for viewing previous version with incorrect bearer$
     url: `/file/${hash}/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
+    expect('Not Authorized').to.equal(resp.body.message)
     Cypress.env('respStatus', resp.status)
   }).wait(2000)
 })
@@ -56,6 +57,7 @@ When(/^The user send request for viewing previous version bearer is empty$/, fun
     url: `/file/${hash}/${cid}`,
     failOnStatusCode: false
   }).then((resp) => {
+    expect('Not Authorized').to.equal(resp.body.message)
     Cypress.env('respStatus', resp.status)
   }).wait(2000)
 })

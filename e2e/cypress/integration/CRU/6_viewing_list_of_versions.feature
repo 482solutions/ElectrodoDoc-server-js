@@ -16,6 +16,7 @@ Feature:  Viewing previous version
       When Send request for list of the previous versions of "TestUpload.txt" file
       Then Response status 200
       And Response should contain 2 different cid
+      And Response should contain time and user properties
 
     Scenario: 2 User can not get list with incorrect bearer
       When The user send request for list of previous version with incorrect bearer

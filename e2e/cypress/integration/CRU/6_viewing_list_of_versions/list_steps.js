@@ -13,6 +13,17 @@ Then(/^Response should contain 2 different cid$/, () => {
   expect(versions[0].cid).to.not.equal(versions[1].cid)
 })
 
+Then(/^Response should contain time and user properties$/, function () {
+  let versions = Cypress.env('versions')
+  expect(versions[0]).to.have.property('time')
+  expect(versions[0]).to.have.property('user')
+  expect(versions[0].user).to.equal(Cypress.env('login'))
+
+  expect(versions[1]).to.have.property('time')
+  expect(versions[1]).to.have.property('user')
+  expect(versions[1].user).to.equal(Cypress.env('login'))
+});
+
 When(/^The user send request for list of previous version with incorrect bearer$/, () => {
   const files = Cypress.env('filesInRoot')
   let hash = getHashFromFile('TestUpload.txt', files)

@@ -84,8 +84,7 @@ Given(/^Send request for create user and get token$/, () => {
   const headers = {
     'content-type': 'application/json'
   }
-  let csr =  getCSR({ username: Cypress.env('login') })
-
+  let csr = getCSR({ username: Cypress.env('login') })
   cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
     .readFile('cypress/fixtures/privateKey.pem')
     .then((text) => {
@@ -131,6 +130,129 @@ Given(/^Send request for create user and get token$/, () => {
           Cypress.env('token', resp.body.token)
           Cypress.env('respStatus', resp.status)
           Cypress.env('rootFolder', resp.body.folder)
+        }
+      })
+    })
+  }).wait(6000)
+})
+Given(/^Send request for create user2 and get token$/, () => {
+
+  Cypress.env('login_2', getLogin())
+  Cypress.env('password_2', getPassword())
+  Cypress.env('email_2', getLogin() + '@gmail.com')
+
+  const headers_2 = {
+    'content-type': 'application/json'
+  }
+  let csr = getCSR({ username: Cypress.env('login_2') })
+
+  cy.writeFile('cypress/fixtures/privateKey_2.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey_2.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
+  cy.readFile('cypress/fixtures/privateKey_2.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: '/user',
+      headers: headers_2,
+      body: {
+        'login': Cypress.env('login_2'),
+        'email': Cypress.env('email_2'),
+        'password': Cypress.env('password_2'),
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
+      Cypress.env('respStatus', resp.status)
+      cy.writeFile('cypress/fixtures/cert_2.pem', resp.body.cert)
+        .then(() => {
+          cy.readFile('cypress/fixtures/cert_2.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
+        })
+    })
+  }).readFile('cypress/fixtures/cert_2.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey_2.pem').then((key) => {
+      cy.request({
+        method: 'POST',
+        url: '/user/auth',
+        headers: headers_2,
+        body: {
+          'login': Cypress.env('login_2'),
+          'password': Cypress.env('password_2'),
+          'certificate': cert,
+          'privateKey': key,
+        },
+      }).then((resp) => {
+        if (expect(200).to.eq(resp.status)) {
+          Cypress.env('token_2', resp.body.token)
+          Cypress.env('respStatus', resp.status)
+          Cypress.env('rootFolder_2', resp.body.folder)
+        }
+      })
+    })
+  }).wait(6000)
+})
+
+Given(/^Send request for create user3 and get token$/, () => {
+
+  Cypress.env('login_3', getLogin())
+  Cypress.env('password_3', getPassword())
+  Cypress.env('email_3', getLogin() + '@gmail.com')
+
+  const headers_3 = {
+    'content-type': 'application/json'
+  }
+  let csr = getCSR({ username: Cypress.env('login_3') })
+
+  cy.writeFile('cypress/fixtures/privateKey_3.pem', csr.privateKeyPem)
+    .readFile('cypress/fixtures/privateKey_3.pem')
+    .then((text) => {
+      expect(text).to.include('-----BEGIN PRIVATE KEY-----')
+      expect(text).to.include('-----END PRIVATE KEY-----')
+    })
+  cy.readFile('cypress/fixtures/privateKey_3.pem').then((key) => {
+    cy.request({
+      method: 'POST',
+      url: '/user',
+      headers: headers_3,
+      body: {
+        'login': Cypress.env('login_3'),
+        'email': Cypress.env('email_3'),
+        'password': Cypress.env('password_3'),
+        'privateKey': key,
+        'CSR': csr.csrPem
+      },
+    }).then((resp) => {
+      Cypress.env('respStatus', resp.status)
+      cy.writeFile('cypress/fixtures/cert_3.pem', resp.body.cert)
+        .then(() => {
+          cy.readFile('cypress/fixtures/cert_3.pem').then((text) => {
+            expect(text).to.include('-----BEGIN CERTIFICATE-----')
+            expect(text).to.include('-----END CERTIFICATE-----')
+          })
+        })
+    })
+  }).readFile('cypress/fixtures/cert_3.pem').then((cert) => {
+    cy.readFile('cypress/fixtures/privateKey_3.pem').then((key) => {
+      cy.request({
+        method: 'POST',
+        url: '/user/auth',
+        headers: headers_3,
+        body: {
+          'login': Cypress.env('login_3'),
+          'password': Cypress.env('password_3'),
+          'certificate': cert,
+          'privateKey': key,
+        },
+      }).then((resp) => {
+        if (expect(200).to.eq(resp.status)) {
+          Cypress.env('token_3', resp.body.token)
+          Cypress.env('respStatus', resp.status)
+          Cypress.env('rootFolder_3', resp.body.folder)
         }
       })
     })

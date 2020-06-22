@@ -177,9 +177,11 @@ export const GetFolder = async (hash, token) => {
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
-
   if (response === null) {
     return { code: 404, payload: { message: 'Folder does not exist' } };
+  }
+  if (response.message && response.message === 'You does not have permission') {
+    return { code: 409, payload: { message: 'You does not have permission'} };
   }
   return {
     code: 200,

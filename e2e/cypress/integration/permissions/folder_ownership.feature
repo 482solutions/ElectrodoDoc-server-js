@@ -57,7 +57,7 @@ Feature:  Transfer folder ownership
     Then Response status 422
     Examples: incPermission
       | incPermission |
-      | write         |
+      | writer        |
       | view          |
       | OWNER         |
 

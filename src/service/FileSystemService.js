@@ -154,6 +154,7 @@ export const GetFolder = async (hash, token) => {
   }
 
   const certsList = await DB.getCerts(conn, username);
+
   let response;
   try {
     response = await validator.sendTransaction({

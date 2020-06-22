@@ -23,6 +23,9 @@ export const changePermissions = async (email, hash, permission, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
+  if (!permission || permission < 4 || permission > 5) {
+    return { code: 422, payload: { message: 'No such permissions' } };
+  }
 
   const userThatShared = (await DB.getUser(conn, username))[0];
 
@@ -74,7 +77,15 @@ export const changePermissions = async (email, hash, permission, token) => {
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
-
+  if (response.message === 'Folder for share already include this file') {
+    return { code: 409, payload: { message: 'Folder for share already include this file' } };
+  }
+  if (response.message === 'File with this hash does not exist') {
+    return { code: 422, payload: { message: 'File with this hash does not exist' } };
+  }
+  if (response.message === 'File with this hash does not exist') {
+    return { code: 422, payload: { message: 'File with this hash does not exist' } };
+  }
   console.log(response);
   return { code: 200, payload: { response } };
 };

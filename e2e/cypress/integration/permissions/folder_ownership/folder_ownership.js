@@ -110,6 +110,7 @@ Then(/^Verify that the user2 has a folder "([^"]*)"$/, (foldername) => {
     url: `/folder/${hash}`,
     headers: headers,
   }).then((resp) => {
+    console.log(resp.body)
     Cypress.env('respStatus', resp.status)
     expect(foldername).to.equal(resp.body.folder.folderName)
     expect(Cypress.env('login_2')).to.equal(resp.body.folder.ownerId)
@@ -195,8 +196,9 @@ Then(/^User2 does not have access to folder Transfer$/,  () => {
     method: 'GET',
     url: `/folder/${parentHash}`,
     headers: headers,
+    failOnStatusCode: false
   }).then((resp) => {
-    expect('You does not have permission: ').to.equal(resp.body.folder.message)
+    expect('You does not have permission').to.equal(resp.body.message)
   })
 });
 

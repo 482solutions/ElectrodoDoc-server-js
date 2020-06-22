@@ -140,7 +140,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       csr,
     });
 
-    const response = await validator.sendTransaction({
+    await validator.sendTransaction({
       identity: {
         label: login,
         certificate: userData.certificate,
@@ -158,7 +158,6 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       },
     });
     gateway.disconnect();
-    console.log(response);
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
@@ -223,7 +222,6 @@ export const logIn = async (login, password, certificate, privateKey) => {
       props: [user.folder],
     },
   });
-  console.log(response);
   if (response === null
     || response.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };

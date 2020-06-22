@@ -235,7 +235,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
 
 /**
  * Logout user from the system
- * Manualy exit from the system
+ * Manually exit from the system
  *
  * no response value expected for this operation
  * */

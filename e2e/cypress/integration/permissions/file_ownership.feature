@@ -66,3 +66,7 @@ Feature:  Transfer file ownership
   Scenario: 11 Transfer permissions with empty permission
     And User sends a request to transfer file ownership with empty permission
     Then Response status 400
+
+  Scenario: 12 User can not transfer file ownership to the user if he already has them
+    And User sends a request to transfer file ownership to the user if he already has them
+    Then Response status 409

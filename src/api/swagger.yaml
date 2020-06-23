@@ -273,6 +273,22 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "FileSystem"
+  /tree:
+    get:
+      tags:
+        - "file_system"
+      summary: "Get folders tree"
+      description: "Get tree of folders and shared folders of user"
+      operationId: "tree"
+      parameters: []
+      responses:
+        "200":
+          description: "Folders and shared folders"
+        "203":
+          description: "Not Authorized"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "FileSystem"
   /search/{name}:
     get:
       tags:
@@ -313,6 +329,33 @@ paths:
           required: true
           schema:
             $ref: "#/definitions/changePermissions"
+      responses:
+        "200":
+          description: "Permissions have been changed"
+        "203":
+          description: "Not Authorized"
+        "403":
+          description: "Forbidden"
+        "422":
+          description: "Invalid data"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "Permissions"
+    delete:
+      tags:
+        - "permissions"
+      summary: "Revoke permissions"
+      description: "After revoke permissions target user not get permissions for file\
+        \ or folder"
+      operationId: "RevokePermissions"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/revokePermissions"
       responses:
         "200":
           description: "Permissions have been changed"
@@ -374,3 +417,18 @@ definitions:
         type: "string"
       permission:
         type: "string"
+        enum:
+          - "owner"
+          - "write"
+          - "read"
+  revokePermissions:
+    properties:
+      email:
+        type: "string"
+      hash:
+        type: "string"
+      permission:
+        type: "string"
+        enum:
+          - "unwrite"
+          - "unread"

@@ -223,7 +223,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
     },
   });
   if (response === null
-    || response.ownerId !== user.username) {
+    || response.folder.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };
   }
 
@@ -235,7 +235,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
 
 /**
  * Logout user from the system
- * Manualy exit from the system
+ * Manually exit from the system
  *
  * no response value expected for this operation
  * */

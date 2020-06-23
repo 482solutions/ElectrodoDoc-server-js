@@ -7,6 +7,7 @@ import {
   UpdateFile,
   UploadFile,
   Versions,
+  Tree,
 } from '../service/FileSystemService';
 
 export const createFolder = (req, res) => {
@@ -89,6 +90,17 @@ export const versions = (req, res) => {
   const token = req.headers.authorization;
   const hash = req.swagger.params.hash.value;
   Versions(hash, token)
+    .then((response) => {
+      utils.writeJson(res, response);
+    })
+    .catch((response) => {
+      utils.writeJson(res, response);
+    });
+};
+
+export const tree = (req, res) => {
+  const token = req.headers.authorization;
+  Tree(token)
     .then((response) => {
       utils.writeJson(res, response);
     })

@@ -361,3 +361,22 @@ Given(/^User sends a request to transfer folder ownership with empty permission$
     Cypress.env('respStatus', resp.status)
   }).wait(2000)
 })
+
+Given(/^User sends a request to transfer folder ownership to the user if he already has them$/,() => {
+  headers.Authorization = `Bearer ${Cypress.env('token')}`
+  const folder = Cypress.env('foldersInRoot')[0].hash
+  cy.request({
+    method: 'PUT',
+    url: '/permissions',
+    headers: headers,
+    body: {
+      'email': Cypress.env('email'),
+      'hash': folder,
+      'permission': 'owner'
+    },
+    failOnStatusCode: false
+  }).then((resp) => {
+    Cypress.env('respStatus', resp.status)
+    expect('This user is the owner of this file').to.equal(resp.body.message)
+  }).wait(2000)
+});

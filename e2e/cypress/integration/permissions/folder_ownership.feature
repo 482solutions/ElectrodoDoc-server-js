@@ -54,7 +54,7 @@ Feature:  Transfer folder ownership
 
   Scenario Outline: 9 Transfer incorrect permission
     Given User sends a request to transfer folder ownership with incorrect permission <incPermission>
-    Then Response status 422
+    Then Response status 400
     Examples: incPermission
       | incPermission |
       | writer        |
@@ -71,4 +71,9 @@ Feature:  Transfer folder ownership
 
   Scenario: 11 Transfer permissions with empty permission
     And User sends a request to transfer folder ownership with empty permission
-    Then Response status 422
+    Then Response status 400
+
+  Scenario: 12 User can not transfer folder ownership to the user if he already has them
+    And User sends a request to transfer folder ownership to the user if he already has them
+    Then Response status 409
+

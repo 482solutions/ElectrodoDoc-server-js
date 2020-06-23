@@ -181,7 +181,7 @@ export const GetFolder = async (hash, token) => {
     return { code: 404, payload: { message: 'Folder does not exist' } };
   }
   if (response.message && response.message === 'You does not have permission') {
-    return { code: 409, payload: { message: 'You does not have permission'} };
+    return { code: 409, payload: { message: 'You does not have permission' } };
   }
   return {
     code: 200,
@@ -367,4 +367,46 @@ export const Versions = async (hash, token) => {
     return { code: 404, payload: { message: 'File not found' } };
   }
   return { code: 200, payload: { versions: response.versions } };
+};
+
+/**
+ * Get folders tree
+ * Get tree of folders and shared folders of user
+ *
+ * no response value expected for this operation
+ * */
+export const Tree = async (token) => {
+  if (!token) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const username = await validator.getUserFromToken(token);
+  const blackToken = await redisGet(token);
+  if (!username || blackToken != null) {
+    return { code: 203, payload: { message: 'Not Authorized' } };
+  }
+  const certsList = await DB.getCerts(conn, username);
+  const user = (await DB.getUser(conn, username))[0];
+  let response;
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'tree',
+        props: [user.folder],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+  return { code: 200, payload: { versions: response } };
 };

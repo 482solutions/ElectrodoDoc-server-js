@@ -255,3 +255,7 @@ Given(/^Send request for create user3 and get token$/, () => {
     })
   })
 })
+
+Then(/^Message "([^"]*)"$/, (text) => {
+  expect(text).to.equal(Cypress.env('respBody').message)
+});

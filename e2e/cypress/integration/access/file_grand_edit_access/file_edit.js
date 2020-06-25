@@ -168,10 +168,6 @@ Given(/^The user1 sends a request to grant edit access to the file "([^"]*)" to 
   })
 });
 
-Then(/^Message "([^"]*)"$/, (text) => {
-  expect(text).to.equal(Cypress.env('respBody').message)
-});
-
 When(/^The user1 sends a request to grant edit access to the file "([^"]*)" with empty email$/, (filename) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   const fileHash = getHashFromFile(filename, Cypress.env('filesInRoot'))

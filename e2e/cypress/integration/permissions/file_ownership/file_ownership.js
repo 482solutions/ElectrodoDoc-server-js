@@ -6,7 +6,7 @@ const headers = {
 }
 Given(/^User sends request to transfer file ownership to user2$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -18,18 +18,17 @@ Given(/^User sends request to transfer file ownership to user2$/, () => {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.ownerId)
-    /*
-    Previous owner has read and edit permissions:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
+
+Then(/^User 2 is the owner of the file$/, () => {
+  expect(Cypress.env('login_2')).to.equal(Cypress.env('respBody').response.ownerId)
+});
 
 When(/^User2 can back to user1 file ownership$/,  () => {
   headers.Authorization = `Bearer ${Cypress.env('token_2')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -41,23 +40,13 @@ When(/^User2 can back to user1 file ownership$/,  () => {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login')).to.equal(resp.body.response.ownerId)
-    /*
-    The first owner has read and edit permissions:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-    /*
-    End the second owner has permissions to read and edit file:
-     */
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.readUsers[1])
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.writeUsers[1])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
-Given(/^User sends request to transfer file ownership to user3$/, function () {
+Given(/^User sends request to transfer file ownership to user3$/,  () => {
   headers.Authorization = `Bearer ${Cypress.env('token_2')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -69,79 +58,68 @@ Given(/^User sends request to transfer file ownership to user3$/, function () {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login_3')).to.equal(resp.body.response.ownerId)
-    /*
-    Previous owner has read and edit permissions:
-     */
-    // expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    // expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Then(/^Verify that the user1 has a file "([^"]*)"$/,  (filename) => {
-  const files = Cypress.env('filesInRoot')
-  expect(files.length).to.equal(1)
-  let cid = null
-  let hash = getHashFromFile('mockTest.txt', files)
+  expect(Cypress.env('filesInRoot').length).to.equal(1)
+  const cid = null
+  const hash = getHashFromFile(filename, Cypress.env('filesInRoot'))
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-
   cy.request({
     headers: headers,
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
     if (expect(200).to.eq(resp.status)) {
-      expect(resp.body.name).to.equal('mockTest.txt')
+      expect(resp.body.name).to.equal(filename)
       expect(resp.body.file).to.equal('Hello, world!')
       Cypress.env('respStatus', resp.status)
+      Cypress.env('respBody', resp.body)
     }
   })
 })
 
 Then(/^Verify that the user2 has a file "([^"]*)"$/, (filename) => {
+  const cid = null
+  const hash = getHashFromFile(filename, Cypress.env('filesInRoot'))
   headers.Authorization = `Bearer ${Cypress.env('token_2')}`
-  const files = Cypress.env('filesInRoot')
-  expect(files.length).to.equal(1)
-  let cid = null
-  let hash = getHashFromFile('mockTest.txt', files)
-
   cy.request({
     headers: headers,
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
     if (expect(200).to.eq(resp.status)) {
-      expect(resp.body.name).to.equal('mockTest.txt')
+      expect(resp.body.name).to.equal(filename)
       expect(resp.body.file).to.equal('Hello, world!')
       Cypress.env('respStatus', resp.status)
+      Cypress.env('respBody', resp.body)
     }
   })
 })
 
 Then(/^Verify that the user3 has a file "([^"]*)"$/,  (filename) => {
   headers.Authorization = `Bearer ${Cypress.env('token_3')}`
-
-  const files = Cypress.env('filesInRoot')
-  expect(files.length).to.equal(1)
   let cid = null
-  let hash = getHashFromFile('mockTest.txt', files)
-
+  let hash = getHashFromFile(filename, Cypress.env('filesInRoot'))
   cy.request({
     headers: headers,
     method: 'GET',
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
     if (expect(200).to.eq(resp.status)) {
-      expect(resp.body.name).to.equal('mockTest.txt')
+      expect(resp.body.name).to.equal(filename)
       expect(resp.body.file).to.equal('Hello, world!')
       Cypress.env('respStatus', resp.status)
+      Cypress.env('respBody', resp.body)
     }
   })
 })
 
 Given(/^User sends a request to transfer file ownership to nonexistent user$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -154,7 +132,8 @@ Given(/^User sends a request to transfer file ownership to nonexistent user$/, (
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer of rights to a nonexistent file$/, () => {
@@ -172,12 +151,13 @@ Given(/^User sends a request to transfer of rights to a nonexistent file$/, () =
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership with Empty Bearer$/, () => {
   headers.Authorization = `Bearer `
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -190,12 +170,12 @@ Given(/^User sends a request to transfer file ownership with Empty Bearer$/, () 
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect('Not Authorized').to.equal(resp.body.message)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership without Bearer$/, () => {
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -208,13 +188,14 @@ Given(/^User sends a request to transfer file ownership without Bearer$/, () => 
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect('Not Authorized').to.equal(resp.body.message)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+    // expect('Not Authorized').to.equal(resp.body.message)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership with incorrect permission (.*)$/, (incPermission) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -227,12 +208,13 @@ Given(/^User sends a request to transfer file ownership with incorrect permissio
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership with empty email$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -245,7 +227,8 @@ Given(/^User sends a request to transfer file ownership with empty email$/, () =
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership with empty hash$/, () => {
@@ -262,12 +245,13 @@ Given(/^User sends a request to transfer file ownership with empty hash$/, () =>
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer file ownership with empty permission$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -280,11 +264,12 @@ Given(/^User sends a request to transfer file ownership with empty permission$/,
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 Given(/^User sends a request to transfer file ownership to the user if he already has them$/,() => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const file = Cypress.env('filesInRoot')[0].hash
+  const file = getHashFromFile("mockTest.txt", Cypress.env('filesInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -297,6 +282,21 @@ Given(/^User sends a request to transfer file ownership to the user if he alread
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect('This user is the owner of this file').to.equal(resp.body.message)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
+});
+
+Then(/^User 1 is the editor and viewer of the file$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login'))).to.be.true
+});
+
+Then(/^User 2 is the editor and viewer of the file$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_2'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login_2'))).to.be.true
+});
+
+Then(/^User 3 is the editor and viewer of the file$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_3'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login_3'))).to.be.true
 });

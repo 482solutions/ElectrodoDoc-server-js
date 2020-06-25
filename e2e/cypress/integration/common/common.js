@@ -35,7 +35,6 @@ Then(/^Response status 422$/, () => {
 })
 
 Given(/^I send request for create user$/, () => {
-
   Cypress.env('login', getLogin())
   Cypress.env('password', getPassword())
   Cypress.env('email', getLogin() + '@gmail.com')
@@ -76,7 +75,6 @@ Given(/^I send request for create user$/, () => {
 })
 
 Given(/^Send request for create user and get token$/, () => {
-
   Cypress.env('login', getLogin())
   Cypress.env('password', getPassword())
   Cypress.env('email', getLogin() + '@gmail.com')
@@ -133,7 +131,7 @@ Given(/^Send request for create user and get token$/, () => {
         }
       })
     })
-  }).wait(6000)
+  })
 })
 Given(/^Send request for create user2 and get token$/, () => {
 
@@ -194,11 +192,10 @@ Given(/^Send request for create user2 and get token$/, () => {
         }
       })
     })
-  }).wait(6000)
+  })
 })
 
 Given(/^Send request for create user3 and get token$/, () => {
-
   Cypress.env('login_3', getLogin())
   Cypress.env('password_3', getPassword())
   Cypress.env('email_3', getLogin() + '@gmail.com')
@@ -256,5 +253,5 @@ Given(/^Send request for create user3 and get token$/, () => {
         }
       })
     })
-  }).wait(6000)
+  })
 })

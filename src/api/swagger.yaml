@@ -334,6 +334,7 @@ paths:
           description: "Permissions have been changed"
         "203":
           description: "Not Authorized"
+#          TODO: "409":  description: "Conflict"
         "403":
           description: "Forbidden"
         "422":

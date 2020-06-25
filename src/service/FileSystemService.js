@@ -76,7 +76,14 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
   await DB.insertFolder(conn, name, folderHash);
-  return { code: 201, payload: { folder: response } };
+  return {
+    code: 201,
+    payload: {
+      folder: response.parentFolder,
+      folders: response.folders,
+      files: response.files,
+    }
+  };
 };
 
 /**
@@ -132,7 +139,6 @@ export const DownloadFile = async (hash, cid, token) => {
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
-
   return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
 };
 
@@ -253,7 +259,14 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     return { code: 404, payload: { message: 'Parent folder not found' } };
   }
   await DB.insertFile(conn, name, fileHash);
-  return { code: 200, payload: { folder: response } };
+  return {
+    code: 200,
+    payload: {
+      folder: response.parentFolder,
+      folders: response.folders,
+      files: response.files,
+    },
+  };
 };
 
 export const UpdateFile = async (hash, file, token) => {

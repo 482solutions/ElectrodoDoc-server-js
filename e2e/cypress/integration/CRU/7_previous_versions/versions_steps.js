@@ -8,7 +8,7 @@ const headers = {
 Given(/^The user send request for viewing previous version "([^"]*)" file$/, (fileName) => {
   let versions = Cypress.env('versions')
   expect(versions[0].cid).to.not.equal(versions[1].cid)
-  // const cid = versions[0].cid
+
   const files = Cypress.env('filesInRoot')
   const hash = getHashFromFile(fileName, files)
   headers.Authorization = `Bearer ${Cypress.env('token')}`
@@ -20,8 +20,7 @@ Given(/^The user send request for viewing previous version "([^"]*)" file$/, (fi
     Cypress.env('respStatus', resp.status)
     expect(fileName).to.equal(resp.body.name)
     expect('Good night!').to.equal(resp.body.file)
-  }).wait(2000)
-
+  })
 })
 
 When(/^The user send request for viewing previous version with incorrect bearer$/, function() {
@@ -40,7 +39,7 @@ When(/^The user send request for viewing previous version with incorrect bearer$
   }).then((resp) => {
     expect('Not Authorized').to.equal(resp.body.message)
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+  })
 })
 
 When(/^The user send request for viewing previous version bearer is empty$/, function() {
@@ -59,7 +58,7 @@ When(/^The user send request for viewing previous version bearer is empty$/, fun
   }).then((resp) => {
     expect('Not Authorized').to.equal(resp.body.message)
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+  })
 })
 
 When(/^The user send request for viewing previous version with incorrect hash$/, function() {
@@ -77,7 +76,7 @@ When(/^The user send request for viewing previous version with incorrect hash$/,
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+  })
 })
 
 after(() => {

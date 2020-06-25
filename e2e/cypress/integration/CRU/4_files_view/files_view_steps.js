@@ -7,7 +7,6 @@ const headers = {
 
 When(/^User sends a request for a file from the root folder$/, () => {
   const files = Cypress.env('filesInRoot')
-  cy.wait(3000)
   expect(files.length).to.equal(1)
   let cid = null
   let hash = getHashFromFile('mockTest.txt', files)

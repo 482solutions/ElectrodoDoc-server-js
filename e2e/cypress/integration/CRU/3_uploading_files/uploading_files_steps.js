@@ -11,7 +11,6 @@ const incorrectBearer = new Headers({
 })
 
 When(/^User send request for upload png file$/, () => {
-  cy.wait(6000)
   let token = Cypress.env('token')
   cy.readFile('cypress/fixtures/image.png', 'base64').then(async (logo) => {
     Cypress.Blob.base64StringToBlob(logo, 'image/png').then(async (blob) => {

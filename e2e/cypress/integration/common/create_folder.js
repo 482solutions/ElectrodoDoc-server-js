@@ -17,5 +17,5 @@ Given(/^User1 send request for create folder in root folder with name "([^"]*)"$
   }).then((resp) => {
     Cypress.env('foldersInRoot', resp.body.folder.folders)
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+  })
 });

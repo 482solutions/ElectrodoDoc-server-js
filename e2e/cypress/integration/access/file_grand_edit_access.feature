@@ -1,4 +1,4 @@
-@test_case_3.4
+@test_case_3.3
 @grant_edit_access_for_a_file
 
   # ./node_modules/.bin/cypress-tags run -e TAGS='@test_case_3.3'
@@ -92,6 +92,3 @@ Feature: Grant edit access for a file
     When User2 as Editor send request for transfer ownership to user3
     Then Response status 422
     And Message "Incorrect hash"
-
-
-

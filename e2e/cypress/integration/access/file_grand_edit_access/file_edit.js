@@ -223,21 +223,3 @@ When(/^The user1 sends a request to grant edit access to the file "([^"]*)" with
     Cypress.env('respBody', resp.body)
   })
 });
-Then(/^User2 as Editor send request for transfer ownership to user3$/, (filename) => {
-  headers.Authorization = `Bearer ${Cypress.env('token_2')}`
-  const fileHash = getHashFromFile(filename, Cypress.env('filesInRoot'))
-  cy.request({
-    method: 'PUT',
-    url: '/permissions',
-    headers: headers,
-    body: {
-      'email': Cypress.env('email_3'),
-      'hash': fileHash,
-      'permission': 'owner'
-    },
-    failOnStatusCode: false
-  }).then((resp) => {
-    Cypress.env('respStatus', resp.status)
-    Cypress.env('respBody', resp.body)
-  })
-});

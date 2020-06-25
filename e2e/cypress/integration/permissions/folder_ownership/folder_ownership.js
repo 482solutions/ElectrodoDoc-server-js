@@ -1,5 +1,5 @@
 import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
-import { getHashFromFile, getHashFromFolder } from '../../../support/commands'
+import { getHashFromFolder } from '../../../support/commands'
 
 const headers = {
   'content-type': 'application/json'
@@ -20,13 +20,8 @@ Given(/^User sends request to transfer folder ownership to user2$/, () => {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.ownerId)
-    /*
-    Previous owner has read and edit permissions:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 When(/^User sends request to transfer folder ownership to user3$/,  () => {
@@ -43,15 +38,8 @@ When(/^User sends request to transfer folder ownership to user3$/,  () => {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login_3')).to.equal(resp.body.response.ownerId)
-    /*
-   And previous owners have permissions to 'write' and 'read':
-    */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.readUsers[1])
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.writeUsers[1])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 });
 
 When(/^User2 can back to user1 folder ownership$/,  () => {
@@ -68,18 +56,8 @@ When(/^User2 can back to user1 folder ownership$/,  () => {
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login')).to.equal(resp.body.response.ownerId)
-    /*
-    Second owner has 'read' and 'edit' permissions:
-     */
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.readUsers[1])
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.writeUsers[1])
-    /*
-    Owner has 'read' and 'edit' permissions:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 });
 
 Then(/^Verify that the user1 has a folder "([^"]*)"$/,  (foldername) => {
@@ -91,13 +69,8 @@ Then(/^Verify that the user1 has a folder "([^"]*)"$/,  (foldername) => {
     headers: headers,
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
     expect(foldername).to.equal(resp.body.folder.folderName)
-    expect(Cypress.env('login')).to.equal(resp.body.folder.ownerId)
-    /*
-    And previous owner has permissions to write and read:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.folder.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.folder.writeUsers[0])
   })
 });
 
@@ -110,15 +83,9 @@ Then(/^Verify that the user2 has a folder "([^"]*)"$/, (foldername) => {
     url: `/folder/${hash}`,
     headers: headers,
   }).then((resp) => {
-    console.log(resp.body)
     Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
     expect(foldername).to.equal(resp.body.folder.folderName)
-    expect(Cypress.env('login_2')).to.equal(resp.body.folder.ownerId)
-    /*
-    And previous owner has permissions to 'write' and 'read':
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.folder.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.folder.writeUsers[0])
   })
 })
 
@@ -131,15 +98,9 @@ Then(/^Verify that the user3 has a folder "([^"]*)"$/,(foldername) => {
     headers: headers,
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
     expect(foldername).to.equal(resp.body.folder.folderName)
     expect(Cypress.env('login_3')).to.equal(resp.body.folder.ownerId)
-    /*
-    And previous owners have permissions to 'write' and 'read':
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.folder.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.folder.writeUsers[0])
-    expect(Cypress.env('login_2')).to.equal(resp.body.folder.readUsers[1])
-    expect(Cypress.env('login_2')).to.equal(resp.body.folder.writeUsers[1])
   })
 });
 
@@ -156,6 +117,7 @@ Given(/^User1 send request for create folder in folder Transfer with name "([^"]
     },
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
     //New folder in array:
     expect(foldername).to.equal(resp.body.folder.folders[0].name)
     //ParentFolder:
@@ -179,14 +141,8 @@ When(/^User sends request to transfer of ownership to the "([^"]*)" to user2$/, 
     },
   }).then((resp) => {
     parentHash = resp.body.response.parentFolderHash
-
     Cypress.env('respStatus', resp.status)
-    expect(Cypress.env('login_2')).to.equal(resp.body.response.ownerId)
-    /*
-    Second owner has 'read' and 'edit' permissions:
-     */
-    expect(Cypress.env('login')).to.equal(resp.body.response.readUsers[0])
-    expect(Cypress.env('login')).to.equal(resp.body.response.writeUsers[0])
+    Cypress.env('respBody', resp.body)
   })
 });
 
@@ -198,13 +154,14 @@ Then(/^User2 does not have access to folder Transfer$/,  () => {
     headers: headers,
     failOnStatusCode: false
   }).then((resp) => {
-    expect('You does not have permission').to.equal(resp.body.message)
+    Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
   })
 });
 
 Given(/^User sends a request to transfer folder ownership to nonexistent user$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -217,7 +174,8 @@ Given(/^User sends a request to transfer folder ownership to nonexistent user$/,
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer of rights to a nonexistent folder$/, () => {
@@ -235,12 +193,13 @@ Given(/^User sends a request to transfer of rights to a nonexistent folder$/, ()
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer of incorrect rights OWNER$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -253,12 +212,13 @@ Given(/^User sends a request to transfer of incorrect rights OWNER$/, () => {
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership with Empty Bearer$/, () => {
   headers.Authorization = `Bearer `
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -271,11 +231,12 @@ Given(/^User sends a request to transfer folder ownership with Empty Bearer$/, (
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership without Bearer$/, () => {
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -288,12 +249,13 @@ Given(/^User sends a request to transfer folder ownership without Bearer$/, () =
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership with incorrect permission (.*)$/, (incPermission) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -306,12 +268,13 @@ Given(/^User sends a request to transfer folder ownership with incorrect permiss
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership with empty email$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -324,7 +287,8 @@ Given(/^User sends a request to transfer folder ownership with empty email$/, ()
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership with empty hash$/, () => {
@@ -341,12 +305,13 @@ Given(/^User sends a request to transfer folder ownership with empty hash$/, () 
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership with empty permission$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -359,12 +324,13 @@ Given(/^User sends a request to transfer folder ownership with empty permission$
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
 })
 
 Given(/^User sends a request to transfer folder ownership to the user if he already has them$/,() => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  const folder = Cypress.env('foldersInRoot')[0].hash
+  const folder = getHashFromFolder('Transfer', Cypress.env('foldersInRoot'))
   cy.request({
     method: 'PUT',
     url: '/permissions',
@@ -377,6 +343,34 @@ Given(/^User sends a request to transfer folder ownership to the user if he alre
     failOnStatusCode: false
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
-    expect('This user is the owner of this file').to.equal(resp.body.message)
-  }).wait(2000)
+    Cypress.env('respBody', resp.body)
+  })
+});
+
+Then(/^User 1 is the editor and viewer of the folder$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login'))).to.be.true
+});
+
+Then(/^User 2 is the editor and viewer of the folder$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_2'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login_2'))).to.be.true
+});
+
+Then(/^User 3 is the editor and viewer of the folder$/,  () => {
+  expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_3'))).to.be.true
+  expect(Cypress.env('respBody').response.writeUsers.includes(Cypress.env('login_3'))).to.be.true
+});
+
+Given(/^User 1 is the owner of the folder$/,  () => {
+  console.log(Cypress.env('respBody'))
+  expect(Cypress.env('login')).to.equal(Cypress.env('respBody').response.ownerId)
+});
+
+Then(/^User 2 is the owner of the folder$/,  () => {
+  expect(Cypress.env('login_2')).to.equal(Cypress.env('respBody').response.ownerId)
+});
+
+Then(/^User 3 is the owner of the folder$/,  () => {
+  expect(Cypress.env('login_3')).to.equal(Cypress.env('respBody').response.ownerId)
 });

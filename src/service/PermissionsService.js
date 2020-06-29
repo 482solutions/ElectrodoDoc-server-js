@@ -1,11 +1,12 @@
 import { promisify } from 'util';
+import dotenv from 'dotenv';
 import validator from '../helpers/auth';
 import { redisClient } from '../adapter/redis';
 import DB from '../database/utils';
 import connection from '../database/connect';
 import configDB from '../database/configDB';
-import dotenv from 'dotenv';
-dotenv.config()
+
+dotenv.config();
 const conn = connection(configDB);
 const redisGet = promisify(redisClient.get).bind(redisClient);
 /**

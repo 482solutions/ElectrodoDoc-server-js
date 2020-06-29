@@ -34,17 +34,16 @@ exports.writeJson = function writeJson(response, arg1, arg2) {
   }
 
   if (payload.type) {
-    if (payload.type === 'image/svg+xml'){
+    if (payload.type === 'image/svg+xml') {
       response.writeHead(code, {
         'Content-Type': 'multipart/form-data',
-        'X-Content-Type-Options': payload.name
+        'X-Content-Type-Options': payload.name,
       });
-    } else{
+    } else {
       response.writeHead(code, {
         'Content-Type': payload.type,
-        'X-Content-Type-Options': payload.name
+        'X-Content-Type-Options': payload.name,
       });
-
     }
     payload = payload.file;
   } else {

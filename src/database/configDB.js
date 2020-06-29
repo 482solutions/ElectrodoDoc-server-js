@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-dotenv.config()
+
+dotenv.config();
 
 module.exports = {
   user: process.env.POSTGRES_USER,

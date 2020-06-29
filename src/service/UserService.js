@@ -15,7 +15,7 @@ import connection from '../database/connect';
 import DB from '../database/utils';
 import { redisClient } from '../adapter/redis';
 
-dotenv.config()
+dotenv.config();
 
 const HOST = process.env.FABRIC_HOST || '172.28.0.3';
 const PORT = process.env.FABRIC_PORT || 7054;

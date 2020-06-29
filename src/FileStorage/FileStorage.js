@@ -32,12 +32,12 @@ class FileStorage {
    * @returns {String}
    */
   async getFileByHash(cid) {
-    const chunks = []
+    const chunks = [];
     for await (const chunk of this.node.cat(cid)) {
-      chunks.push(chunk)
+      chunks.push(chunk);
     }
-    let file = Buffer.concat(chunks)
-    return file
+    const file = Buffer.concat(chunks);
+    return file;
   }
 }
 

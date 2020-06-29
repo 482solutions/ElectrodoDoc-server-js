@@ -6,10 +6,7 @@ export const getCSR = (userData) => {
 
   const privateKeyPem = KEYUTIL.getPEM(kp.prvKeyObj, 'PKCS8PRV');
   const publicKeyPem = KEYUTIL.getPEM(kp.pubKeyObj, 'PKCS8PUB');
-  // const {
-  //   username, country, state, city,
-  // } = userData;
-  // TODO: replace static data to dynemic
+
   const { username } = userData;
   const country = 'UA';
   const state = 'Odessa';

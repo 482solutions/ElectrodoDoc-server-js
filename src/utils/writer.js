@@ -28,9 +28,27 @@ exports.writeJson = function writeJson(response, arg1, arg2) {
     // if no response code given, we default to 200
     code = 200;
   }
-  if (typeof payload === 'object') {
+
+  if (typeof payload === 'object' && !payload.type) {
     payload = JSON.stringify(payload, null, 2);
   }
-  response.writeHead(code, { 'Content-Type': 'application/json' });
+
+  if (payload.type) {
+    if (payload.type === 'image/svg+xml'){
+      response.writeHead(code, {
+        'Content-Type': 'multipart/form-data',
+        'X-Content-Type-Options': payload.name
+      });
+    } else{
+      response.writeHead(code, {
+        'Content-Type': payload.type,
+        'X-Content-Type-Options': payload.name
+      });
+
+    }
+    payload = payload.file;
+  } else {
+    response.writeHead(code, { 'Content-Type': 'application/json' });
+  }
   response.end(payload);
 };

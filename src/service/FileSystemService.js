@@ -9,6 +9,9 @@ import { redisClient } from '../adapter/redis';
 import DB from '../database/utils';
 import { FileStorage } from '../FileStorage';
 
+import dotenv from 'dotenv';
+dotenv.config()
+
 const redisGet = promisify(redisClient.get).bind(redisClient);
 const conn = connection(configDB);
 
@@ -76,14 +79,7 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
   await DB.insertFolder(conn, name, folderHash);
-  return {
-    code: 201,
-    payload: {
-      folder: response.parentFolder,
-      folders: response.folders,
-      files: response.files,
-    }
-  };
+  return { code: 201, payload: { folder: response.parentFolder, folders: response.folders, files: response.files } };
 };
 
 /**
@@ -134,12 +130,11 @@ export const DownloadFile = async (hash, cid, token) => {
   }
   const cidFromFabric = (!cid || cid.length !== 46)
     ? response.versions[response.versions.length - 1].cid : cid;
-
-  const file = await fileStorage.getFileByHash(cidFromFabric);
+  const  file = await fileStorage.getFileByHash(cidFromFabric);
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
-  return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
+  return { code: 200, payload: { type: response.fileType, file, name: response.fileName} };
 };
 
 /**
@@ -259,14 +254,7 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
     return { code: 404, payload: { message: 'Parent folder not found' } };
   }
   await DB.insertFile(conn, name, fileHash);
-  return {
-    code: 200,
-    payload: {
-      folder: response.parentFolder,
-      folders: response.folders,
-      files: response.files,
-    },
-  };
+  return { code: 200, payload: { folder: response.parentFolder, folders: response.folders, files: response.files } };
 };
 
 export const UpdateFile = async (hash, file, token) => {

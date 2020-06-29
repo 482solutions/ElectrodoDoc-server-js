@@ -16,6 +16,13 @@ To run the tests, run:
 sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
 ```
 
+To run the debug mode, run:
+
+```
+1) sudo docker-compose -f docker-compose-debug.yml up
+2) npm run debug
+```
+
 To view the Woden UI interface:
 
 ```

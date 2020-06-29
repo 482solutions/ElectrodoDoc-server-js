@@ -160,6 +160,13 @@ paths:
       summary: "Download file"
       description: "Downloading file from current folder"
       operationId: "downloadFile"
+      produces:
+        - "application/json"
+        - "image/png"
+        - "image/gif"
+        - "image/jpeg"
+        - "multipart/form-data"
+        - "application/pdf"
       parameters:
         - name: "hash"
           in: "path"
@@ -174,6 +181,8 @@ paths:
       responses:
         "200":
           description: "File to download"
+          schema:
+            type: "file"
         "203":
           description: "Not Authorized"
         "404":
@@ -334,7 +343,6 @@ paths:
           description: "Permissions have been changed"
         "203":
           description: "Not Authorized"
-#          TODO: "409":  description: "Conflict"
         "403":
           description: "Forbidden"
         "422":

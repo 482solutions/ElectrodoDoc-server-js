@@ -134,7 +134,6 @@ Given(/^Send request for create user and get token$/, () => {
   })
 })
 Given(/^Send request for create user2 and get token$/, () => {
-
   Cypress.env('login_2', getLogin())
   Cypress.env('password_2', getPassword())
   Cypress.env('email_2', getLogin() + '@gmail.com')

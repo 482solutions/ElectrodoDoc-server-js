@@ -11,30 +11,31 @@ Feature:  Transfer file ownership
     And The user send request for upload file "mockTest.txt"
 
   Scenario: 1 Transfer file permissions
-    Given User sends request to transfer file ownership to user2
+    Given "User1" sends request to transfer file ownership to "User2"
     Then Response status 200
-    And User 1 is the editor and viewer of the file
-    And User 2 is the owner of the file
-    And Verify that the user2 has a file "mockTest.txt"
+    And "User1" is the editor and viewer
+    And "User2" is the owner of the file
+    And "User2" can send request for a file "mockTest.txt"
 
   Scenario: 2 User2 can back file ownership to user1
-    Given User sends request to transfer file ownership to user2
-    And User 1 is the editor and viewer of the file
-    And Verify that the user2 has a file "mockTest.txt"
+    Given "User1" sends request to transfer file ownership to "User2"
+    And "User1" is the editor and viewer
+    And "User2" can send request for a file "mockTest.txt"
     When User2 can back to user1 file ownership
     Then Response status 200
-    And User 2 is the editor and viewer of the file
-    And Verify that the user1 has a file "mockTest.txt"
+    And "User2" is the editor and viewer
+    And "User1" can send request for a file "mockTest.txt"
 
   Scenario: 3 Transfer file permissions from user1 to user3
-    Given User sends request to transfer file ownership to user2
-    And User 1 is the editor and viewer of the file
-    And Verify that the user2 has a file "mockTest.txt"
+    Given "User1" sends request to transfer file ownership to "User2"
+    And "User1" is the editor and viewer
+    And "User2" is the owner of the file
+    And "User2" can send request for a file "mockTest.txt"
     When Send request for create user3 and get token
-    And User sends request to transfer file ownership to user3
+    And "User2" sends request to transfer file ownership to "User3"
     Then Response status 200
-    And User 2 is the editor and viewer of the file
-    And Verify that the user3 has a file "mockTest.txt"
+    And "User2" is the editor and viewer
+    And "User3" can send request for a file "mockTest.txt"
 
   Scenario: 4 Transfer of permissions to a nonexistent user
     Given User sends a request to transfer file ownership to nonexistent user

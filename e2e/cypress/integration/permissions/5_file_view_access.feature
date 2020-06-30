@@ -56,7 +56,7 @@ Feature: Grant view access for a file
   Scenario: 5 Owner can not grand access for a file to himself
     When The "User1" sends a request to grant "view" access to the "file" "mockTest.txt" to "User1"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the owner of this file"
 
   Scenario: 6 Editor can not grand access for a file to himself
     Given The "User1" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User2"
@@ -101,7 +101,7 @@ Feature: Grant view access for a file
     And "User2" is the viewer
     When The "User2" sends a request to grant "owner" access to the "file" "mockTest.txt" to "User3"
     Then Response status 422
-    And Message "Incorrect hash"
+    And Message "You does not have permission"
 
   @negative
   Scenario: 12 Viewer can can not grand view access for a file
@@ -112,7 +112,7 @@ Feature: Grant view access for a file
     And "User2" is the viewer
     When The "User2" sends a request to grant "view" access to the "file" "mockTest.txt" to "User3"
     Then Response status 422
-    And Message "Incorrect hash"
+    And Message "You does not have permission"
 
   @negative
   Scenario: 13 Owner can not grand access for a file if the parameter "email" is absent

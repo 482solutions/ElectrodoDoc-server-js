@@ -50,7 +50,7 @@ Feature: Grant edit access for a file
   Scenario: 5 Owner can not grand access for a file to himself
     When The "User1" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User1"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the owner of this file"
 
   Scenario: 6 Editor can not grand access for a file to himself
     Given The "User1" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User2"
@@ -85,7 +85,7 @@ Feature: Grant edit access for a file
     And Message "User for sharing not found"
 
   @negative
-  Scenario: 11 Editor can can not to transfer ownership for a file
+  Scenario: 11 Editor can not to transfer ownership for a file
     Given Send request for create user3 and get token
     And The "User1" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User2"
     And Response status 200
@@ -93,7 +93,7 @@ Feature: Grant edit access for a file
     And "User2" is the editor and viewer
     When The "User2" sends a request to grant "owner" access to the "file" "mockTest.txt" to "User3"
     Then Response status 422
-    And Message "Incorrect hash"
+    And Message "You does not have permission"
 
   @negative
   Scenario: 12 Owner can not grand access for a file if the parameter "email" is absent

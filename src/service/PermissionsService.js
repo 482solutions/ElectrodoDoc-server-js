@@ -25,8 +25,11 @@ export const changePermissions = async (email, hash, permission, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
+  console.log(permission)
+  if (!permission || permission.length < 4 || permission.length > 5) {
+    return { code: 422, payload: { message: 'Incorrect permissions' } };
+  }
   const userThatShared = (await DB.getUser(conn, username))[0];
-
   const users = await DB.getUserByEmail(conn, email);
   if (users.length === 0) {
     return { code: 422, payload: { message: 'User for sharing not found' } };
@@ -47,13 +50,13 @@ export const changePermissions = async (email, hash, permission, token) => {
     case ('read'):
       request = {
         name: 'changePermissions',
-        props: [hash, userForShare.username, 'allow', 'read', userForShare.folder],
+        props: [hash, userForShare.username, 'read', userForShare.folder],
       };
       break;
     case ('write'):
       request = {
         name: 'changePermissions',
-        props: [hash, userForShare.username, 'allow', 'write', userForShare.folder],
+        props: [hash, userForShare.username, 'write', userForShare.folder],
       };
       break;
     default:
@@ -75,20 +78,34 @@ export const changePermissions = async (email, hash, permission, token) => {
       },
       transaction: request,
     });
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  if (response.message === 'This user is the owner of this file') {
-    return { code: 409, payload: { message: 'This user is the owner of this file' } };
+  let resp
+  switch (response.message) {
+    case('This user is the owner of this file'):
+      resp = { code: 409, payload: { message: response.message } };
+      break;
+    case  ('This user is the editor of this file'):
+      resp = { code: 409, payload: { message: response.message } };
+      break;
+    case  ('This user is the viewer of this file'):
+      resp = { code: 409, payload: { message: response.message } };
+      break;
+    case  ('Folder for share already include this file'):
+      resp = { code: 409, payload: { message: response.message } };
+      break;
+    case  ('You does not have permission'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
+    case  ('File with this hash does not exist'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
+    default:
+      resp = { code: 200, payload: { response } }
   }
-  if (response.message === 'Folder for share already include this file') {
-    return { code: 409, payload: { message: 'Folder for share already include this file' } };
-  }
-  if (response.message === 'File with this hash does not exist') {
-    return { code: 422, payload: { message: 'File with this hash does not exist' } };
-  }
-  console.log(response);
-  return { code: 200, payload: { response } };
+  return resp;
 };
 
 /**
@@ -121,14 +138,14 @@ export const revokePermissions = async (email, hash, permission, token) => {
   switch (permission) {
     case ('unread'):
       request = {
-        name: 'changePermissions',
-        props: [hash, userForRevoke.username, 'disallow', 'read', userForRevoke.folder],
+        name: 'revokePermissions',
+        props: [hash, userForRevoke.username, 'read', userForRevoke.folder],
       };
       break;
     case ('unwrite'):
       request = {
-        name: 'changePermissions',
-        props: [hash, userForRevoke.username, 'disallow', 'write', userForRevoke.folder],
+        name: 'revokePermissions',
+        props: [hash, userForRevoke.username, 'write', userForRevoke.folder],
       };
       break;
     default:
@@ -150,12 +167,13 @@ export const revokePermissions = async (email, hash, permission, token) => {
       },
       transaction: request,
     });
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
   if (response.message === 'File with this hash does not exist') {
     return { code: 422, payload: { message: 'File with this hash does not exist' } };
   }
-  console.log(response);
+  console.log('--------------------------------------------------------------------------------------------------------------------------------------------------------------------------response revoke', response);
   return { code: 200, payload: { response } };
 };

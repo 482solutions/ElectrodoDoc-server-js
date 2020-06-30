@@ -24,8 +24,8 @@ Then(/^"([^"]*)" can send request for a file "([^"]*)"$/, (user, file) => {
     url: `/file/${hash}/${cid}`
   }).then((resp) => {
     if (expect(200).to.eq(resp.status)) {
-      expect(resp.body.name).to.equal(file);
-      expect(resp.body.file).to.equal('Hello, world!');
+      expect(resp.headers['x-content-type-options']).to.equal(file);
+      expect(resp.body).to.equal('Hello, world!');
       Cypress.env('respStatus', resp.status);
     }
   })

@@ -48,16 +48,16 @@ Feature: Grant view access for a file
     And "User2" is the viewer
     When The "User1" sends a request to grant "view" access to the "folder" "Transfer" to "User2"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the viewer of this file"
 
   @negative
   Scenario: 5 Owner can not grand access for a folder to himself
     When The "User1" sends a request to grant "view" access to the "folder" "Transfer" to "User1"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the owner of this file"
 
   Scenario: 6 Editor can not grand access for a file to himself
-    Given The "User1" sends a request to grant "view" access to the "folder" "Transfer" to "User2"
+    Given The "User1" sends a request to grant "edit" access to the "folder" "Transfer" to "User2"
     And Response status 200
     When The "User2" sends a request to grant "view" access to the "folder" "Transfer" to "User2"
     Then Response status 409
@@ -107,7 +107,7 @@ Feature: Grant view access for a file
     And "User2" is the viewer
     When The "User2" sends a request to grant "view" access to the "folder" "Transfer" to "User3"
     Then Response status 422
-    And Message "Incorrect hash"
+    And Message "You does not have permission"
 
   @negative
   Scenario: 13 Owner can not grand access for a folder if the parameter "email" is absent

@@ -54,7 +54,7 @@ Feature: Grant edit access for a folder
   Scenario: 5 Owner can not grand access for a folder to himself
     When The "User1" sends a request to grant "edit" access to the "folder" "Transfer" to "User1"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the owner of this file"
 
   Scenario: 6 Editor can not grand access for a file to himself
     Given The "User1" sends a request to grant "edit" access to the "folder" "Transfer" to "User2"
@@ -72,19 +72,19 @@ Feature: Grant edit access for a folder
 
   @negative
   Scenario: 8 Owner can not grand access for a folder if field "email" is empty
-    When The "User1" sends a request to "grant" "edit" access to the "folder" "Transfer" with "empty" email
+    When The "User1" sends a request to grant "edit" access to the "folder" "Transfer" with "empty" email
     Then Response status 422
     And Message "User for sharing not found"
 
   @negative
   Scenario: 9 Owner can not grand access for a folder if field "email" contain spaces
-    When The "User1" sends a request to "grant" "edit" access to the "folder" "Transfer" with "spaces in" email
+    When The "User1" sends a request to grant "edit" access to the "folder" "Transfer" with "spaces in" email
     Then Response status 422
     And Message "User for sharing not found"
 
   @negative
   Scenario: 10 Owner can not grand access for a folder if field "email" contain username
-    When The "User1" sends a request to "grant" "edit" access to the "folder" "Transfer" with "username in" email
+    When The "User1" sends a request to grant "edit" access to the "folder" "Transfer" with "username in" email
     Then Response status 422
     And Message "User for sharing not found"
 
@@ -100,15 +100,16 @@ Feature: Grant edit access for a folder
 
   @negative
   Scenario: 12 Owner can not grand access for a folder if the parameter "email" is absent
-    Given The user1 sends a request to "grant" "edit" access to the "folder" "Transfer" without "email"
+    Given The user1 sends a request to grant "edit" access to the "folder" "Transfer" without "email"
     Then Response status 422
 
   @negative
+
   Scenario: 13 Owner can not grand access for a folder if the parameter "permissions" is absent
-    Given The user1 sends a request to "grant" "edit" access to the "folder" "Transfer" without "permissions"
+    Given The user1 sends a request to grant "edit" access to the "folder" "Transfer" without "permissions"
     Then Response status 422
 
   @negative
   Scenario: 14 Owner can not grand access for a folder if the parameter "hash" is absent
-    Given The user1 sends a request to "grant" "edit" access to the "folder" "Transfer" without "hash"
+    Given The user1 sends a request to grant "edit" access to the "folder" "Transfer" without "hash"
     Then Response status 422

@@ -297,7 +297,7 @@ Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([
         Cypress.env('respStatus', resp.status)
       })
       break;
-    case 'permission':
+    case 'permissions':
       cy.request({
         method: 'PUT',
         url: '/permissions',
@@ -308,6 +308,7 @@ Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([
         },
         failOnStatusCode: false
       }).then((resp) => {
+        console.log(resp)
         Cypress.env('respStatus', resp.status)
       })
       break;

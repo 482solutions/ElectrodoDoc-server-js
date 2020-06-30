@@ -2,3 +2,4 @@ package-lock.json
 mochawesome-report
 node_modules
 cypress/screenshots
+cypress/fixtures

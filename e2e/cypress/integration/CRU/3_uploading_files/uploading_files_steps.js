@@ -32,7 +32,7 @@ When(/^User send request for upload png file$/, () => {
         return response.json();
       }).then((result) => {
         Cypress.env('filesInRoot', result.folder.files)
-        expect(Cypress.env('login')).to.equal(result.folder.folderName)
+        // expect(Cypress.env('login')).to.equal(result.folder.folderName)
         });
     })
   }).as('Send png')

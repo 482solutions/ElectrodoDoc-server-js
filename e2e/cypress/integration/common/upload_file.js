@@ -25,6 +25,8 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       return response.json();
     }).then((result) => {
       Cypress.env('filesInRoot', result.folder.files)
+      Cypress.env('respBody', result.folder)
+      expect(Cypress.env('login')).to.equal( result.folder.ownerId);
       expect(Cypress.env('login')).to.equal(result.folder.folderName)
     });
   }).as('Send txt')

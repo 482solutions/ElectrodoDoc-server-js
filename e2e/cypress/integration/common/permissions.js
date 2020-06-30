@@ -47,6 +47,20 @@ Then(/^"([^"]*)" not in editors list$/,  (user) => {
   }
 });
 
+Then(/^"([^"]*)" not in viewer list$/,  (user) => {
+  switch (user) {
+    case 'User1':
+      expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login'))).to.be.false;
+      break;
+    case 'User2':
+      expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_2'))).to.be.false;
+      break;
+    case 'User3':
+      expect(Cypress.env('respBody').response.readUsers.includes(Cypress.env('login_3'))).to.be.false;
+      break;
+  }
+});
+
 Then(/^"([^"]*)" is the editor and viewer$/,  (user) => {
   switch (user) {
     case 'User1':
@@ -215,7 +229,7 @@ When(/^The "([^"]*)" sends a request to grant "([^"]*)" access to the "([^"]*)" 
       Cypress.env('respStatus', resp.status)
       Cypress.env('respBody', resp.body)
     })
-  });
+});
 
 When(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([^"]*)" to user2 and user3$/,  (permission, object, filename) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
@@ -251,7 +265,8 @@ When(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([^
   })
 });
 
-Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([^"]*)" without "([^"]*)"$/,  (permission, object, name, field) => {
+Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([^"]*)" without "([^"]*)"$/,
+  (permission, object, name, field) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   switch (permission) {
     case 'edit':
@@ -259,13 +274,6 @@ Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([
       break;
     case 'view':
       permission = 'read';
-      break;
-  } switch (object) {
-    case 'file':
-      object = getHashFromFile(name, Cypress.env('filesInRoot'));
-      break;
-    case 'folder':
-      object = getHashFromFolder(name, Cypress.env('foldersInRoot'));
       break;
   } switch (object) {
     case 'file':

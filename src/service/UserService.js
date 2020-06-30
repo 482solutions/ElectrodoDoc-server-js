@@ -4,6 +4,7 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import FabricCAService from 'fabric-ca-client';
 import { promisify } from 'util';
+import dotenv from 'dotenv';
 
 import { Gateway, InMemoryWallet, X509WalletMixin } from 'fabric-network';
 
@@ -13,6 +14,8 @@ import configDB from '../database/configDB';
 import connection from '../database/connect';
 import DB from '../database/utils';
 import { redisClient } from '../adapter/redis';
+
+dotenv.config();
 
 const HOST = process.env.FABRIC_HOST || '172.28.0.3';
 const PORT = process.env.FABRIC_PORT || 7054;

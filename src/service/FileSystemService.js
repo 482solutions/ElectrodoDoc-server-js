@@ -1,6 +1,7 @@
 import sha256 from 'sha256';
 import { promisify } from 'util';
 
+import dotenv from 'dotenv';
 import validator from '../helpers/auth';
 import configDB from '../database/configDB';
 import connection from '../database/connect';
@@ -8,6 +9,8 @@ import { redisClient } from '../adapter/redis';
 
 import DB from '../database/utils';
 import { FileStorage } from '../FileStorage';
+
+dotenv.config();
 
 const redisGet = promisify(redisClient.get).bind(redisClient);
 const conn = connection(configDB);
@@ -82,7 +85,7 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
       folder: response.parentFolder,
       folders: response.folders,
       files: response.files,
-    }
+    },
   };
 };
 
@@ -134,12 +137,11 @@ export const DownloadFile = async (hash, cid, token) => {
   }
   const cidFromFabric = (!cid || cid.length !== 46)
     ? response.versions[response.versions.length - 1].cid : cid;
-
   const file = await fileStorage.getFileByHash(cidFromFabric);
   if (file === null) {
     return { code: 404, payload: { message: 'File not found.' } };
   }
-  return { code: 200, payload: { name: response.fileName, type: response.fileType, file } };
+  return { code: 200, payload: { type: response.fileType, file, name: response.fileName } };
 };
 
 /**

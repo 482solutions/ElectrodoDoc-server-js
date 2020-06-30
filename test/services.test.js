@@ -48,7 +48,7 @@ describe('User Registration', async () => {
     const password = sha256('password');
 
     it('should return created user from database', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password, csr.privateKeyPem, csr.csrPem);
         const userFromDB = (await DB.getUser(conn, login))[0];
         assert.equal(login, userFromDB.username);
     });
@@ -60,12 +60,12 @@ describe('User Login', async () => {
     const password = sha256('password');
 
     before('Create user', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
     });
 
     it('should return code 200 when correct user login to system', async () => {
         const userCert = (await DB.getCerts(conn, login))[0];
-        const result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
+        const result = await logIn(login, password, userCert.cert,  csr.privateKeyPem);
         assert.equal(result.code, 200);
     });
 });
@@ -77,7 +77,7 @@ describe('User password changing', async () => {
     let result;
 
     before('Create and login user ', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
     });
@@ -97,7 +97,7 @@ describe('Creating Folder', async () => {
     let result;
 
     before('create and login user', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
     });
@@ -119,7 +119,7 @@ describe('Open folder', async () => {
     let folderFromDB = {};
 
     before('create and login user and create folder', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
         await CreateFolder(folderName, result.payload.folder, `Bearer ${result.payload.token}`);
@@ -139,7 +139,7 @@ describe('Uploading files', async () => {
     let result;
 
     before('create and login user', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
     });
@@ -161,7 +161,7 @@ describe('Downloading files', async () => {
     let fileFromDB = {};
 
     before('create and login user and create folder', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password,csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
         await UploadFile(fileName, result.payload.folder, file, `Bearer ${result.payload.token}`);
@@ -182,7 +182,7 @@ describe('Search', async () => {
     let result;
 
     before('create and login user and create folder', async () => {
-        await createUser(login, 'test@gmail.com', password, csr.csrPem);
+        await createUser(login, 'test@gmail.com', password, csr.privateKeyPem, csr.csrPem);
         const userCert = (await DB.getCerts(conn, login))[0];
         result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
         await CreateFolder(folderName, result.payload.folder, `Bearer ${result.payload.token}`);

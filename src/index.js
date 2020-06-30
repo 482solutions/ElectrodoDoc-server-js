@@ -12,7 +12,7 @@ import initDB from './utils/initdb';
 const app = connect();
 const serverPort = 1823;
 dotenv.config();
-
+// in debug just comment this code
 initDB().then(() => {
   console.log('DB successfully initiated');
 }).catch(

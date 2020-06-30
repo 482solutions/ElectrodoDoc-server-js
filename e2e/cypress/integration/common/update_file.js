@@ -23,7 +23,6 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
       const myHeaders = new Headers({
         'Authorization': `Bearer ${Cypress.env('token')}`
       })
-
       let formData = new FormData()
       formData.append('hash', hashFile)
       formData.append('file', blob)
@@ -40,7 +39,7 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
           return resp.json()
         })
         .then((data) => {
-          // expect(Cypress.env('login')).to.equal(data.file.fileName)
+          expect(fileName).to.eq(data.fileName)
         })
     }).as('Update txt file').wait(6000)
   })

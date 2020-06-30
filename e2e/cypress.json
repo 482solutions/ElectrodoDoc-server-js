@@ -28,6 +28,7 @@
   },
   "projectId": "mxxwps",
   "video": false,
+  "screenshots": false,
   "viewportWidth": 1280,
   "viewportHeight": 800,
   "reporter": "mochawesome",

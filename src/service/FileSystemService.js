@@ -417,12 +417,12 @@ export const Tree = async (token) => {
         contract: 'org.fabric.marketcontract',
       },
       transaction: {
-        name: 'tree',
+        name: 'getFolderTree',
         props: [user.folder],
       },
     });
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  return { code: 200, payload: { versions: response } };
+  return { code: 200, payload: { response } };
 };

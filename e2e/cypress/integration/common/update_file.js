@@ -39,7 +39,7 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
           return resp.json()
         })
         .then((data) => {
-          expect(fileName).to.eq(data.fileName)
+          expect(fileName).to.eq(data.file.fileName)
         })
     }).as('Update txt file').wait(6000)
   })

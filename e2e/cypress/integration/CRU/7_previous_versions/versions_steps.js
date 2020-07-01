@@ -19,7 +19,7 @@ Given(/^The user send request for viewing previous version "([^"]*)" file$/, (fi
   }).then((resp) => {
     Cypress.env('respStatus', resp.status)
     expect(fileName).to.equal(resp.headers["x-content-type-options"])
-    expect('Good night!').to.equal(resp.body.file)
+    expect('Good night!').to.equal(resp.body)
   })
 })
 

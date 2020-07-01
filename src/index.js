@@ -13,13 +13,13 @@ const app = connect();
 const serverPort = 1823;
 dotenv.config();
 // in debug just comment this code
-// initDB().then(() => {
-//   console.log('DB successfully initiated');
-// }).catch(
-//   () => {
-//     console.log('Failed to initiate db');
-//   },
-// );
+initDB().then(() => {
+  console.log('DB successfully initiated');
+}).catch(
+  () => {
+    console.log('Failed to initiate db');
+  },
+);
 // swaggerRouter configuration
 const options = {
   swaggerUi: path.join(__dirname, '/swagger.json'),

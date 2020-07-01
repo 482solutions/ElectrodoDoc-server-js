@@ -61,7 +61,7 @@ Feature: Grant view access for a file
     And Response status 200
     When The "User2" sends a request to grant "view" access to the "folder" "Transfer" to "User2"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the viewer of this file"
 
   @negative
   Scenario: 7 Owner can not grand access for a folder to some users

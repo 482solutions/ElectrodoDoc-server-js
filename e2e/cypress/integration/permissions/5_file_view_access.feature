@@ -65,7 +65,7 @@ Feature: Grant view access for a file
     And "User2" is the editor and viewer
     When The "User2" sends a request to grant "view" access to the "file" "mockTest.txt" to "User2"
     Then Response status 409
-    And Message "This user is the editor of this file"
+    And Message "This user is the viewer of this file"
 
   @negative
   Scenario: 7 Owner can not grand access for a file to some users

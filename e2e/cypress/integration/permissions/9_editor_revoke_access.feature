@@ -93,13 +93,13 @@ Feature: Editor revoke access
   @negative
   Scenario: 6 Editor can not revoke edit access from the owner
     When The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" from the "User1"
-    Then Message "You does not have permission"
+    Then Message "User does not have such permissions"
     And Response status 403
 
   @negative
   Scenario: 7 Editor can not revoke view access from the owner
     When The "User2" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User1"
-    Then Message "You does not have permission"
+    Then Message "User does not have such permissions"
     And Response status 403
 
   @negative
@@ -128,8 +128,8 @@ Feature: Editor revoke access
     And "User3" not in editors list
     And "User3" is the viewer
     And The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" from the "User3"
-    Then Response status 422
-    And Message "User for revoke not found"
+    Then Response status 403
+    And Message "User does not have such permissions"
 
   Scenario: 11 Editor can not revoke view access for a file from the user repeatedly
     And The "User2" sends a request to grant "view" access to the "file" "mockTest.txt" to "User3"
@@ -153,46 +153,54 @@ Feature: Editor revoke access
     When The "User2" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User2"
     Then Response status 403
 
-  Scenario: 14 Editor can not revoke edit access for a file if field "email" contain username
+  @positive
+  Scenario: 14 Editor can revoke edit access for a file if field "email" contain username
     And The "User2" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User3"
     When The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" with "username 3 in" email
-    Then Response status 422
-    And Message "User for revoke not found"
+    Then Response status 200
+    And "User1" is the owner of the file
+    And "User2" is the editor and viewer
+    And "User3" not in editors list
+    And "User3" is the viewer
 
-  Scenario: 15 Editor can not revoke view access for a file if field "email" contain username
+  @positive
+  Scenario: 15 Editor can revoke view access for a file if field "email" contain username
     And The "User2" sends a request to grant "view" access to the "file" "mockTest.txt" to "User3"
     When The "User2" sends a request to revoke "view" access to the "file" "mockTest.txt" with "username 3 in" email
-    Then Response status 422
-    And Message "User for revoke not found"
+    Then Response status 200
+    And "User1" is the owner of the file
+    And "User2" is the editor and viewer
+    And "User3" not in editors list
+    And "User3" not in viewer list
 
   @negative
   Scenario: 16 Editor can not revoke access for a file if field "email" is empty
     And The "User2" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User3"
     When The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" with "empty" email
     Then Response status 422
-    And Message "User for sharing not found"
+    And Message "User for revoke not found"
 
   @negative
   Scenario: 17 Editor can not revoke access for a file if field "email" contain spaces
     And The "User2" sends a request to grant "edit" access to the "file" "mockTest.txt" to "User3"
     When The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" with "spaces in" email
     Then Response status 422
-    And Message "User for sharing not found"
+    And Message "User for revoke not found"
 
   @negative
   Scenario: 18 Editor can not revoke access for a file if the parameter "email" is absent
     Given The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" without "email"
-    Then Response status 422
+    Then Response status 400
 
   @negative
-  Scenario: 19 Editor can not revoke access for a file if the parameter "permissions" is absent
-    Given The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" without "permissions"
+  Scenario: 19 Editor can not revoke access for a file if the parameter "permission" is absent
+    Given The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" without "permission"
     Then Response status 422
 
   @negative
   Scenario: 20 Editor can not revoke access for a file if the parameter "hash" is absent
     Given The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" without "hash"
-    Then Response status 422
+    Then Response status 400
 
   @negative
   Scenario: 21 Editor can not revoke access for a file if Bearer is empty

@@ -160,6 +160,13 @@ paths:
       summary: "Download file"
       description: "Downloading file from current folder"
       operationId: "downloadFile"
+      produces:
+        - "application/json"
+        - "image/png"
+        - "image/gif"
+        - "image/jpeg"
+        - "multipart/form-data"
+        - "application/pdf"
       parameters:
         - name: "hash"
           in: "path"
@@ -173,7 +180,13 @@ paths:
           type: "string"
       responses:
         "200":
-          description: "File to download"
+          description: "File download"
+          headers:
+            X-Content-Type-Options:
+              type: "string"
+              description: "Name of file"
+          schema:
+            type: "file"
         "203":
           description: "Not Authorized"
         "404":

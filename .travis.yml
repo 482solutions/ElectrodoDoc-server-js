@@ -1,12 +1,12 @@
 
-# language: node_js
-# node_js:
-#   - "stable"
-# services:
-#   - docker
-# script:
-#   - npm run fix:js
-#   - npm run lint:js
+language: node_js
+node_js:
+  - "stable"
+services:
+  - docker
+script:
+  - npm run fix:js
+  - npm run lint:js
 #   - sudo docker system prune -a -f
 #   - git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
 #   - cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh

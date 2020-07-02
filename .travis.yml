@@ -1,10 +1,6 @@
 language: node_js
 node_js:
   - "stable"
-cache:
-  directories:
-  - ~/.npm
-  - ~/.cache
 services:
   - docker
 script:
@@ -15,8 +11,33 @@ script:
   - cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
   - cd ..
   #  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit
-
   - sudo docker-compose up --build -d
   - sleep 60
-  - cd ./e2e && npm i && npm run cypress:run
-
+  - $(npm bin)/print-env TRAVIS
+  - cd ./e2e && npm i && npm run cypress:run -- --record --key $CY_KEY --parallel --group $STAGE_NAME --ci-build-id PostDeploy-$GROUP_NAME-$TRAVIS_BUILD_ID
+  - kill $(jobs -p) || true
+jobs:
+  include:
+    # we have multiple jobs to execute using just a single stage
+    # but we can pass group name via environment variable to Cypress test runner
+    - stage: test
+      env:
+        - STAGE_NAME="1x-electron on Travis CI"
+        <<: *defaults
+          # run tests in parallel by including several test jobs with same name variable
+          - stage: test
+            env:
+              - STAGE_NAME="4x-electron on Travis CI"
+            <<: *defaults
+          - stage: test
+            env:
+              - STAGE_NAME="4x-electron on Travis CI"
+            <<: *defaults
+          - stage: test
+            env:
+              - STAGE_NAME="4x-electron on Travis CI"
+            <<: *defaults
+          - stage: test
+            env:
+              - STAGE_NAME="4x-electron on Travis CI"
+            <<: *defaults

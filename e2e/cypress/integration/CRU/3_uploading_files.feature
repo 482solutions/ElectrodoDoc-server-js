@@ -42,18 +42,18 @@ Feature: Uploading files
       When User send request for upload file without file
       Then Response status 400
 
-##  Scenario: 3 User can not upload file with the same name
-##    Given The user is authorized
-##    And the user is located in his root folder or in the  folder where he has "Editors" rights
-##    When The user press Upload a new file button
-##    And Choose the needed file from its PC directory with the same name as another file in this folder
-##    Then The file is not uploaded
-##    And The user gets error notification "The file with this name already exists."
-##
-##  Scenario: 4 User can not upload two files at the same time
-##    Given The user is authorized
-##    And the user is located in his root folder or in the  folder where he has "Editors" rights
-##    When The user press Upload a new file button
-##    And Choose two files from PC directory
-##    Then The file is not uploaded
-##    And The user gets error notification "The file with this name already exists."
+#  Scenario: 3 User can not upload file with the same name
+#    Given The user is authorized
+#    And the user is located in his root folder or in the  folder where he has "Editors" rights
+#    When The user press Upload a new file button
+#    And Choose the needed file from its PC directory with the same name as another file in this folder
+#    Then The file is not uploaded
+#    And The user gets error notification "The file with this name already exists."
+#
+#  Scenario: 4 User can not upload two files at the same time
+#    Given The user is authorized
+#    And the user is located in his root folder or in the  folder where he has "Editors" rights
+#    When The user press Upload a new file button
+#    And Choose two files from PC directory
+#    Then The file is not uploaded
+#    And The user gets error notification "The file with this name already exists."

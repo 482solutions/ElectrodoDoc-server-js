@@ -1,3 +1,4 @@
+
 # language: node_js
 # node_js:
 #   - "stable"
@@ -15,4 +16,3 @@
 #   - sudo docker-compose up --build -d
 #   - sleep 60
 #   - cd ./e2e && npm i && npm run cypress:run
-

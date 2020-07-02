@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
 import ipfsClient from 'ipfs-http-client';
-import BufferList from 'bl';
 
 class FileStorage {
   /**
@@ -33,16 +32,12 @@ class FileStorage {
    * @returns {String}
    */
   async getFileByHash(cid) {
-    let total;
-    for await (const file of this.node.get(`/ipfs/${cid}`)) {
-      const contents = new BufferList();
-      for await (const chunk of file.content) {
-        contents.append(chunk);
-      }
-
-      total = contents.toString('utf-8');
+    const chunks = [];
+    for await (const chunk of this.node.cat(cid)) {
+      chunks.push(chunk);
     }
-    return total;
+    const file = Buffer.concat(chunks);
+    return file;
   }
 }
 

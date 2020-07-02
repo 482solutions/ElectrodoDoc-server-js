@@ -45,9 +45,9 @@ export function getCidFromFile (fileName, files) {
   }
 }
 
-export function getHashFromFile (fileName, files) {
+export function getHashFromFile (filename, files) {
   for (let key in files) {
-    if (fileName === files[key].name) {
+    if (filename === files[key].name) {
       return files[key].hash
     }
   }

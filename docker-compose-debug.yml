@@ -1,0 +1,50 @@
+version: '3'
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - '5432:5432'
+    volumes:
+      - database_postgres:/var/lib/postgresql
+    networks:
+      - front_default
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./storage/redis:/data
+    entrypoint: redis-server --appendonly yes
+
+
+  ipfs:
+    image: ipfs/go-ipfs:v0.4.22
+    container_name: ipfs
+    depends_on:
+      - redis
+    volumes:
+      - $HOME/ipfs/staging:/export
+      - $HOME/ipfs/data:/ipfs/data
+    environment:
+      - IPFS_API_URL=${IPFS_API_URL}
+    ports:
+      - "5001:5001"
+
+volumes:
+  api:
+  database_postgres:
+  conf:
+
+networks:
+  front_default:
+    external: true

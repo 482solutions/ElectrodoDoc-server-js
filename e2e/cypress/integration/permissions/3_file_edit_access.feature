@@ -93,7 +93,7 @@ Feature: Grant edit access for a file
     And "User2" is the editor and viewer
     When The "User2" sends a request to grant "owner" access to the "file" "mockTest.txt" to "User3"
     Then Response status 422
-    And Message "You does not have permission"
+    And Message "User does not have permission"
 
   @negative
   Scenario: 12 Owner can not grand access for a file if the parameter "email" is absent

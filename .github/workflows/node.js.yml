@@ -28,6 +28,7 @@ jobs:
     - run: npm i
     - run: npm run fix:js
     - run: npm run lint:js
+    - run: sudo docker volume prune -f
     - run: sudo docker system prune -a -f
     - run: git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
     - run: cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh

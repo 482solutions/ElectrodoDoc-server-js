@@ -14,7 +14,7 @@ pipeline {
   stages {    
     stage('Cloning Git') {
       steps { 
-        sh 'git clone https://github.com/andrii482/githooks_jenkins_test && cd githooks_jenkins_test && npm i' 
+        sh 'git clone https://github.com/482solutions/woden-server-js.git -b feature/SI-340 --single-branch && cd woden-server-js && npm i' 
       }
     }        
   }

@@ -132,7 +132,7 @@ Feature: Owner revoke access
     And "User2" is the viewer
     And "User2" not in editors list
     When The "User2" sends a request to revoke "edit" access to the "file" "mockTest.txt" from the "User1"
-    Then Message "You does not have permission"
+    Then Message "User does not have permission"
     And Response status 422
 
   @negative
@@ -143,7 +143,7 @@ Feature: Owner revoke access
     And "User2" is the viewer
     And "User2" not in editors list
     When The "User2" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User1"
-    Then Message "You does not have permission"
+    Then Message "User does not have permission"
     And Response status 422
 
   @negative

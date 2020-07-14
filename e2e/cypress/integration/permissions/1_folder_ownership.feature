@@ -46,7 +46,7 @@ Feature:  Transfer folder ownership
     And "User1" is the editor and viewer
     And "User2" is the owner of the folder
     And "User2" does not have access to folder Transfer
-    And Message "You does not have permission"
+    And Message "User does not have permission"
 
   Scenario: 5 Transfer of permissions to a nonexistent user
     Given User sends a request to transfer folder ownership to nonexistent user

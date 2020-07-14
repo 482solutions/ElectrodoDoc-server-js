@@ -189,7 +189,7 @@ export const GetFolder = async (hash, token) => {
     return { code: 404, payload: { message: 'Folder does not exist' } };
   }
   if (response.message && response.message === 'You does not have permission') {
-    return { code: 409, payload: { message: 'You does not have permission' } };
+    return { code: 409, payload: { message: 'User does not have permission' } };
   }
   return {
     code: 200,

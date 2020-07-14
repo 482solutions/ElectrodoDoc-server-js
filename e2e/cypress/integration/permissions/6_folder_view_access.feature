@@ -96,7 +96,7 @@ Feature: Grant view access for a file
     And "User1" is the owner of the folder
     When The "User2" sends a request to grant "owner" access to the "folder" "Transfer" to "User3"
     Then Response status 422
-    And Message "You does not have permission"
+    And Message "User does not have permission"
 
   @negative
   Scenario: 12 Viewer can can not grand view access for a folder
@@ -107,7 +107,7 @@ Feature: Grant view access for a file
     And "User2" is the viewer
     When The "User2" sends a request to grant "view" access to the "folder" "Transfer" to "User3"
     Then Response status 422
-    And Message "You does not have permission"
+    And Message "User does not have permission"
 
   @negative
   Scenario: 13 Owner can not grand access for a folder if the parameter "email" is absent

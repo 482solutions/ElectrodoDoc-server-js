@@ -81,28 +81,28 @@ export const changePermissions = async (email, hash, permission, token) => {
   catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  let resp;
+  let resp
   switch (response.message) {
-    case 'This user is the owner of this file':
+    case('This user is the owner of this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'This user is the editor of this file':
+    case  ('This user is the editor of this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'This user is the viewer of this file':
+    case  ('This user is the viewer of this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'Folder for share already include this file':
+    case  ('Folder for share already include this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'You does not have permission':
+    case  ('User does not have permission'):
       resp = { code: 422, payload: { message: response.message } };
       break;
-    case 'File with this hash does not exist':
+    case  ('File with this hash does not exist'):
       resp = { code: 422, payload: { message: response.message } };
       break;
     default:
-      resp = { code: 200, payload: { response } };
+      resp = { code: 200, payload: { response } }
   }
   return resp;
 };
@@ -179,28 +179,28 @@ export const revokePermissions = async (email, hash, permission, token) => {
   catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  let resp;
+  let resp
   switch (response.message) {
-    case 'User does not have such permissions':
+    case('User does not have such permissions'):
       resp = { code: 403, payload: { message: response.message } };
       break;
-    case 'This user is the editor of this file':
+    case  ('This user is the editor of this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'This user is the viewer of this file':
+    case  ('This user is the viewer of this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'Folder for share already include this file':
+    case  ('Folder for share already include this file'):
       resp = { code: 409, payload: { message: response.message } };
       break;
-    case 'You does not have permission':
+    case  ('User does not have permission'):
       resp = { code: 422, payload: { message: response.message } };
       break;
-    case 'File with this hash does not exist':
+    case  ('File with this hash does not exist'):
       resp = { code: 422, payload: { message: response.message } };
       break;
     default:
-      resp = { code: 200, payload: { response } };
+      resp = { code: 200, payload: { response } }
   }
   return resp;
 };

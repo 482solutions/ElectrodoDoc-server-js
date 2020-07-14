@@ -108,7 +108,6 @@ export const DownloadFile = async (hash, cid, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-
   const certsList = await DB.getCerts(conn, username);
   let response;
   try {
@@ -227,10 +226,8 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   if (!contents.buffer || contents.buffer.length === 0) {
     return { code: 422, payload: { message: 'File is required' } };
   }
-
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
-
   const certsList = await DB.getCerts(conn, username);
   let response;
   try {

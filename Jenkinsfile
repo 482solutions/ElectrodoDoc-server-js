@@ -18,7 +18,7 @@ pipeline {
     BUILD_KEY_MASTER = "-p"
     DOCKER_REGISTRY = "nexus.482.solutions"
     CREDENTIAL_ID_DOCKER = "nexus"
-    REPO = "PROJECT_NAME_HERE_MUST_BE"
+    REPO = "woden"
     IMAGE_DEV = "dev"
     IMAGE_QA = "qa"
     IMAGE_MASTER = "master"

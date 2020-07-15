@@ -27,9 +27,9 @@ pipeline {
  
     stages {
       stage("Build and Push BE DockerImage Branch Test") {
-            when {
+          /*  when {
                 branch 'feature/SI-340'
-            }
+            }*/
             steps {
                 script {
                     def newImage = docker.build("${REPO}/${IMAGE_DEV}","--build-arg BUILD_KEY=${BUILD_KEY_DEVELOPMENT} -f ./Dockerfile .")

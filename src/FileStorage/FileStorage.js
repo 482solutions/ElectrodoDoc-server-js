@@ -17,11 +17,13 @@ class FileStorage {
    * @returns {CID}
    */
   async upload(contents) {
-    let cid;
+    let path;
     for await (const chunk of this.node.add(contents)) {
-      ({ cid } = chunk);
+      console.log("from upload FileStorage", chunk)
+       path = chunk.path
     }
-    return cid;
+    console.log("cid from upload FileStorage", path)
+    return path;
   }
 
   /**

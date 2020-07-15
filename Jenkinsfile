@@ -15,7 +15,7 @@ pipeline {
   stages {    
     stage('Cloning Git') {
       steps { 
-        sh 'pwd && echo "$USER" && echo "$HOME" && "PATH"'
+        sh 'pwd && echo "$USER" && echo "$HOME" && echo "$PATH"'
         sh 'git clone https://github.com/482solutions/woden-server-js.git -b feature/SI-340 --single-branch && cd woden-server-js && npm i' 
       }
     }        

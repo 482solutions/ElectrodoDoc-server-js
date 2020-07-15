@@ -40,6 +40,15 @@ pipeline {
                 }
             }
         }
+       stage('Clean Docker Images after Deploy Test') {
+           /* when {
+                branch 'test'
+            } */
+            steps {
+                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_DEV}:${BUILD_NUMBER}'
+                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_DEV}:latest'
+                sh 'docker rmi ${REPO}/${IMAGE_DEV}:latest'
+     /*           sh 'docker rmi node:carbon' */
     }
   post { 
     always { cleanWs() }

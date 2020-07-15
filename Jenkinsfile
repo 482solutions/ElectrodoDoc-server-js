@@ -10,8 +10,23 @@ pipeline {
     timestamps () 
     ansiColor('xterm') 
   }
+  environment {
+    VERSION = "${env.BUILD_NUMBER}"
+    BRANCH = "${env.GIT_BRANCH}"
+    BUILD_KEY_DEVELOPMENT = "-d"
+    BUILD_KEY_QA = "-q"
+    BUILD_KEY_MASTER = "-p"
+    DOCKER_REGISTRY = "nexus.482.solutions"
+    CREDENTIAL_ID_DOCKER = "nexus"
+    REPO = "PROJECT_NAME_HERE_MUST_BE"
+    IMAGE_DEV = "dev"
+    IMAGE_QA = "qa"
+    IMAGE_MASTER = "master"
+    TAG = "${VERSION}"
+    }
  
-  stage("Build and Push BE DockerImage Branch Test") {
+    stages {
+      stage("Build and Push BE DockerImage Branch Test") {
             when {
                 branch 'feature/SI-340'
             }

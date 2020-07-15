@@ -49,6 +49,8 @@ pipeline {
                 sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_DEV}:latest'
                 sh 'docker rmi ${REPO}/${IMAGE_DEV}:latest'
      /*           sh 'docker rmi node:carbon' */
+            }
+       }
     }
   post { 
     always { cleanWs() }

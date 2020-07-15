@@ -8,7 +8,7 @@ pipeline {
 
   options { 
     timestamps () 
-    ansiColor() 
+    ansiColor('xterm') 
   }
  
   

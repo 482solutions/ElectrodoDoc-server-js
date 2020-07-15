@@ -32,7 +32,7 @@ pipeline {
             }*/
             steps {
                 script {
-                    def newImage = docker.build("${REPO}/${IMAGE_DEV}","--build-arg BUILD_KEY=${BUILD_KEY_DEVELOPMENT} -f ./Dockerfile .","--no-cache")
+                    def newImage = docker.build("${REPO}/${IMAGE_DEV}","--build-arg BUILD_KEY=${BUILD_KEY_DEVELOPMENT} --no-cache -f ./Dockerfile . ")
                     docker.withRegistry( "https://${DOCKER_REGISTRY}", "${CREDENTIAL_ID_DOCKER}" ) {
                         newImage.push("${TAG}")
                         newImage.push("latest")

@@ -2,7 +2,7 @@
 pipeline {
   agent { label '1' } 
   
-  triggers { pollSCM '* * * * *' }
+  /*triggers { pollSCM '* * * * *' }*/
   
   tools { nodejs "nodejs" }
 
@@ -34,6 +34,7 @@ pipeline {
            sh 'sudo rm -R -f woden-network && git clone https://github.com/482solutions/woden-network.git && cd woden-network && sudo -S ./deploy.sh'
            sh 'sudo docker-compose up --build -d'
            sh 'cd ./e2e && npm i && npm run cypress:run'
+           sh 'sudo rm -R -f woden-network'
          }
       }
       stage("Build and Push BE DockerImage Branch Test") {

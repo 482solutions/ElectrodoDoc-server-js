@@ -3,6 +3,9 @@ pipeline {
   agent { label '1' } 
   
   /*triggers { pollSCM '* * * * *' }*/
+  triggers:
+    - githubPullRequest:
+        github-hooks: true
   
   tools { nodejs "nodejs" }
 

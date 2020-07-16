@@ -6,7 +6,7 @@ pipeline {
   triggers {
     githubPullRequest{
       github-hooks(true)
-      pollSCM('* * * * *') 
+     /* pollSCM('* * * * *') */
     }
   }
   

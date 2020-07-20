@@ -20,7 +20,7 @@ pipeline {
     stages {
       stage("Run Tests") {
          steps {
-           slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "STARTED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
+           slackSend channel: "#wg-rnd", color: "green", message: "STARTED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
            sh 'npm i'
            sh 'npm run fix:js'
            sh 'npm run lint:js'
@@ -42,7 +42,7 @@ pipeline {
                         newImage.push("latest")
                     }
                 }
-                slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "BUILD_n_PUSH_DOCKER_FINISHED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
+                slackSend channel: "#wg-rnd", color: "green", message: "BUILD_n_PUSH_DOCKER_FINISHED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
             }
         }
        stage('Clean Docker Images after Deploy Test') {
@@ -63,10 +63,10 @@ pipeline {
       cleanWs() 
     }
     success {
-           slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "SUCCESS ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
+           slackSend channel: "#wg-rnd", color: "green", message: "SUCCESS ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
     }
     failure {
-            slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "red", message: "FAILURE ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
+            slackSend channel: "#wg-rnd", color: "red", message: "FAILURE ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
     }
   } 
 }

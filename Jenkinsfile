@@ -2,14 +2,6 @@
 pipeline {
   agent { label '1' } 
   
-  /*triggers { pollSCM '* * * * *' }*/
-  /* triggers {
-    githubPullRequest{
-      github-hooks(true)
-     /* pollSCM('* * * * *')
-    }
-  } */
-  
   tools { nodejs "nodejs" }
 
   options { 
@@ -18,15 +10,9 @@ pipeline {
   }
   environment {
     VERSION = "${env.BUILD_NUMBER}"
-    BRANCH = "${env.GIT_BRANCH}"
-    BUILD_KEY_DEVELOPMENT = "-d"
-    BUILD_KEY_QA = "-q"
-    BUILD_KEY_MASTER = "-p"
     DOCKER_REGISTRY = "nexus.482.solutions"
     CREDENTIAL_ID_DOCKER = "nexus"
     REPO = "woden_server_js"
-    IMAGE_DEV = "dev"
-    IMAGE_QA = "qa"
     IMAGE_MASTER = "master"
     TAG = "${VERSION}"
     }
@@ -34,6 +20,7 @@ pipeline {
     stages {
       stage("Run Tests") {
          steps {
+           slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "STARTED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
            sh 'npm i'
            sh 'npm run fix:js'
            sh 'npm run lint:js'
@@ -49,12 +36,13 @@ pipeline {
             }*/
             steps {
                 script {
-                    def newImage = docker.build("${REPO}/${IMAGE_DEV}","--build-arg BUILD_KEY=${BUILD_KEY_DEVELOPMENT} --no-cache -f ./Dockerfile . ")
+                    def newImage = docker.build("${REPO}/${IMAGE_MASTER}","--no-cache -f ./Dockerfile . ")
                     docker.withRegistry( "https://${DOCKER_REGISTRY}", "${CREDENTIAL_ID_DOCKER}" ) {
                         newImage.push("${TAG}")
                         newImage.push("latest")
                     }
                 }
+                slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "BUILD_n_PUSH_DOCKER_FINISHED ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
             }
         }
        stage('Clean Docker Images after Deploy Test') {
@@ -73,6 +61,12 @@ pipeline {
     always { 
       sh 'docker stop fabric_orderer fabric_peer fabric_ca fabric_ca_db && docker rm -v fabric_orderer fabric_peer fabric_ca fabric_ca_db'
       cleanWs() 
+    }
+    success {
+           slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "green", message: "SUCCESS ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
+    }
+    failure {
+            slackSend channel: "#CHANGE_SLACK_CHANNEL", color: "red", message: "FAILURE ${JOB_NAME} BUILD_NUMBER ${VERSION}", tokenCredentialId: "Slack482"
     }
   } 
 }

@@ -31,9 +31,7 @@ pipeline {
          }
       }
       stage("Build and Push BE DockerImage Branch Test") {
-          /*  when {
-                branch 'feature/SI-340'
-            }*/
+
             steps {
                 script {
                     def newImage = docker.build("${REPO}/${IMAGE_MASTER}","--no-cache -f ./Dockerfile . ")
@@ -46,14 +44,11 @@ pipeline {
             }
         }
        stage('Clean Docker Images after Deploy Test') {
-           /* when {
-                branch 'test'
-            } */
+
             steps {
-                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_DEV}:${BUILD_NUMBER}'
-                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_DEV}:latest'
-                sh 'docker rmi ${REPO}/${IMAGE_DEV}:latest'
-     /*           sh 'docker rmi node:carbon' */
+                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_MASTER}:${BUILD_NUMBER}'
+                sh 'docker rmi ${DOCKER_REGISTRY}/${REPO}/${IMAGE_MASTER}:latest'
+                sh 'docker rmi ${REPO}/${IMAGE_MASTER}:latest'
             }
        }
     }

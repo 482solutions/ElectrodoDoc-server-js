@@ -54,7 +54,8 @@ pipeline {
     }
   post { 
     always { 
-      sh 'docker stop fabric_orderer fabric_peer fabric_ca fabric_ca_db backend ipfs redis postgres && docker rm -v fabric_orderer fabric_peer fabric_ca fabric_ca_db backend ipfs redis postgres'
+      sh 'docker stop fabric_orderer fabric_peer fabric_ca fabric_ca_db backend ipfs redis postgres'
+      sh 'docker rm -v fabric_orderer fabric_peer fabric_ca fabric_ca_db backend ipfs redis postgres'
       cleanWs() 
     }
     success {

@@ -87,7 +87,34 @@ export const getVoting = async (token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+  const user = (await DB.getUser(conn, username))[0];
+  const certsList = await DB.getCerts(conn, username);
+  let response;
+  try {
+    response = await validator.sendTransaction({
+      identity: {
+        label: username,
+        certificate: certsList[0].cert,
+        privateKey: certsList[0].privatekey,
+        mspId: '482solutions',
+      },
+      network: {
+        channel: 'testchannel',
+        chaincode: 'electricitycc',
+        contract: 'org.fabric.marketcontract',
+      },
+      transaction: {
+        name: 'getVoting',
+        props: [user.folder],
+      },
+    });
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+  if (response.message) {
+    return { code: 422, payload: { message: response.message } };
+  }
+  return { code: 200, payload: { response } };
 };
 
 /**

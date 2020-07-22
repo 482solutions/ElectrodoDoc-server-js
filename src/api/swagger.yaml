@@ -523,13 +523,13 @@ definitions:
           - "unread"
   vote:
     properties:
+      hash:
+        type: "string"
       variant:
         type: "string"
   voting:
     properties:
       hash:
-        type: "string"
-      cid:
         type: "string"
       dueDate:
         type: "string"

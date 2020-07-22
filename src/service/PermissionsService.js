@@ -5,6 +5,7 @@ import { redisClient } from '../adapter/redis';
 import DB from '../database/utils';
 import connection from '../database/connect';
 import configDB from '../database/configDB';
+import sender from '../helpers/sender';
 
 dotenv.config();
 const conn = connection(configDB);
@@ -37,7 +38,6 @@ export const changePermissions = async (email, hash, permission, token) => {
     return { code: 422, payload: { message: 'Incorrect hash' } };
   }
   const userForShare = users[0];
-  const certsList = await DB.getCerts(conn, username);
   let request;
   switch (permission) {
     case ('owner'):
@@ -63,20 +63,7 @@ export const changePermissions = async (email, hash, permission, token) => {
   }
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: request,
-    });
+    response = await sender.sendToFabric(username, request.name, request.props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -139,8 +126,6 @@ export const revokePermissions = async (email, hash, permission, token) => {
   if (userForRevoke.username === username) {
     return { code: 403, payload: { message: 'User does not have permission' } };
   }
-
-  const certsList = await DB.getCerts(conn, username);
   let request;
   switch (permission) {
     case ('unread'):
@@ -160,20 +145,7 @@ export const revokePermissions = async (email, hash, permission, token) => {
   }
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: request,
-    });
+    response = await sender.sendToFabric(username, request.name, request.props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }

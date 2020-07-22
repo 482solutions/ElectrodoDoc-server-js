@@ -99,6 +99,10 @@ Feature: Creating voting
     Given User send request for create voting with 3 answers for a 2 version of the file "mockTest.txt" and description "false"
     Then Response status 409
 
+  Scenario: 18 Owner can't create voting if description more than 256 characters
+    Given User send request for create voting with 2 answers for a 2 version of the file "mockTest.txt" and description "big"
+    Then Response status
+
 
 
 

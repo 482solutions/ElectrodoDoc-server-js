@@ -537,5 +537,5 @@ definitions:
         type: "string"
       excludedUsers:
         type: "string"
-      decription:
+      description:
         type: "string"

@@ -9,35 +9,35 @@ export const CreateVoting = (req, res) => {
     body.dueDate,
     body.variants,
     body.excludedUsers,
-    body.decription,
+    body.description,
     token)
-    .then(function(response) {
+    .then((response) => {
       utils.writeJson(res, response);
     })
-    .catch(function(response) {
+    .catch((response) => {
       utils.writeJson(res, response);
     });
 };
 
-export const GetVoting = (req, res, next) => {
+export const GetVoting = (req, res) => {
   const token = req.headers.authorization;
   getVoting(token)
-    .then(function(response) {
+    .then((response) => {
       utils.writeJson(res, response);
     })
-    .catch(function(response) {
+    .catch((response) => {
       utils.writeJson(res, response);
     });
 };
 
-export const UpdateVoting = (req, res, next) => {
+export const UpdateVoting = (req, res) => {
   const token = req.headers.authorization;
   const body = req.swagger.params.body.value;
   updateVoting(body.variant, token)
-    .then(function(response) {
+    .then((response) => {
       utils.writeJson(res, response);
     })
-    .catch(function(response) {
+    .catch((response) => {
       utils.writeJson(res, response);
     });
 };

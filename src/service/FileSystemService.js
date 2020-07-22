@@ -79,7 +79,6 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
   await DB.insertFolder(conn, name, folderHash);
-  console.log(response)
   return {
     code: 201,
     payload: {

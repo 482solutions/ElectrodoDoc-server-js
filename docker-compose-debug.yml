@@ -27,18 +27,6 @@ services:
     entrypoint: redis-server --appendonly yes
 
 
-#  ipfs:
-#    image: ipfs/go-ipfs:v0.4.22
-#    container_name: ipfs
-#    depends_on:
-#      - redis
-#    volumes:
-#      - $HOME/ipfs/staging:/export
-#      - $HOME/ipfs/data:/ipfs/data
-#    environment:
-#      - IPFS_API_URL=${IPFS_API_URL}
-#    ports:
-#      - "5001:5001"
   ipfs0:
     container_name: ipfs0
     image: ipfs/go-ipfs:release

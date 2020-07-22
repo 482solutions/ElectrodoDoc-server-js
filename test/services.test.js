@@ -218,7 +218,7 @@ describe('User logout', async () => {
     result = await logIn(login, password, userCert.cert, csr.privateKeyPem);
   });
 
-  it.only('should return code 200 when correct user logout', async () => {
+  it('should return code 200 when correct user logout', async () => {
     result = await logout(`Bearer ${result.payload.token}`);
     console.log(result)
     assert.equal(result.code, 200);

@@ -5,6 +5,7 @@ import { redisClient } from '../adapter/redis';
 import DB from '../database/utils';
 import configDB from '../database/configDB';
 import connection from '../database/connect';
+import sender from '../helpers/sender';
 
 dotenv.config();
 const conn = connection(configDB);
@@ -18,7 +19,6 @@ const redisGet = promisify(redisClient.get).bind(redisClient);
  * */
 export const createVoting = async (
   hash,
-  cid,
   dueDate,
   variants,
   excludedUsers,
@@ -43,26 +43,10 @@ export const createVoting = async (
   if (variants.length < 2 || variants.length > 5) {
     return { code: 422, payload: { message: 'Incorrect amount of variants' } };
   }
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'createVoting',
-        props: [hash, cid, dueDate, variants, excludedUsers, description],
-      },
-    });
+    const props = [hash, dueDate, variants, excludedUsers, description];
+    response = await sender.sendToFabric(username, 'createVoting', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -87,7 +71,18 @@ export const getVoting = async (token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+  const user = (await DB.getUser(conn, username))[0];
+  let response;
+  try {
+    const props = [user.folder];
+    response = await sender.sendToFabric(username, 'getVoting', props);
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+  if (response.message) {
+    return { code: 422, payload: { message: response.message } };
+  }
+  return { code: 200, payload: { response } };
 };
 
 /**
@@ -97,7 +92,7 @@ export const getVoting = async (token) => {
  * body Vote
  * no response value expected for this operation
  * */
-export const updateVoting = async (variant, token) => {
+export const updateVoting = async (hash, variant, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -106,5 +101,15 @@ export const updateVoting = async (variant, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+  let response;
+  try {
+    const props = [hash, variant];
+    response = await sender.sendToFabric(username, 'updateVoting', props);
+  } catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+  if (response.message) {
+    return { code: 422, payload: { message: response.message } };
+  }
+  return { code: 200, payload: { response } };
 };

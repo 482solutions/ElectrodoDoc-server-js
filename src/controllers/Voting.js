@@ -5,7 +5,6 @@ export const CreateVoting = (req, res) => {
   const token = req.headers.authorization;
   const body = req.swagger.params.body.value;
   createVoting(body.hash,
-    body.cid,
     body.dueDate,
     body.variants,
     body.excludedUsers,
@@ -33,7 +32,7 @@ export const GetVoting = (req, res) => {
 export const UpdateVoting = (req, res) => {
   const token = req.headers.authorization;
   const body = req.swagger.params.body.value;
-  updateVoting(body.variant, token)
+  updateVoting(body.hash, body.variant, token)
     .then((response) => {
       utils.writeJson(res, response);
     })

@@ -7,7 +7,7 @@ services:
 script:
   - npm run fix:js
   - npm run lint:js
-   - sudo docker system prune -a -f
+  - sudo docker system prune -a -f
   - git clone https://andrii482:$GithubToken@github.com/482solutions/woden-network.git
   - cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
   - cd ..

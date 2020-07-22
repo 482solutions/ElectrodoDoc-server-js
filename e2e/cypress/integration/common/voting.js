@@ -30,19 +30,19 @@ const hash = {
 };
 let time = Math.floor(new Date().getTime() / 1000.0) + 200000;
 
-Given(/^User send request for create voting with (\d+) answers for a (\d+) version of the file "([^"]*)" and description "([^"]*)"$/, (answer, version, file, desc) => {
-  const cid = {
-    0: null,
-    1: Cypress.env('versions')[0].cid,
-    2: Cypress.env('versions')[1].cid,
-  };
+Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/, (answer, version, file, desc) => {
+  // const cid = {
+  //   0: null,
+  //   1: Cypress.env('versions')[0].cid,
+  //   2: Cypress.env('versions')[1].cid,
+  // };
   cy.request({
     headers: headers,
     method: 'POST',
-    url: ``,
+    url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      cid: version[cid],
+      // cid: version[cid],
       dueDate: '',
       variants: variantsAnswers[answer],
       excludedUsers: [],
@@ -60,10 +60,10 @@ Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"
   cy.request({
     headers: headers,
     method: 'POST',
-    url: ``,
+    url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      cid: Cypress.env('versions')[1].cid,
+      // cid: Cypress.env('versions')[1].cid,
       dueDate: '',
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -79,10 +79,10 @@ Given(/^User send request for create voting "([^"]*)" fileHash$/, (fileHash) => 
   cy.request({
     headers: headers,
     method: 'POST',
-    url: ``,
+    url: '/voting',
     body: {
       hash: hash[fileHash],
-      cid: Cypress.env('versions')[1].cid,
+      // cid: Cypress.env('versions')[1].cid,
       dueDate: '',
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -101,10 +101,10 @@ Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*
   cy.request({
     headers: headers,
     method: 'POST',
-    url: ``,
+    url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      cid: Cypress.env('versions')[1].cid,
+      // cid: Cypress.env('versions')[1].cid,
       dueDate: time[dueDate],
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -132,10 +132,10 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
   cy.request({
     headers: headers,
     method: 'POST',
-    url: ``,
+    url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      cid: Cypress.env('versions')[1].cid,
+      // cid: Cypress.env('versions')[1].cid,
       dueDate: time,
       variants: variantsAnswers[2],
       excludedUsers: [],

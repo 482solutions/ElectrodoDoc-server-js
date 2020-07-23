@@ -409,7 +409,7 @@ paths:
           description: "Invalid data supplied"
       security:
         - Bearer: []
-      x-swagger-router-controller: "FileSystem"
+      x-swagger-router-controller: "Voting"
     put:
       tags:
         - "voting"
@@ -534,8 +534,12 @@ definitions:
       dueDate:
         type: "string"
       variants:
-        type: "string"
+        type: "array"
+        items:
+          type: "string"
       excludedUsers:
-        type: "string"
+        type: "array"
+        items:
+          type: "string"
       description:
         type: "string"

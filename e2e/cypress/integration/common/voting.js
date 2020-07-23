@@ -1,5 +1,6 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
 import { getHashFromFile } from '../../support/commands'
+const sinon = require("sinon");
 
 let headers = {
   'content-type': 'application/json',
@@ -28,21 +29,16 @@ const hash = {
   without: '',
   incorrect: 'incorrectHashincorrectHashincorrectHashincorrectHashincorrectHas',
 };
-let time = Math.floor(new Date().getTime() / 1000.0) + 200000;
+let time = Math.floor(new Date().getTime() / 1000.0) + 20000;
 
-Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/, (answer, version, file, desc) => {
-  // const cid = {
-  //   0: null,
-  //   1: Cypress.env('versions')[0].cid,
-  //   2: Cypress.env('versions')[1].cid,
-  // };
+Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/,
+  (answer, version, file, desc) => {;
   cy.request({
     headers: headers,
     method: 'POST',
     url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      // cid: version[cid],
       dueDate: '',
       variants: variantsAnswers[answer],
       excludedUsers: [],
@@ -54,7 +50,8 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
   })
 })
 
-Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/, (token, file) => {
+Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/,
+  (token, file) => {
   token = bearer[token]
   headers.Authorization = token
   cy.request({
@@ -63,7 +60,6 @@ Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"
     url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      // cid: Cypress.env('versions')[1].cid,
       dueDate: '',
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -75,14 +71,14 @@ Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"
   })
 })
 
-Given(/^User send request for create voting "([^"]*)" fileHash$/, (fileHash) => {
+Given(/^User send request for create voting "([^"]*)" fileHash$/,
+  (fileHash) => {
   cy.request({
     headers: headers,
     method: 'POST',
     url: '/voting',
     body: {
       hash: hash[fileHash],
-      // cid: Cypress.env('versions')[1].cid,
       dueDate: '',
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -94,7 +90,8 @@ Given(/^User send request for create voting "([^"]*)" fileHash$/, (fileHash) => 
   })
 })
 
-Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*)"$/, (dueDate, file) => {
+Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*)"$/,
+  (dueDate, file) => {
   const time = {
     without: '',
   }
@@ -104,7 +101,6 @@ Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*
     url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      // cid: Cypress.env('versions')[1].cid,
       dueDate: time[dueDate],
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -116,7 +112,8 @@ Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*
     });
 })
 
-Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file "([^"]*)"$/, (operator, file) => {
+Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file "([^"]*)"$/,
+  (operator, file) => {
   switch (operator) {
     case '<':
       time = Math.floor(new Date().getTime()/1000.0) - 200000;
@@ -135,7 +132,6 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
     url: '/voting',
     body: {
       hash: getHashFromFile(file, Cypress.env('filesInRoot')),
-      // cid: Cypress.env('versions')[1].cid,
       dueDate: time,
       variants: variantsAnswers[2],
       excludedUsers: [],
@@ -146,3 +142,26 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
       console.log(resp.body)
     });
 })
+When(/^User send request for re\-create a vote after the final first vote$/, () => {
+  const fakeTime = sinon.useFakeTimers(new Date(time * 1000));//.getTime()
+  let date = new Date(); //=> return the fake Date
+  console.log(date)
+  // cy.request({
+  //   headers: headers,
+  //   method: 'POST',
+  //   url: '/voting',
+  //   body: {
+  //     hash: getHashFromFile(file, Cypress.env('filesInRoot')),
+  //     dueDate: '',
+  //     variants: variantsAnswers[2],
+  //     excludedUsers: [],
+  //     description: description[true],
+  //   },
+  //   failOnStatusCode: false,
+  // }).then((resp) => {
+  //   console.log(resp.body)
+    fakeTime.restore();
+    let date2 = new Date(); //=> will return the real time again (now)
+    console.log(date2)
+  // });
+});

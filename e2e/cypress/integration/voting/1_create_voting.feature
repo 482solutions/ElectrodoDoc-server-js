@@ -88,7 +88,7 @@ Feature: Creating voting
 
   Scenario: 15 Owner can't re-create a vote
     Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "false"
-    Then Response status 201
+    And Response status 201
     Given User send request for create voting with 3 answers for a file "mockTest.txt" and description "false"
     Then Response status 409
 
@@ -97,6 +97,11 @@ Feature: Creating voting
     Then Response status 422
 
   Scenario: 17 Owner can re-create a vote after the final first vote
+    Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "false"
+    And Response status 201
+    When User send request for re-create a vote after the final first vote
+
+#    Если запустить голосование, а потом передать права на файл?
 
 
 

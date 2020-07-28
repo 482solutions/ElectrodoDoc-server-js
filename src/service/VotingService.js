@@ -1,10 +1,12 @@
 import { promisify } from 'util';
+import sha256 from 'sha256';
 import dotenv from 'dotenv';
 import validator from '../helpers/auth';
 import { redisClient } from '../adapter/redis';
 import DB from '../database/utils';
 import configDB from '../database/configDB';
 import connection from '../database/connect';
+import sender from '../helpers/sender';
 
 dotenv.config();
 const conn = connection(configDB);
@@ -16,9 +18,8 @@ const redisGet = promisify(redisClient.get).bind(redisClient);
  * body Voting
  * no response value expected for this operation
  * */
-export const createVoting = async (
+export const CreateVoting = async (
   hash,
-  cid,
   dueDate,
   variants,
   excludedUsers,
@@ -28,7 +29,9 @@ export const createVoting = async (
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
+  console.log(token);
   const username = await validator.getUserFromToken(token);
+  console.log('user bl9t name', username)
   const blackToken = await redisGet(token);
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
@@ -43,29 +46,21 @@ export const createVoting = async (
   if (variants.length < 2 || variants.length > 5) {
     return { code: 422, payload: { message: 'Incorrect amount of variants' } };
   }
-  const certsList = await DB.getCerts(conn, username);
+  console.log(username);
+  const user = await DB.getUser(conn, username);
   let response;
+  console.log(user);
+  console.log(user[0].folder);
+  const votingHash = sha256(hash.concat(dueDate).concat(variants.toString()));
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'createVoting',
-        props: [hash, cid, dueDate, variants, excludedUsers, description],
-      },
-    });
+    // eslint-disable-next-line max-len
+    const props = [hash, votingHash, dueDate, variants.toString(), excludedUsers.toString(), description, user[0].folder];
+    console.log(props);
+    response = await sender.sendToFabric(username, 'createVoting', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
+  console.log(response);
   if (response.message) {
     return { code: 404, payload: { message: response.message } };
   }
@@ -78,7 +73,7 @@ export const createVoting = async (
  *
  * no response value expected for this operation
  * */
-export const getVoting = async (token) => {
+export const GetVoting = async (token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -88,27 +83,12 @@ export const getVoting = async (token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const user = (await DB.getUser(conn, username))[0];
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'getVoting',
-        props: [user.folder],
-      },
-    });
-  } catch (error) {
+    const props = [user.folder];
+    response = await sender.sendToFabric(username, 'getVoting', props);
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
   if (response.message) {
@@ -124,7 +104,7 @@ export const getVoting = async (token) => {
  * body Vote
  * no response value expected for this operation
  * */
-export const updateVoting = async (variant, token) => {
+export const UpdateVoting = async (hash, variant, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -133,5 +113,16 @@ export const updateVoting = async (variant, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  return { code: 200, payload: { message: 'OK' } };
+  let response;
+  try {
+    const props = [hash, variant];
+    response = await sender.sendToFabric(username, 'updateVoting', props);
+  }
+  catch (error) {
+    return { code: 418, payload: { message: error } };
+  }
+  if (response.message) {
+    return { code: 422, payload: { message: response.message } };
+  }
+  return { code: 200, payload: { response } };
 };

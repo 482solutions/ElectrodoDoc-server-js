@@ -10,6 +10,7 @@ import { Gateway, InMemoryWallet, X509WalletMixin } from 'fabric-network';
 
 import yaml from 'js-yaml';
 import validator from '../helpers/auth';
+import sender from '../helpers/sender';
 import configDB from '../database/configDB';
 import connection from '../database/connect';
 import DB from '../database/utils';
@@ -142,7 +143,6 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       enrollmentSecret: secret,
       csr,
     });
-
     await validator.sendTransaction({
       identity: {
         label: login,
@@ -207,24 +207,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
   if (user.password !== password) {
     return { code: 400, payload: { message: 'Invalid password supplied.' } };
   }
-
-  const response = await validator.sendTransaction({
-    identity: {
-      label: user.username,
-      certificate,
-      privateKey,
-      mspId: '482solutions',
-    },
-    network: {
-      channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
-    },
-    transaction: {
-      name: 'getFolder',
-      props: [user.folder],
-    },
-  });
+  const response = await sender.sendToFabric(user.username, 'getFolder', [user.folder]);
   if (response === null
     || response.folder.ownerId !== user.username) {
     return { code: 403, payload: { message: 'Invalid certificate/private key supplied.' } };

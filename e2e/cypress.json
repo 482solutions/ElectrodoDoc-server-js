@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:1823/api/v1",
+  "baseUrl": "http://192.168.88.42:1823/api/v1",
   "env": {
     "RETRIES": 0,
     "respStatus": null,
@@ -11,6 +11,8 @@
     "foldersInRoot": null,
     "versions": null,
     "respBody": null,
+    "voters": null,
+    "votes": null,
 
     "rootFolder_2": null,
     "login_2": null,

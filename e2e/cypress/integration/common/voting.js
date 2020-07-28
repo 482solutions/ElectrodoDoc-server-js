@@ -29,7 +29,7 @@ const hash = {
   without: '',
   incorrect: 'incorrectHashincorrectHashincorrectHashincorrectHashincorrectHas',
 }
-let time = Math.floor(new Date().getTime() / 1000.0) + 20000
+let time = Math.floor(new Date().getTime() / 1000.0) + 200000
 
 Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/,
   (answer, file, desc) => {
@@ -53,7 +53,8 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
         Cypress.env('respBody', resp.body)
         Cypress.env('respStatus', resp.status)
 
-        if (resp.body.response === 201) {
+        if (resp.status === 201) {
+          console.log(resp.body.response)
           let vote = getVoting(file, resp.body.response)
           console.log(vote)
           expect(vote.description).to.eq(description[desc])

@@ -29,42 +29,47 @@ export const CreateVoting = async (
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  console.log(token);
   const username = await validator.getUserFromToken(token);
-  console.log('user bl9t name', username)
   const blackToken = await redisGet(token);
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const timeCreating = Math.floor(new Date() / 1000);
-  if (timeCreating > dueDate) {
+  if (timeCreating >= dueDate) {
     return { code: 422, payload: { message: 'Invalid due date' } };
   }
-  if (!description || description.length > 260 || description.trim().length < 1) {
-    return { code: 422, payload: { message: 'Description is not correct' } };
+  if (description.length > 256) {
+    return { code: 422, payload: { message: 'Description is bigger than 256 characters' } };
   }
   if (variants.length < 2 || variants.length > 5) {
     return { code: 422, payload: { message: 'Incorrect amount of variants' } };
   }
-  console.log(username);
   const user = await DB.getUser(conn, username);
   let response;
-  console.log(user);
-  console.log(user[0].folder);
   const votingHash = sha256(hash.concat(dueDate).concat(variants.toString()));
   try {
     // eslint-disable-next-line max-len
     const props = [hash, votingHash, dueDate, variants.toString(), excludedUsers.toString(), description, user[0].folder];
-    console.log(props);
     response = await sender.sendToFabric(username, 'createVoting', props);
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  console.log(response);
-  if (response.message) {
-    return { code: 404, payload: { message: response.message } };
+  let resp;
+  switch (response.message) {
+    case ('You need to share this file with somebody'):
+      resp = { code: 403, payload: { message: response.message } };
+      break;
+    case ('User does not have permission'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
+    case ('File with this hash does not exist'):
+      resp = { code: 404, payload: { message: response.message } };
+      break;
+    default:
+      resp = { code: 201, payload: { response } };
   }
-  return { code: 201, payload: { response } };
+  return resp;
 };
 
 /**

@@ -55,15 +55,6 @@ Feature: Creating voting
     Then Response status 422
     And Message "Invalid due date"
 
-  Scenario: 7 Owner can not create voting if dueDate < timeNow
-    Given User send request for create voting dueDate "<" timeNow for a file "mockTest.txt"
-    Then Response status 422
-    And Message "Invalid due date"
-
-  Scenario: 8 Owner can not create voting if dueDate == timeNow
-    Given User send request for create voting dueDate "==" timeNow for a file "mockTest.txt"
-    Then Response status 422
-    And Message "Invalid due date"
 
   Scenario Outline: 9 Owner can not create voting if there are less than 2 answer options
     Given User send request for create voting with <count> answers for a file "mockTest.txt" and description "true"
@@ -89,11 +80,11 @@ Feature: Creating voting
     When User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     Then Response status 403
 
-  Scenario: 12 Owner can't re-create a vote
-    Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
-    And Response status 201
-    Given User send request for create voting with 3 answers for a file "mockTest.txt" and description "true"
-    Then Response status 409
+#  Scenario: 12 Owner can't re-create a vote
+#    Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
+#    And Response status 201
+#    Given User send request for create voting with 3 answers for a file "mockTest.txt" and description "true"
+#    Then Response status 409
 
   Scenario: 13 Owner can't create voting if description more than 256 characters
     Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "big"
@@ -106,7 +97,16 @@ Feature: Creating voting
 #    When User send request for re-create a vote for a file "mockTest.txt" after the final first vote
 
 ##    Если запустить голосование, а потом передать права на файл?
+#
+  Scenario: 7 Owner can not create voting if dueDate < timeNow
+    Given User send request for create voting dueDate "<" timeNow for a file "mockTest.txt"
+    Then Response status 422
+    And Message "Invalid due date"
 
+  Scenario: 8 Owner can not create voting if dueDate == timeNow
+    Given User send request for create voting dueDate "==" timeNow for a file "mockTest.txt"
+    Then Response status 422
+    And Message "Invalid due date"
 
 
 

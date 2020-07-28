@@ -1,10 +1,10 @@
 import utils from '../utils/writer';
-import { createVoting, getVoting, updateVoting } from '../service/VotingService';
+import { CreateVoting, GetVoting, UpdateVoting } from '../service/VotingService';
 
-export const CreateVoting = (req, res) => {
+export const createVoting = (req, res) => {
   const token = req.headers.authorization;
   const body = req.swagger.params.body.value;
-  createVoting(body.hash,
+  CreateVoting(body.hash,
     body.dueDate,
     body.variants,
     body.excludedUsers,
@@ -18,9 +18,9 @@ export const CreateVoting = (req, res) => {
     });
 };
 
-export const GetVoting = (req, res) => {
+export const getVoting = (req, res) => {
   const token = req.headers.authorization;
-  getVoting(token)
+  GetVoting(token)
     .then((response) => {
       utils.writeJson(res, response);
     })
@@ -29,10 +29,10 @@ export const GetVoting = (req, res) => {
     });
 };
 
-export const UpdateVoting = (req, res) => {
+export const updateVoting = (req, res) => {
   const token = req.headers.authorization;
   const body = req.swagger.params.body.value;
-  updateVoting(body.hash, body.variant, token)
+  UpdateVoting(body.hash, body.variant, token)
     .then((response) => {
       utils.writeJson(res, response);
     })

@@ -10,7 +10,6 @@ import { Gateway, InMemoryWallet, X509WalletMixin } from 'fabric-network';
 
 import yaml from 'js-yaml';
 import validator from '../helpers/auth';
-import sender from '../helpers/sender';
 import configDB from '../database/configDB';
 import connection from '../database/connect';
 import DB from '../database/utils';

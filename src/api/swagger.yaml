@@ -398,7 +398,7 @@ paths:
             $ref: "#/definitions/voting"
       responses:
         "201":
-          description: "Succesefully created"
+          description: "Successfully created"
         "203":
           description: "Not Authorized"
         "403":
@@ -426,7 +426,7 @@ paths:
             $ref: "#/definitions/vote"
       responses:
         "200":
-          description: "Succesefully vote"
+          description: "Successfully vote"
         "203":
           description: "Not Authorized"
         "403":

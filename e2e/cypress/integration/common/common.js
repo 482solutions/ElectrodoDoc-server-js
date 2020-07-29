@@ -35,9 +35,9 @@ Then(/^Response status 422$/, () => {
 })
 
 Given(/^I send request for create user$/, () => {
-  Cypress.env('login', getLogin())
+  Cypress.env('login',  `User1${getLogin()}`)
   Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
+  Cypress.env('email', `User1${getLogin()}@gmail.com`)
 
   let csr = getCSR({ username: Cypress.env('login') })
   cy.writeFile('cypress/fixtures/privateKey.pem', csr.privateKeyPem)
@@ -75,9 +75,9 @@ Given(/^I send request for create user$/, () => {
 })
 
 Given(/^Send request for create user and get token$/, () => {
-  Cypress.env('login', getLogin())
+  Cypress.env('login', `User1${getLogin()}`)
   Cypress.env('password', getPassword())
-  Cypress.env('email', getLogin() + '@gmail.com')
+  Cypress.env('email', `User1${getLogin()}@gmail.com`)
 
   const headers = {
     'content-type': 'application/json'
@@ -134,9 +134,9 @@ Given(/^Send request for create user and get token$/, () => {
   })
 })
 Given(/^Send request for create user2 and get token$/, () => {
-  Cypress.env('login_2', getLogin())
+  Cypress.env('login_2', `User2${getLogin()}`)
   Cypress.env('password_2', getPassword())
-  Cypress.env('email_2', getLogin() + '@gmail.com')
+  Cypress.env('email_2', `User2${getLogin()}@gmail.com`)
 
   const headers_2 = {
     'content-type': 'application/json'
@@ -195,9 +195,9 @@ Given(/^Send request for create user2 and get token$/, () => {
 })
 
 Given(/^Send request for create user3 and get token$/, () => {
-  Cypress.env('login_3', getLogin())
+  Cypress.env('login_3',  `User3${getLogin()}`)
   Cypress.env('password_3', getPassword())
-  Cypress.env('email_3', getLogin() + '@gmail.com')
+  Cypress.env('email_3', `User3${getLogin()}@gmail.com`)
 
   const headers_3 = {
     'content-type': 'application/json'

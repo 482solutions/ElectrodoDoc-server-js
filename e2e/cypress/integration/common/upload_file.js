@@ -24,7 +24,6 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       Cypress.env('respStatus', response.status)
       return response.json();
     }).then((result) => {
-      console.log(result)
       Cypress.env('filesInRoot', result.folder.files)
       Cypress.env('respBody', result.folder)
       expect(Cypress.env('login')).to.equal( result.folder.ownerId);

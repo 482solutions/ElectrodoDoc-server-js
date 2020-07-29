@@ -1,4 +1,5 @@
 import { promisify } from 'util';
+import sha256 from 'sha256';
 import dotenv from 'dotenv';
 import validator from '../helpers/auth';
 import { redisClient } from '../adapter/redis';
@@ -17,7 +18,7 @@ const redisGet = promisify(redisClient.get).bind(redisClient);
  * body Voting
  * no response value expected for this operation
  * */
-export const createVoting = async (
+export const CreateVoting = async (
   hash,
   dueDate,
   variants,
@@ -34,26 +35,41 @@ export const createVoting = async (
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const timeCreating = Math.floor(new Date() / 1000);
-  if (timeCreating > dueDate) {
+  if (timeCreating >= dueDate) {
     return { code: 422, payload: { message: 'Invalid due date' } };
   }
-  if (!description || description.length > 260 || description.trim().length < 1) {
-    return { code: 422, payload: { message: 'Description is not correct' } };
+  if (description.length > 256) {
+    return { code: 422, payload: { message: 'Description is bigger than 256 characters' } };
   }
   if (variants.length < 2 || variants.length > 5) {
     return { code: 422, payload: { message: 'Incorrect amount of variants' } };
   }
+  const user = await DB.getUser(conn, username);
   let response;
+  const votingHash = sha256(hash.concat(dueDate).concat(variants.toString()));
   try {
-    const props = [hash, dueDate, variants, excludedUsers, description];
+    // eslint-disable-next-line max-len
+    const props = [hash, votingHash, dueDate, variants.toString(), excludedUsers.toString(), description, user[0].folder];
     response = await sender.sendToFabric(username, 'createVoting', props);
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
-  if (response.message) {
-    return { code: 404, payload: { message: response.message } };
+  let resp;
+  switch (response.message) {
+    case ('You need to share this file with somebody'):
+      resp = { code: 403, payload: { message: response.message } };
+      break;
+    case ('User does not have permission'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
+    case ('File with this hash does not exist'):
+      resp = { code: 404, payload: { message: response.message } };
+      break;
+    default:
+      resp = { code: 201, payload: { response } };
   }
-  return { code: 201, payload: { response } };
+  return resp;
 };
 
 /**
@@ -62,7 +78,7 @@ export const createVoting = async (
  *
  * no response value expected for this operation
  * */
-export const getVoting = async (token) => {
+export const GetVoting = async (token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -76,7 +92,8 @@ export const getVoting = async (token) => {
   try {
     const props = [user.folder];
     response = await sender.sendToFabric(username, 'getVoting', props);
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
   if (response.message) {
@@ -92,7 +109,7 @@ export const getVoting = async (token) => {
  * body Vote
  * no response value expected for this operation
  * */
-export const updateVoting = async (hash, variant, token) => {
+export const UpdateVoting = async (hash, variant, token) => {
   if (!token) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
@@ -105,7 +122,8 @@ export const updateVoting = async (hash, variant, token) => {
   try {
     const props = [hash, variant];
     response = await sender.sendToFabric(username, 'updateVoting', props);
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
   if (response.message) {

@@ -20,7 +20,8 @@ To run the debug mode, run:
 
 ```
 1) sudo docker-compose -f docker-compose-debug.yml up
-2) npm run debug
+2) npm i
+3) npm run debug
 ```
 
 To view the Woden UI interface:

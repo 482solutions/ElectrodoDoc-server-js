@@ -1,7 +1,7 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps'
 import { getHashFromFolder } from '../../support/commands'
 
-const URL = 'http://192.168.88.42:1823/api/v1'
+const URL = 'http://localhost:1823/api/v1'
 
 Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
   cy.readFile(`cypress/fixtures/${fullName}`).then(async (str) => {

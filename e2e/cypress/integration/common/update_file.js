@@ -1,7 +1,7 @@
 import { When } from 'cypress-cucumber-preprocessor/steps'
 import { getHashFromFile } from '../../support/commands'
 
-const basic = 'http://192.168.88.42:1823/api/v1'
+const basic = 'http://localhost:1823/api/v1'
 
 const textAfter = 'Good morning!'
 

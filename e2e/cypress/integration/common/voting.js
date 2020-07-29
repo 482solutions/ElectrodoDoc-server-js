@@ -56,7 +56,6 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
         if (resp.status === 201) {
           console.log(resp.body.response)
           let vote = getVoting(file, resp.body.response)
-          console.log(vote)
           expect(vote.description).to.eq(description[desc])
           expect(vote.dueDate).to.eq(time.toString())
           expect(vote.votingName).to.eq(file)
@@ -145,7 +144,7 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
   (operator, file) => {
     switch (operator) {
       case '<':
-        time = Math.floor(new Date().getTime() / 1000.0) - 200000;
+        time = Math.floor(new Date().getTime() / 1000.0) - 20000;
         break;
       case '==':
         time = Math.floor(new Date().getTime() / 1000.0);
@@ -167,8 +166,7 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
         description: description[true],
       },
       failOnStatusCode: false,
-    })
-      .then((resp) => {
+    }).then((resp) => {
         expect(resp.body).to.not.have.property('stack');
         Cypress.env('respStatus', resp.status)
         Cypress.env('respBody', resp.body)
@@ -194,8 +192,6 @@ When(/^User send request for re\-create a vote for a file "([^"]*)" after the fi
     },
     failOnStatusCode: false,
   }).then((resp) => {
-      console.log(resp.body)
-
       Cypress.env('respStatus', resp.status)
       fakeTime.restore()
       expect(resp.body).to.not.have.property('stack');
@@ -206,3 +202,18 @@ When(/^User send request for re\-create a vote for a file "([^"]*)" after the fi
 Then(/^Count of voters = (\d+) in "([^"]*)" voting$/, (count, file) => {
   expect(Cypress.env('voters').length).to.eq(count)
 })
+
+Then(/^User send request for get voting$/,  () => {
+  headers.Authorization = `Bearer ${Cypress.env('token')}`
+  cy.request({
+    headers: headers,
+    method: 'GET',
+    url: '/voting',
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respStatus', resp.status)
+    Cypress.env('respBody', resp.body)
+  })
+});

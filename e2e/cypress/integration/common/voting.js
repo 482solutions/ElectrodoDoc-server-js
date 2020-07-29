@@ -31,6 +31,13 @@ const hash = {
 }
 let time = Math.floor(new Date().getTime() / 1000.0) + 200000
 
+const logins = {
+  User1: [Cypress.env('login')],
+  User2: [Cypress.env('login_2')],
+  User3: [Cypress.env('login_3')],
+  everyone: [Cypress.env('login_2'), Cypress.env('login_3')]
+}
+
 Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/,
   (answer, file, desc) => {
     const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
@@ -65,7 +72,7 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
           Cypress.env('voters', vote.voters)
         }
       })
-    console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
+    // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
   })
 
 Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/,
@@ -216,4 +223,36 @@ Then(/^User send request for get voting$/,  () => {
     Cypress.env('respStatus', resp.status)
     Cypress.env('respBody', resp.body)
   })
+});
+
+Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"$/,  (file, user) => {
+  const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
+  headers.Authorization = `Bearer ${Cypress.env('token')}`
+  cy.request({
+    headers: headers,
+    method: 'POST',
+    url: '/voting',
+    body: {
+      hash: fileHash,
+      dueDate: time.toString(),
+      variants: variantsAnswers[2],
+      excludedUsers: logins[user],
+      description: description[true],
+    },
+    failOnStatusCode: false,
+  }).then((resp) => {
+      expect(resp.body).to.not.have.property('stack');
+      Cypress.env('respBody', resp.body)
+      Cypress.env('respStatus', resp.status)
+      if (resp.status === 201) {
+        let vote = getVoting(file, resp.body.response)
+        expect(vote.description).to.eq(description[true])
+        expect(vote.dueDate).to.eq(time.toString())
+        expect(vote.votingName).to.eq(file)
+        expect(vote.votingHash).to.not.eq(fileHash)
+
+        Cypress.env('votes', resp.body.response)
+        Cypress.env('voters', vote.voters)
+      }
+    })
 });

@@ -31,6 +31,7 @@ When(/^User send request for upload png file$/, () => {
         Cypress.env('respStatus', response.status)
         return response.json();
       }).then((result) => {
+        console.log(result)
         Cypress.env('filesInRoot', result.folder.files)
         // expect(Cypress.env('login')).to.equal(result.folder.folderName)
         });

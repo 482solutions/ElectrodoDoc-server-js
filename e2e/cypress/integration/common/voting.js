@@ -61,7 +61,6 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
         Cypress.env('respStatus', resp.status)
 
         if (resp.status === 201) {
-          console.log(resp.body.response)
           let vote = getVoting(file, resp.body.response)
           expect(vote.description).to.eq(description[desc])
           expect(vote.dueDate).to.eq(time.toString())
@@ -210,8 +209,13 @@ Then(/^Count of voters = (\d+) in "([^"]*)" voting$/, (count, file) => {
   expect(Cypress.env('voters').length).to.eq(count)
 })
 
-Then(/^User send request for get voting$/,  () => {
-  headers.Authorization = `Bearer ${Cypress.env('token')}`
+Then(/^"([^"]*)" send request for get voting$/,  (user) => {
+  const logins = {
+    User1: Cypress.env('token'),
+    User2: Cypress.env('token_2'),
+    User3: Cypress.env('token_3'),
+  }
+  headers.Authorization = `Bearer ${logins[user]}`
   cy.request({
     headers: headers,
     method: 'GET',
@@ -220,8 +224,14 @@ Then(/^User send request for get voting$/,  () => {
   }).then((resp) => {
     console.log(resp.body)
     expect(resp.body).to.not.have.property('stack');
-    Cypress.env('respStatus', resp.status)
-    Cypress.env('respBody', resp.body)
+    if (expect(resp.body.response.length).to.not.eq(0)) {
+      Cypress.env('respStatus', resp.status)
+      Cypress.env('respBody', resp.body)
+
+      let vote = getVoting(file, resp.body.response)
+      Cypress.env('votes', resp.body.response)
+      Cypress.env('voters', vote.voters)
+    }
   })
 });
 
@@ -255,4 +265,20 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
         Cypress.env('voters', vote.voters)
       }
     })
+});
+
+When(/^"([^"]*)" send request for get voting without auth$/,  () => {
+  cy.request({
+    headers: headers,
+    method: 'GET',
+    url: '/voting',
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    if (resp.status === 203) {
+      Cypress.env('respStatus', resp.status)
+      Cypress.env('respBody', resp.body)
+    }
+  })
 });

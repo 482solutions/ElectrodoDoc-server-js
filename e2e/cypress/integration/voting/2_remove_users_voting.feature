@@ -31,6 +31,6 @@ Feature: Remove users from voting
     And Count of voters = 2 in "mockTest.txt" voting
     When The "User1" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User3"
     Then Response status 200
-    And User send request for get voting
+    And "User1" send request for get voting
     And Count of voters = 2 in "mockTest.txt" voting
 

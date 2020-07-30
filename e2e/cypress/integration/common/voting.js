@@ -61,7 +61,8 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
         Cypress.env('respStatus', resp.status)
 
         if (resp.status === 201) {
-          console.log(resp.body.response)
+          
+          expect(resp.body).to.not.have.property('message');
           let vote = getVoting(file, resp.body.response)
           expect(vote.description).to.eq(description[desc])
           expect(vote.dueDate).to.eq(time.toString())

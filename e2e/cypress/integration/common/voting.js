@@ -31,15 +31,25 @@ const hash = {
 }
 let time = Math.floor(new Date().getTime() / 1000.0) + 200000
 
-const logins = {
-  User1: [Cypress.env('login')],
-  User2: [Cypress.env('login_2')],
-  User3: [Cypress.env('login_3')],
-  everyone: [Cypress.env('login_2'), Cypress.env('login_3')]
-}
-
 Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/,
   (answer, file, desc) => {
+    let excludeUsers = {
+      voters: [{
+        0: {
+          name: 'User2bXHlLREojQ',
+          vote: null
+        },
+        1:{
+          name: 'User3WqUlWOLvJf',
+          vote: null
+        },
+      }],
+  }
+    // for (let i = 0; i < excludeUsers.length; i++) {
+    //   excludeUsers.voters.splice(excludeUsers.voters.findIndex(v => v.name === excludeUsers[i] && v.vote === null),
+    //     1)
+    // }
+    console.log(excludeUsers.voters.length)
     const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
     headers.Authorization = `Bearer ${Cypress.env('token')}`
     cy.request({
@@ -54,14 +64,14 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
         description: description[desc],
       },
       failOnStatusCode: false,
-    })
-      .then((resp) => {
+    }).then((resp) => {
         expect(resp.body).to.not.have.property('stack');
         Cypress.env('respBody', resp.body)
         Cypress.env('respStatus', resp.status)
 
         if (resp.status === 201) {
-          console.log(resp.body.response)
+          expect(resp.body).to.not.have.property('message');
+
           let vote = getVoting(file, resp.body.response)
           expect(vote.description).to.eq(description[desc])
           expect(vote.dueDate).to.eq(time.toString())
@@ -72,7 +82,7 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
           Cypress.env('voters', vote.voters)
         }
       })
-    // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
+    console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
   })
 
 Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/,
@@ -226,6 +236,12 @@ Then(/^User send request for get voting$/,  () => {
 });
 
 Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"$/,  (file, user) => {
+  let logins = {
+    User1: [Cypress.env('login')],
+    User2: [Cypress.env('login_2')],
+    User3: [Cypress.env('login_3')],
+    everyone: [Cypress.env('login_2'), Cypress.env('login_3')]
+  }
   const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   cy.request({
@@ -242,9 +258,8 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
     failOnStatusCode: false,
   }).then((resp) => {
       expect(resp.body).to.not.have.property('stack');
-      Cypress.env('respBody', resp.body)
-      Cypress.env('respStatus', resp.status)
       if (resp.status === 201) {
+        expect(resp.body.response).to.not.have.property('message');
         let vote = getVoting(file, resp.body.response)
         expect(vote.description).to.eq(description[true])
         expect(vote.dueDate).to.eq(time.toString())
@@ -254,5 +269,61 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
         Cypress.env('votes', resp.body.response)
         Cypress.env('voters', vote.voters)
       }
+      Cypress.env('respBody', resp.body)
+      Cypress.env('respStatus', resp.status)
     })
+});
+
+When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" file$/, (user, variant, file) => {
+  let tokens = {
+    User1: Cypress.env('token'),
+    User2: Cypress.env('token_2'),
+    User3: Cypress.env('token_3'),
+  }
+  const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
+  headers.Authorization = `Bearer ${tokens[user]}`
+  cy.request({
+    headers: headers,
+    method: 'PUT',
+    url: '/voting',
+    body: {
+      hash: fileHash,
+      variant: variant,
+    },
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    if (resp.status === 201) {
+      expect(resp.body.response).to.not.have.property('message');
+    //   let vote = getVoting(file, resp.body.response)
+    //   expect(vote.description).to.eq(description[true])
+    //   expect(vote.dueDate).to.eq(time.toString())
+    //   expect(vote.votingName).to.eq(file)
+    //   expect(vote.votingHash).to.not.eq(fileHash)
+    //
+    //   Cypress.env('votes', resp.body.response)
+    //   Cypress.env('voters', vote.voters)
+    }
+    Cypress.env('respBody', resp.body)
+    Cypress.env('respStatus', resp.status)
+  })
+});
+When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" file "([^"]*)" token$/, (user, variant, file, token) => {
+  headers.Authorization = bearer[token]
+  cy.request({
+    headers: headers,
+    method: 'PUT',
+    url: '/voting',
+    body: {
+      hash: getHashFromFile(file, Cypress.env('filesInRoot')),
+      variant: variant,
+    },
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respBody', resp.body)
+    Cypress.env('respStatus', resp.status)
+  })
 });

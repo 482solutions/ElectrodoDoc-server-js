@@ -203,8 +203,13 @@ Then(/^Count of voters = (\d+) in "([^"]*)" voting$/, (count, file) => {
   expect(Cypress.env('voters').length).to.eq(count)
 })
 
-Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
-  headers.Authorization = `Bearer ${Cypress.env('token')}`
+Then(/^"([^"]*)" send request for get voting for a file "([^"]*)"$/, (user, file) => {
+  let logins = {
+    User1: Cypress.env('token'),
+    User2: Cypress.env('token_2'),
+    User3: Cypress.env('token_3'),
+  }
+  headers.Authorization = `Bearer ${logins[user]}`
   cy.request({
     headers: headers,
     method: 'GET',
@@ -246,6 +251,8 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
     failOnStatusCode: false,
   }).then((resp) => {
       expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respBody', resp.body)
+    Cypress.env('respStatus', resp.status)
       if (resp.status === 201) {
         expect(resp.body.response).to.not.have.property('message');
         let vote = getVoting(file, resp.body.response)
@@ -257,7 +264,17 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
         Cypress.env('votes', resp.body.response)
         Cypress.env('voters', vote.voters)
       }
-      Cypress.env('respBody', resp.body)
-      Cypress.env('respStatus', resp.status)
     })
+});
+When(/^User send request for get voting without auth$/,  () =>  {
+  headers.Authorization = `Bearer `
+  cy.request({
+    headers: headers,
+    method: 'GET',
+    url: '/voting',
+    failOnStatusCode: false,
+  }).then((resp) => {
+    expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respStatus', resp.status)
+  })
 });

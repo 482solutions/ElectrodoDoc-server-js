@@ -21,16 +21,16 @@ Feature: Remove users from voting
     Then Response status 201
     And Count of voters = 1 in "mockTest.txt" voting
 
-#  Scenario: 2 Owner can't create voting if owner deletes all users
-#    Given User send request for create voting for file "mockTest.txt" without "everyone"
-#    Then Response status 422
-#
+  Scenario: 2 Owner can't create voting if owner deletes all users
+    Given User send request for create voting for file "mockTest.txt" without "everyone"
+    Then Response status 422
+
   Scenario: 3 Revoked user can get vote for a file
     When User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     Then Response status 201
     And Count of voters = 2 in "mockTest.txt" voting
     When The "User1" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User3"
     Then Response status 200
-    And User send request for get voting
+    And User send request for get voting for a file "mockTest.txt"
     And Count of voters = 2 in "mockTest.txt" voting
 

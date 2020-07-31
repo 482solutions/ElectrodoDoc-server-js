@@ -66,6 +66,9 @@ export const CreateVoting = async (
     case ('File with this hash does not exist'):
       resp = { code: 404, payload: { message: response.message } };
       break;
+    case ('You can`t create voting without voters'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
     default:
       resp = { code: 201, payload: { response } };
   }

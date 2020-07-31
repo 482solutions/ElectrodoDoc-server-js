@@ -19,7 +19,7 @@ Feature: Remove users from voting
   Scenario: 1 Owner can create voting if owner deletes one user out of two
     Given User send request for create voting for file "mockTest.txt" without "User2"
     Then Response status 201
-    And Count of voters = 2 in "mockTest.txt" voting
+    And Count of voters = 1 in "mockTest.txt" voting
 
   Scenario: 2 Owner can't create voting if owner deletes all users
     Given User send request for create voting for file "mockTest.txt" without "everyone"
@@ -31,6 +31,6 @@ Feature: Remove users from voting
     And Count of voters = 2 in "mockTest.txt" voting
     When The "User1" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User3"
     Then Response status 200
-    And "User1" send request for get voting
+    And User send request for get voting for a file "mockTest.txt"
     And Count of voters = 2 in "mockTest.txt" voting
 

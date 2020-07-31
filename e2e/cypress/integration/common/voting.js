@@ -33,23 +33,6 @@ let time = Math.floor(new Date().getTime() / 1000.0) + 200000
 
 Given(/^User send request for create voting with (\d+) answers for a file "([^"]*)" and description "([^"]*)"$/,
   (answer, file, desc) => {
-    let excludeUsers = {
-      voters: [{
-        0: {
-          name: 'User2bXHlLREojQ',
-          vote: null
-        },
-        1:{
-          name: 'User3WqUlWOLvJf',
-          vote: null
-        },
-      }],
-  }
-    // for (let i = 0; i < excludeUsers.length; i++) {
-    //   excludeUsers.voters.splice(excludeUsers.voters.findIndex(v => v.name === excludeUsers[i] && v.vote === null),
-    //     1)
-    // }
-    console.log(excludeUsers.voters.length)
     const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
     headers.Authorization = `Bearer ${Cypress.env('token')}`
     cy.request({
@@ -73,16 +56,17 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
           expect(resp.body).to.not.have.property('message');
 
           let vote = getVoting(file, resp.body.response)
+          Cypress.env('voters', vote.voters)
           expect(vote.description).to.eq(description[desc])
           expect(vote.dueDate).to.eq(time.toString())
           expect(vote.votingName).to.eq(file)
           expect(vote.votingHash).to.not.eq(fileHash)
 
           Cypress.env('votes', resp.body.response)
-          Cypress.env('voters', vote.voters)
+
         }
       })
-    console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
+    // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
   })
 
 Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/,
@@ -232,6 +216,8 @@ Then(/^User send request for get voting$/,  () => {
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respStatus', resp.status)
     Cypress.env('respBody', resp.body)
+    // let vote = getVoting(file, resp.body.response)
+    // Cypress.env('voters', vote.voters)
   })
 });
 

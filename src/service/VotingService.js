@@ -125,13 +125,17 @@ export const UpdateVoting = async (hash, variant, token) => {
   try {
     const props = [hash, variant];
     response = await sender.sendToFabric(username, 'updateVoting', props);
-  } catch (error) {
+  }
+  catch (error) {
     return { code: 418, payload: { message: error } };
   }
   let resp;
   switch (response.message) {
-    case ('You already vote in this voting'):
+    case ('You have already voted in this vote'):
       resp = { code: 409, payload: { message: response.message } };
+      break;
+    case ('Variant does not exist'):
+      resp = { code: 422, payload: { message: response.message } };
       break;
     default:
       resp = { code: 200, payload: { response } };

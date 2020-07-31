@@ -68,3 +68,11 @@ export function getVoting(fileName, obj) {
     }
   }
 }
+
+export function getVoteOfUser(username, voters) {
+  for (let key in voters) {
+    if (username === voters[key].name) {
+      return voters[key].vote
+    }
+  }
+}

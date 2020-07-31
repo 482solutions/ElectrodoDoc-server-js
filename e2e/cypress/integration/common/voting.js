@@ -203,7 +203,7 @@ Then(/^Count of voters = (\d+) in "([^"]*)" voting$/, (count, file) => {
   expect(Cypress.env('voters').length).to.eq(count)
 })
 
-Then(/^User send request for get voting$/, () => {
+Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
   cy.request({
     headers: headers,
@@ -214,7 +214,12 @@ Then(/^User send request for get voting$/, () => {
     console.log(resp.body)
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respStatus', resp.status)
-    Cypress.env('respBody', resp.body)
+    if (resp.status === 200) {
+      expect(resp.body).to.not.have.property('message');
+
+      let vote = getVoting(file, resp.body.response)
+      Cypress.env('voters', vote.voters)
+    }
   })
 });
 

@@ -70,13 +70,14 @@ Feature: Voting
     And Message "Variant does not exist"
 
   Scenario: 7 User can't vote without permissions for a file
+    Given Send request for create user3 and get token
     And User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     And Response status 201
     When "User3" send a request to vote for the "Yes" variant for "mockTest.txt" file
     Then Response status 403
     And Message "User does not have permission"
 
-  Scenario: 7 user can't vote in non-existent vote
-    When "User2" send a request to vote for the "Yes" variant for "mockTest.txt" file
-    Then Response status 422
-    And Message "Variant does not exist"
+#  Scenario: 8 user can't vote in non-existent vote
+#    When "User2" send a request to vote for the "Yes" variant for "khbgspdofvdpf.txt" file
+#    Then Response status 422
+#    And Message "Variant does not exist"

@@ -1,5 +1,5 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
-import { getHashFromFile, getVoting } from '../../support/commands'
+import { getHashFromFile, getVoteOfUser, getVoting } from '../../support/commands'
 
 const sinon = require('sinon')
 
@@ -63,6 +63,7 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
 
           Cypress.env('votes', resp.body.response)
           Cypress.env('voters', vote.voters)
+          Cypress.env('votingHash', vote.votingHash)
         }
       })
     // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
@@ -212,6 +213,7 @@ Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
     failOnStatusCode: false,
   }).then((resp) => {
     console.log(resp.body)
+    Cypress.env('respBody', resp.body)
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respStatus', resp.status)
     if (resp.status === 200) {
@@ -268,30 +270,23 @@ When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" 
     User2: Cypress.env('token_2'),
     User3: Cypress.env('token_3'),
   }
-  const fileHash = getHashFromFile(file, Cypress.env('filesInRoot'))
   headers.Authorization = `Bearer ${tokens[user]}`
   cy.request({
     headers: headers,
     method: 'PUT',
     url: '/voting',
     body: {
-      hash: fileHash,
+      hash: Cypress.env('votingHash'),
       variant: variant,
     },
     failOnStatusCode: false,
   }).then((resp) => {
     console.log(resp.body)
     expect(resp.body).to.not.have.property('stack');
-    if (resp.status === 201) {
+    if (resp.status === 200) {
       expect(resp.body.response).to.not.have.property('message');
-    //   let vote = getVoting(file, resp.body.response)
-    //   expect(vote.description).to.eq(description[true])
-    //   expect(vote.dueDate).to.eq(time.toString())
-    //   expect(vote.votingName).to.eq(file)
-    //   expect(vote.votingHash).to.not.eq(fileHash)
-    //
-    //   Cypress.env('votes', resp.body.response)
-    //   Cypress.env('voters', vote.voters)
+      console.log(resp.body.response.voters)
+      Cypress.env('voters', resp.body.response.voters)
     }
     Cypress.env('respBody', resp.body)
     Cypress.env('respStatus', resp.status)
@@ -314,4 +309,13 @@ When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" 
     Cypress.env('respBody', resp.body)
     Cypress.env('respStatus', resp.status)
   })
+});
+Then(/^Vote "([^"]*)" of "([^"]*)" was accepted$/, (variant, user) => {
+  let tokens = {
+    User1: Cypress.env('login'),
+    User2: Cypress.env('login_2'),
+    User3: Cypress.env('login_3'),
+  }
+  let v =  getVoteOfUser(tokens[user], Cypress.env('voters'))
+  expect(variant).to.eq(v)
 });

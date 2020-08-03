@@ -137,6 +137,12 @@ export const UpdateVoting = async (hash, variant, token) => {
     case ('Variant does not exist'):
       resp = { code: 422, payload: { message: response.message } };
       break;
+    case ('User does not have permission'):
+      resp = { code: 403, payload: { message: response.message } };
+      break;
+    case ('Voting does not exist'):
+      resp = { code: 422, payload: { message: response.message } };
+      break;
     default:
       resp = { code: 200, payload: { response } };
   }

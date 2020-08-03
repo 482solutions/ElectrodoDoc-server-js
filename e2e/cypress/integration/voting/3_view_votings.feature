@@ -17,13 +17,13 @@ Feature: View an open vote
     Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     And Response status 201
     When "User1" send request for get voting for a file "mockTest.txt"
-    Then Count of voters = 1 in "mockTest.txt" voting
+    Then Count of voters = 2 in "mockTest.txt" voting
     And Response status 200
 
   Scenario: 2 Editor can view an open vote
     Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     When "User2" send request for get voting for a file "mockTest.txt"
-    Then Count of voters = 1 in "mockTest.txt" voting
+    Then Count of voters = 2 in "mockTest.txt" voting
     And Response status 200
 
   Scenario: 3 Viewer can view an open vote
@@ -31,7 +31,7 @@ Feature: View an open vote
     And The "User1" sends a request to grant "view" access to the "file" "mockTest.txt" to "User3"
     And User send request for create voting with 2 answers for a file "mockTest.txt" and description "true"
     When "User3" send request for get voting for a file "mockTest.txt"
-    Then Count of voters = 2 in "mockTest.txt" voting
+    Then Count of voters = 3 in "mockTest.txt" voting
     And Response status 200
 
   Scenario: 4 User without permissions can't view an open vote
@@ -45,7 +45,7 @@ Feature: View an open vote
     Given The "User1" sends a request to revoke "edit" access to the "file" "mockTest.txt" from the "User2"
     And The "User1" sends a request to revoke "view" access to the "file" "mockTest.txt" from the "User2"
     When "User2" send request for get voting for a file "mockTest.txt"
-    Then Count of voters = 2 in "mockTest.txt" voting
+    Then Count of voters = 3 in "mockTest.txt" voting
     And Response status 200
 
   Scenario: 6 User can't view an open vote without authentication

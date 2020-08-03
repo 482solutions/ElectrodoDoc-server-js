@@ -1,5 +1,5 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
-import { getHashFromFile, getVoting } from '../../support/commands'
+import { getHashFromFile, getVoteOfUser, getVoting } from '../../support/commands'
 
 const sinon = require('sinon')
 
@@ -63,6 +63,7 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
 
           Cypress.env('votes', resp.body.response)
           Cypress.env('voters', vote.voters)
+          Cypress.env('votingHash', vote.votingHash)
         }
       })
     // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
@@ -212,6 +213,7 @@ Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
     failOnStatusCode: false,
   }).then((resp) => {
     console.log(resp.body)
+    Cypress.env('respBody', resp.body)
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respStatus', resp.status)
     if (resp.status === 200) {
@@ -260,4 +262,60 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
       Cypress.env('respBody', resp.body)
       Cypress.env('respStatus', resp.status)
     })
+});
+
+When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" file$/, (user, variant, file) => {
+  let tokens = {
+    User1: Cypress.env('token'),
+    User2: Cypress.env('token_2'),
+    User3: Cypress.env('token_3'),
+  }
+  headers.Authorization = `Bearer ${tokens[user]}`
+  cy.request({
+    headers: headers,
+    method: 'PUT',
+    url: '/voting',
+    body: {
+      hash: Cypress.env('votingHash'),
+      variant: variant,
+    },
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    if (resp.status === 200) {
+      expect(resp.body.response).to.not.have.property('message');
+      console.log(resp.body.response.voters)
+      Cypress.env('voters', resp.body.response.voters)
+    }
+    Cypress.env('respBody', resp.body)
+    Cypress.env('respStatus', resp.status)
+  })
+});
+When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" file "([^"]*)" token$/, (user, variant, file, token) => {
+  headers.Authorization = bearer[token]
+  cy.request({
+    headers: headers,
+    method: 'PUT',
+    url: '/voting',
+    body: {
+      hash: getHashFromFile(file, Cypress.env('filesInRoot')),
+      variant: variant,
+    },
+    failOnStatusCode: false,
+  }).then((resp) => {
+    console.log(resp.body)
+    expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respBody', resp.body)
+    Cypress.env('respStatus', resp.status)
+  })
+});
+Then(/^Vote "([^"]*)" of "([^"]*)" was accepted$/, (variant, user) => {
+  let tokens = {
+    User1: Cypress.env('login'),
+    User2: Cypress.env('login_2'),
+    User3: Cypress.env('login_3'),
+  }
+  let v =  getVoteOfUser(tokens[user], Cypress.env('voters'))
+  expect(variant).to.eq(v)
 });

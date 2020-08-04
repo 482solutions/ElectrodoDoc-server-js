@@ -42,8 +42,6 @@ services:
       - '5432:5432'
     volumes:
       - database_postgres:/var/lib/postgresql
-    #    networks:
-    #      - woden
     networks:
       - front_default
 
@@ -69,7 +67,6 @@ services:
       - ./storage/redis:/data
     entrypoint: redis-server --appendonly yes
 
-
   ipfs:
     image: ipfs/go-ipfs:v0.4.22
     container_name: ipfs
@@ -90,15 +87,6 @@ volumes:
   api:
   database_postgres:
   conf:
-
-#configs:
-#  my_config:
-#    file: ./networkConnection.yaml
-
-# Networks to be created to facilitate communication between containers
-#networks:
-#  woden:
-#    driver: bridge
 
 networks:
   front_default:

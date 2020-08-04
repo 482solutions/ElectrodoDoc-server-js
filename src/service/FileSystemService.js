@@ -9,6 +9,7 @@ import { redisClient } from '../adapter/redis';
 
 import DB from '../database/utils';
 import { FileStorage } from '../FileStorage';
+import sender from '../helpers/sender';
 
 dotenv.config();
 
@@ -51,27 +52,10 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
       }
     }
   }
-
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'saveFolder',
-        props: [name, folderHash, parentFolderHash],
-      },
-    });
+    const props = [name, folderHash, parentFolderHash];
+    response = await sender.sendToFabric(username, 'saveFolder', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -79,7 +63,6 @@ export const CreateFolder = async (name, parentFolderHash, token) => {
     return { code: 409, payload: { message: 'Folder already exist' } };
   }
   await DB.insertFolder(conn, name, folderHash);
-  console.log(response)
   return {
     code: 201,
     payload: {
@@ -108,26 +91,10 @@ export const DownloadFile = async (hash, cid, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'getFile',
-        props: [hash],
-      },
-    });
+    const props = [hash];
+    response = await sender.sendToFabric(username, 'getFile', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -160,28 +127,10 @@ export const GetFolder = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-
-  const certsList = await DB.getCerts(conn, username);
-
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'getFolder',
-        props: [hash],
-      },
-    });
+    const props = [hash];
+    response = await sender.sendToFabric(username, 'getFolder', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -228,26 +177,10 @@ export const UploadFile = async (name, parentFolderHash, contents, token) => {
   }
   const fileHash = sha256(name.concat(parentFolderHash));
   const cid = (await fileStorage.upload(contents.buffer)).toString();
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'saveFile',
-        props: [name, fileHash, cid, parentFolderHash, contents.mimetype],
-      },
-    });
+    const props = [name, fileHash, cid, parentFolderHash, contents.mimetype];
+    response = await sender.sendToFabric(username, 'saveFile', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -279,26 +212,10 @@ export const UpdateFile = async (hash, file, token) => {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
   const cid = (await fileStorage.upload(file.buffer)).toString();
-  const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'updateFile',
-        props: [hash, cid],
-      },
-    });
+    const props = [hash, cid];
+    response = await sender.sendToFabric(username, 'updateFile', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -352,26 +269,11 @@ export const Versions = async (hash, token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  const certsList = await DB.getCerts(conn, username);
+  // const certsList = await DB.getCerts(conn, username);
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'getFile',
-        props: [hash],
-      },
-    });
+    const props = [hash];
+    response = await sender.sendToFabric(username, 'getFile', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }
@@ -397,27 +299,11 @@ export const Tree = async (token) => {
   if (!username || blackToken != null) {
     return { code: 203, payload: { message: 'Not Authorized' } };
   }
-  const certsList = await DB.getCerts(conn, username);
   const user = (await DB.getUser(conn, username))[0];
   let response;
   try {
-    response = await validator.sendTransaction({
-      identity: {
-        label: username,
-        certificate: certsList[0].cert,
-        privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
-      },
-      network: {
-        channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
-      },
-      transaction: {
-        name: 'getFolderTree',
-        props: [user.folder],
-      },
-    });
+    const props = [user.folder];
+    response = await sender.sendToFabric(username, 'getFolderTree', props);
   } catch (error) {
     return { code: 418, payload: { message: error } };
   }

@@ -308,7 +308,6 @@ Given(/^The user1 sends a request to grant "([^"]*)" access to the "([^"]*)" "([
         },
         failOnStatusCode: false
       }).then((resp) => {
-        console.log(resp)
         Cypress.env('respStatus', resp.status)
       })
       break;

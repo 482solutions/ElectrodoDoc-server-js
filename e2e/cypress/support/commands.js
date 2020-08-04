@@ -31,7 +31,7 @@ export function getPassword () {
 
 export function getLogin () {
   return generate({
-    length: 12,
+    length: 10,
     lowercase: true,
     uppercase: true,
   })
@@ -57,6 +57,22 @@ export function getHashFromFolder (folderName, folders) {
   for (let key in folders) {
     if (folderName === folders[key].name) {
       return folders[key].hash
+    }
+  }
+}
+
+export function getVoting(fileName, obj) {
+  for (let key in obj) {
+    if (fileName === obj[key].votingName) {
+      return obj[key]
+    }
+  }
+}
+
+export function getVoteOfUser(username, voters) {
+  for (let key in voters) {
+    if (username === voters[key].name) {
+      return voters[key].vote
     }
   }
 }

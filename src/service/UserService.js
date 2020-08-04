@@ -142,7 +142,6 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       enrollmentSecret: secret,
       csr,
     });
-
     await validator.sendTransaction({
       identity: {
         label: login,

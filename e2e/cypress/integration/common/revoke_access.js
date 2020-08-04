@@ -1,5 +1,5 @@
 import { Given, Then, When } from 'cypress-cucumber-preprocessor/steps'
-import { getHashFromFile, getHashFromFolder } from '../../support/commands'
+import { getHashFromFile, getHashFromFolder, getVoting } from '../../support/commands'
 
 const headers = {
   'content-type': 'application/json'

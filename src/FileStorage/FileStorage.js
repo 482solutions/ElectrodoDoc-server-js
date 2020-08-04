@@ -19,10 +19,10 @@ class FileStorage {
   async upload(contents) {
     let path;
     for await (const chunk of this.node.add(contents)) {
-      console.log("from upload FileStorage", chunk)
-       path = chunk.path
+      console.log('from upload FileStorage', chunk);
+      path = chunk.path;
     }
-    console.log("cid from upload FileStorage", path)
+    console.log('cid from upload FileStorage', path);
     return path;
   }
 

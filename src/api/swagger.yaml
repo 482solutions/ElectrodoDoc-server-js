@@ -381,6 +381,82 @@ paths:
       security:
         - Bearer: []
       x-swagger-router-controller: "Permissions"
+  /voting:
+    post:
+      tags:
+        - "voting"
+      summary: "Create voting"
+      description: "Owner can create voting on file"
+      operationId: "createVoting"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/voting"
+      responses:
+        "201":
+          description: "Successfully created"
+        "203":
+          description: "Not Authorized"
+        "403":
+          description: "User does not have permissions"
+        "404":
+          description: "File not exist"
+        "422":
+          description: "Invalid data supplied"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "Voting"
+    put:
+      tags:
+        - "voting"
+      summary: "User vote"
+      description: "User can vote in file if have permissions"
+      operationId: "updateVoting"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/vote"
+      responses:
+        "200":
+          description: "Successfully vote"
+        "203":
+          description: "Not Authorized"
+        "403":
+          description: "User does not have permissions"
+        "409":
+          description: "User already voted"
+        "422":
+          description: "Invalid data"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "Voting"
+    get:
+      tags:
+        - "voting"
+      summary: "Get voting list"
+      description: "User can get voting list of owned files or shared files"
+      operationId: "getVoting"
+      produces:
+        - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Voting list"
+        "203":
+          description: "Not Authorized"
+        "422":
+          description: "Invalid data"
+      security:
+        - Bearer: []
+      x-swagger-router-controller: "Voting"
 securityDefinitions:
   Bearer:
     type: "apiKey"
@@ -445,3 +521,25 @@ definitions:
         enum:
           - "unwrite"
           - "unread"
+  vote:
+    properties:
+      hash:
+        type: "string"
+      variant:
+        type: "string"
+  voting:
+    properties:
+      hash:
+        type: "string"
+      dueDate:
+        type: "string"
+      variants:
+        type: "array"
+        items:
+          type: "string"
+      excludedUsers:
+        type: "array"
+        items:
+          type: "string"
+      description:
+        type: "string"

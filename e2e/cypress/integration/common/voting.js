@@ -66,7 +66,6 @@ Given(/^User send request for create voting with (\d+) answers for a file "([^"]
           Cypress.env('votingHash', vote.votingHash)
         }
       })
-    // console.log('REAL DUE TIME', new Date(time * 1000).toLocaleString())
   })
 
 Given(/^User send request for create voting "([^"]*)" token for a file "([^"]*)"$/,
@@ -134,7 +133,6 @@ Given(/^User send request for create voting "([^"]*)" dueDate for a file "([^"]*
       failOnStatusCode: false,
     })
       .then((resp) => {
-        console.log(resp.body)
         expect(resp.body).to.not.have.property('stack');
         Cypress.env('respStatus', resp.status)
         Cypress.env('respBody', resp.body)
@@ -178,7 +176,6 @@ When(/^User send request for re\-create a vote for a file "([^"]*)" after the fi
     cy.wait(20000)
     const fakeTime = sinon.useFakeTimers(new Date(time * 1000))//.getTime()
     let date = new Date() //=> return the fake Date
-    console.log('FAKE TIME', date)
 
     cy.request({
       headers: headers,
@@ -197,26 +194,30 @@ When(/^User send request for re\-create a vote for a file "([^"]*)" after the fi
       fakeTime.restore()
       expect(resp.body).to.not.have.property('stack');
       let date2 = new Date() //=> will return the real time again (now)
-      console.log(date2)
+      //console.log(date2)
     })
   })
 Then(/^Count of voters = (\d+) in "([^"]*)" voting$/, (count, file) => {
   expect(Cypress.env('voters').length).to.eq(count)
 })
 
-Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
-  headers.Authorization = `Bearer ${Cypress.env('token')}`
+Then(/^"([^"]*)" send request for get voting for a file "([^"]*)"$/, (user, file) => {
+  let logins = {
+    User1: Cypress.env('token'),
+    User2: Cypress.env('token_2'),
+    User3: Cypress.env('token_3'),
+  }
+  headers.Authorization = `Bearer ${logins[user]}`
   cy.request({
     headers: headers,
     method: 'GET',
     url: '/voting',
     failOnStatusCode: false,
   }).then((resp) => {
-    console.log(resp.body)
-    Cypress.env('respBody', resp.body)
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respStatus', resp.status)
-    if (resp.status === 200) {
+    Cypress.env('respBody', resp.body)
+    if (resp.status === 200 && resp.body.response.length !== 0) {
       expect(resp.body).to.not.have.property('message');
 
       let vote = getVoting(file, resp.body.response)
@@ -225,7 +226,8 @@ Then(/^User send request for get voting for a file "([^"]*)"$/, (file) => {
   })
 });
 
-Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"$/,  (file, user) => {
+Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"$/, (file, user) => {
+
   let logins = {
     User1: [Cypress.env('login')],
     User2: [Cypress.env('login_2')],
@@ -247,9 +249,12 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
     },
     failOnStatusCode: false,
   }).then((resp) => {
-      expect(resp.body).to.not.have.property('stack');
-      if (resp.status === 201) {
-        expect(resp.body.response).to.not.have.property('message');
+      expect(resp.body).to.not.have.property('stack')
+      Cypress.env('respBody', resp.body)
+      Cypress.env('respStatus', resp.status)
+      if (resp.status === 201 && resp.body.response.length !== 0) {
+        expect(resp.body.response).to.not.have.property('message')
+
         let vote = getVoting(file, resp.body.response)
         expect(vote.description).to.eq(description[true])
         expect(vote.dueDate).to.eq(time.toString())
@@ -262,6 +267,21 @@ Given(/^User send request for create voting for file "([^"]*)" without "([^"]*)"
       Cypress.env('respBody', resp.body)
       Cypress.env('respStatus', resp.status)
     })
+})
+When(/^User send request for get voting without auth$/,  () =>  {
+  headers.Authorization = `Bearer `
+  cy.request({
+    headers: headers,
+    method: 'GET',
+    url: '/voting',
+    failOnStatusCode: false,
+  }).then((resp) => {
+    expect(resp.body).to.not.have.property('stack');
+    Cypress.env('respStatus', resp.status)
+  })
+});
+Then(/^Response body is empty$/, () =>  {
+  expect(Cypress.env('respBody').response.length).to.eq(0)
 });
 
 When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" file$/, (user, variant, file) => {
@@ -304,7 +324,6 @@ When(/^"([^"]*)" send a request to vote for the "([^"]*)" variant for "([^"]*)" 
     },
     failOnStatusCode: false,
   }).then((resp) => {
-    console.log(resp.body)
     expect(resp.body).to.not.have.property('stack');
     Cypress.env('respBody', resp.body)
     Cypress.env('respStatus', resp.status)

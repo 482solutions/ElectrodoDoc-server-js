@@ -18,7 +18,7 @@ Feature: Creating voting
     And The "User1" sends a request to grant "view" access to the "file" "mockTest.txt" to "User3"
     When User send request for create voting with <count> answers for a file "mockTest.txt" and description "true"
     Then Response status 201
-    And Count of voters = 2 in "mockTest.txt" voting
+    And Count of voters = 3 in "mockTest.txt" voting
     Examples: Count of answers
       | count |
       | 2     |
@@ -29,7 +29,7 @@ Feature: Creating voting
   Scenario: 2 Owner can create voting without description
     Given User send request for create voting with 2 answers for a file "mockTest.txt" and description "false"
     Then Response status 201
-    And Count of voters = 1 in "mockTest.txt" voting
+    And Count of voters = 2 in "mockTest.txt" voting
 
   Scenario: 3 Owner can not create voting without token
     Given User send request for create voting "without" token for a file "mockTest.txt"

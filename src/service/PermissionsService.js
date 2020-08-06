@@ -30,9 +30,12 @@ export const changePermissions = async (email, hash, permission, token) => {
     return { code: 422, payload: { message: 'Incorrect permissions' } };
   }
   const userThatShared = (await DB.getUser(conn, username))[0];
-  const users = await DB.getUserByEmail(conn, email);
+  let users = await DB.getUserByEmail(conn, email);
   if (users.length === 0) {
-    return { code: 422, payload: { message: 'User for sharing not found' } };
+    users = await DB.getUser(conn, email);
+    if (users.length === 0) {
+      return { code: 422, payload: { message: 'User for sharing not found' } };
+    }
   }
   if (!hash || hash.length < 64) {
     return { code: 422, payload: { message: 'Incorrect hash' } };

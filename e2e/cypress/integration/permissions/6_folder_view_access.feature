@@ -83,10 +83,9 @@ Feature: Grant view access for a file
     And Message "User for sharing not found"
 
   @negative
-  Scenario: 10 Owner can not grand access for a folder if field "email" contain username
+  Scenario: 10 Owner can grand access for a folder if field "email" contain username
     When The "User1" sends a request to grant "view" access to the "folder" "Transfer" with "username in" email
-    Then Response status 422
-    And Message "User for sharing not found"
+    Then Response status 200
 
   @negative
   Scenario: 11 Editor can can not to transfer ownership for a folder

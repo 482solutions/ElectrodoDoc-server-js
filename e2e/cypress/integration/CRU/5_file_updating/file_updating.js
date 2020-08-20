@@ -138,7 +138,7 @@ When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/
       .then((data) => {
         expect(data.message).to.equal('Not Authorized')
       })
-  }).as('Update txt file').wait(600)
+  }).as('Update txt file').wait(500)
 });
 
 after(() => {

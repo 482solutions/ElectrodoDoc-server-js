@@ -9,7 +9,7 @@ const headers = {
 Given(/^I send request for update password$/, () => {
   let newPassword = sha256('Albert123457')
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  cy.wait(2000)
+  cy.wait(400)
   cy.request({
     method: 'PUT',
     url: '/user',

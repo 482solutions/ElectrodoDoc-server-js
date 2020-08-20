@@ -6,7 +6,7 @@ const headers = {
 
 Given(/^I send request for logout$/, () => {
   headers.Authorization = `Bearer ${Cypress.env('token')}`
-  cy.wait(2000)
+  cy.wait(400)
   cy.request({
     method: 'DELETE',
     url: '/user/logout',

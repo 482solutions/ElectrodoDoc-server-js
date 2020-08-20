@@ -39,7 +39,7 @@ When(/^The user send request for updating file "([^"]*)" and bearer is empty$/, 
       .then((data) => {
         expect(data.message).to.equal('Not Authorized')
       })
-  }).as('Update txt file').wait(6000)
+  }).as('Update txt file').wait(400)
 });
 
 When(/^The user send request for updating file "([^"]*)" if the file is not exist$/, (fileName) => {
@@ -71,7 +71,7 @@ When(/^The user send request for updating file "([^"]*)" if the file is not exis
       .then((data) => {
         expect(data.message).to.equal('File with this hash does not exist')
       })
-  }).as('Update txt file').wait(6000)
+  }).as('Update txt file').wait(400)
 });
 
 When(/^The user send request for updating file "([^"]*)" if the file is invalid$/, (fileName) => {
@@ -104,7 +104,7 @@ When(/^The user send request for updating file "([^"]*)" if the file is invalid$
       .then((data) => {
         expect(data.message).to.equal('Parent folder not found.')
       })
-  }).as('Update txt file').wait(6000)
+  }).as('Update txt file').wait(400)
 });
 
 When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/, (fileName) => {
@@ -138,7 +138,7 @@ When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/
       .then((data) => {
         expect(data.message).to.equal('Not Authorized')
       })
-  }).as('Update txt file').wait(6000)
+  }).as('Update txt file').wait(400)
 });
 
 after(() => {

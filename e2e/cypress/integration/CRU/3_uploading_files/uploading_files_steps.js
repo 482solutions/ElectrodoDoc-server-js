@@ -37,7 +37,7 @@ When(/^User send request for upload png file$/, () => {
         });
     })
   }).as('Send png')
-  cy.wait(6000)
+  cy.wait(400)
 })
 
 When(/^User send request for upload file without auth$/, () => {

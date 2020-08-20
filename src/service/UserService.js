@@ -151,8 +151,8 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       },
       network: {
         channel: 'testchannel',
-        chaincode: 'electricitycc',
-        contract: 'org.fabric.marketcontract',
+        chaincode: 'wodencc',
+        contract: 'org.fabric.wodencontract',
       },
       transaction: {
         name: 'saveFolder',
@@ -216,8 +216,8 @@ export const logIn = async (login, password, certificate, privateKey) => {
     },
     network: {
       channel: 'testchannel',
-      chaincode: 'electricitycc',
-      contract: 'org.fabric.marketcontract',
+      chaincode: 'wodencc',
+      contract: 'org.fabric.wodencontract',
     },
     transaction: {
       name: 'getFolder',

@@ -17,7 +17,7 @@ Given(/^User send request for create folder in root folder with name (.*) from l
   }).then((resp) => {
     Cypress.env('foldersInRoot', resp.body.folder.folders)
     Cypress.env('respStatus', resp.status)
-  }).wait(2000)
+  }).wait(400)
 })
 
 Given(/^User send request for create folder in user's folder with name "([^"]*)"$/, (name) => {

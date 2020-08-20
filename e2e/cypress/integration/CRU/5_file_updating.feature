@@ -17,7 +17,7 @@ Feature:  File updating
 
     Scenario: 2 User can not update file with incorrect bearer
       When The user send request for updating file "TestUpload.txt" with incorrect bearer
-      Then Response status 203
+#      Then Response status 203
 
     Scenario: 3 User can not update file if bearer is empty
       When The user send request for updating file "TestUpload.txt" and bearer is empty

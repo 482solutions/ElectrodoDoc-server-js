@@ -71,7 +71,7 @@ When(/^The user send request for updating file "([^"]*)" if the file is not exis
       .then((data) => {
         expect(data.message).to.equal('File with this hash does not exist')
       })
-  }).as('Update txt file').wait(400)
+  }).as('Update txt file').wait(600)
 });
 
 When(/^The user send request for updating file "([^"]*)" if the file is invalid$/, (fileName) => {
@@ -138,7 +138,7 @@ When(/^The user send request for updating file "([^"]*)" with incorrect bearer$/
       .then((data) => {
         expect(data.message).to.equal('Not Authorized')
       })
-  }).as('Update txt file').wait(400)
+  }).as('Update txt file').wait(600)
 });
 
 after(() => {

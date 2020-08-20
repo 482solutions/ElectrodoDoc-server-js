@@ -30,7 +30,7 @@ Given(/^The user send request for upload file "([^"]*)"$/, (fullName) => {
       expect(Cypress.env('login')).to.equal(result.folder.folderName)
     });
   }).as('Send txt')
-  cy.wait(400)
+  cy.wait(600)
 })
 
 

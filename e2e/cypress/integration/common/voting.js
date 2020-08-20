@@ -173,7 +173,7 @@ Given(/^User send request for create voting dueDate "([^"]*)" timeNow for a file
   })
 When(/^User send request for re\-create a vote for a file "([^"]*)" after the final first vote$/,
   (fileName) => {
-    cy.wait(20000)
+    cy.wait(2000)
     const fakeTime = sinon.useFakeTimers(new Date(time * 1000))//.getTime()
     let date = new Date() //=> return the fake Date
 

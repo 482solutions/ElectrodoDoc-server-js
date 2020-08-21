@@ -10,7 +10,7 @@ const conn = connection(configDB);
 exports.sendToFabric = async (username, method, props) => {
   let response = null;
   let i = 1;
-  while (response === null) {
+  while (response === null && i < 50) {
     console.log('send to fabric ', method, i);
     // eslint-disable-next-line no-await-in-loop
     const certsList = await DB.getCerts(conn, username);

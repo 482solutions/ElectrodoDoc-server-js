@@ -8,9 +8,11 @@ dotenv.config();
 const conn = connection(configDB);
 
 exports.sendToFabric = async (username, method, props) => {
-  const certsList = await DB.getCerts(conn, username);
-  let response;
-  try {
+  let response = null;
+  let i = 1;
+  while (response === null) {
+    console.log('send to fabric ', method, i);
+    const certsList = await DB.getCerts(conn, username);
     response = await validator.sendTransaction({
       identity: {
         label: username,
@@ -28,14 +30,7 @@ exports.sendToFabric = async (username, method, props) => {
         props,
       },
     });
-  } catch (error) {
-    if (error.message.search('MVCC_READ_CONFLICT') !== -1) {
-      console.log('send to fabric retry');
-      await this.sendToFabric(username, method, props);
-    } else {
-      console.log(error);
-      response = error;
-    }
+    i++;
   }
   return response;
 };

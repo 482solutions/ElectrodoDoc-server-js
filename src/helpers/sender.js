@@ -8,10 +8,10 @@ dotenv.config();
 const conn = connection(configDB);
 
 exports.sendToFabric = async (username, method, props) => {
-  let response = null;
+  let response;
   let i = 1;
   const certsList = await DB.getCerts(conn, username);
-  while (response === null && i < 10) {
+  while (response === undefined || (response === null && i < 10)) {
     console.log('send to fabric ', method, i);
     // eslint-disable-next-line no-await-in-loop
     response = await validator.sendTransaction({

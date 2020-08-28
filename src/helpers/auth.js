@@ -34,18 +34,21 @@ exports.issueToken = function issueToken(username) {
 
 exports.validationPrivateKey = (string) => {
   const privateKey = string.toString().trim();
-  return privateKey.startsWith('-----BEGIN PRIVATE KEY-----') && privateKey.endsWith('-----END PRIVATE KEY-----');
+  return privateKey.startsWith('-----BEGIN PRIVATE KEY-----') && privateKey.endsWith(
+    '-----END PRIVATE KEY-----');
 };
 exports.validationCertificate = (string) => {
   const certificate = string.toString().trim();
-  return certificate.startsWith('-----BEGIN CERTIFICATE-----') && certificate.endsWith('-----END CERTIFICATE-----');
+  return certificate.startsWith('-----BEGIN CERTIFICATE-----') && certificate.endsWith(
+    '-----END CERTIFICATE-----');
 };
 exports.validationCSR = (string) => {
   const csr = string.toString().trim();
-  return csr.startsWith('-----BEGIN CERTIFICATE REQUEST-----') && csr.endsWith('-----END CERTIFICATE REQUEST-----');
+  return csr.startsWith('-----BEGIN CERTIFICATE REQUEST-----') && csr.endsWith(
+    '-----END CERTIFICATE REQUEST-----');
 };
 
-exports.getUserFromToken = async(token) => {
+exports.getUserFromToken = async (token) => {
   if (token && token.indexOf('Bearer ') === 0) {
     const tokenString = token.split(' ')[1];
     try {
@@ -57,7 +60,7 @@ exports.getUserFromToken = async(token) => {
   return null;
 };
 
-exports.sendTransaction = async({ identity, transaction, network: networkOptions }) => {
+exports.sendTransaction = async ({ identity, transaction, network: networkOptions }) => {
   const wallet = new InMemoryWallet();
   const mixin = X509WalletMixin.createIdentity(
     identity.mspId,
@@ -82,7 +85,6 @@ exports.sendTransaction = async({ identity, transaction, network: networkOptions
     gateway.disconnect();
     return JSON.parse(issueResponse.toString());
   } catch (error) {
-    console.log(`Error processing transaction. ${error.stack}`);
     gateway.disconnect();
     return null;
   }

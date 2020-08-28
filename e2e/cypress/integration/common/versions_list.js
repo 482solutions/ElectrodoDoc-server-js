@@ -6,7 +6,7 @@ const headers = {
 }
 
 When(/^Send request for list of the previous versions of "([^"]*)" file$/, (filename) => {
-  cy.wait(3000)
+  cy.wait(400)
   const files = Cypress.env('filesInRoot')
 
   let hash = getHashFromFile(filename, files)

@@ -29,12 +29,12 @@ Given(/^I send request for getting JWT token with username$/, async () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Then(/^Response body contains valid JWT token$/, () => {
   let token = Cypress.env('token')
-  cy.wait(2000)
+  cy.wait(400)
   let header = decode(token, 0)
   expect('HS256').to.equal(header.alg)
   expect('JWT').to.equal(header.typ)
@@ -68,7 +68,7 @@ Given(/^I send request for getting JWT token with email$/, () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect password$/, () => {
@@ -92,7 +92,7 @@ Given(/^I send request for getting JWT token with incorrect password$/, () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect username$/, () => {
@@ -116,7 +116,7 @@ Given(/^I send request for getting JWT token with incorrect username$/, () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect username and incorrect password$/, () => {
@@ -140,7 +140,7 @@ Given(/^I send request for getting JWT token with incorrect username and incorre
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token without username$/, () => {
@@ -164,7 +164,7 @@ Given(/^I send request for getting JWT token without username$/, () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect cert$/, () => {
@@ -188,7 +188,7 @@ Given(/^I send request for getting JWT token with incorrect cert$/, () => {
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect privateKey$/, () => {
@@ -212,7 +212,7 @@ Given(/^I send request for getting JWT token with incorrect privateKey$/, () => 
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })
 
 Given(/^I send request for getting JWT token with incorrect cert and incorrect privateKey$/, () => {
@@ -236,5 +236,5 @@ Given(/^I send request for getting JWT token with incorrect cert and incorrect p
       })
     })
   })
-  cy.wait(2000)
+  cy.wait(400)
 })

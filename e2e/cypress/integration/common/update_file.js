@@ -38,7 +38,7 @@ When(/^The user send request for updating file "([^"]*)"$/, (fileName) => {
           // Cypress.env('versions', data.file.versions)
           expect(fileName).to.eq(data.file.fileName)
         })
-    }).as('Update txt file').wait(6000)
+    }).as('Update txt file').wait(400)
 
     cy.writeFile(`cypress/fixtures/${fileName}`, str1).as('Write text to the file')
   })

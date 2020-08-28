@@ -37,7 +37,7 @@ When(/^User send request for upload png file$/, () => {
         });
     })
   }).as('Send png')
-  cy.wait(6000)
+  cy.wait(400)
 })
 
 When(/^User send request for upload file without auth$/, () => {
@@ -62,7 +62,7 @@ When(/^User send request for upload file without auth$/, () => {
         }
       })
   })
-  cy.wait(5000)
+  cy.wait(600)
 })
 
 When(/^User send request for upload file with incorrect parentFolder$/, () => {
@@ -91,7 +91,7 @@ When(/^User send request for upload file with incorrect parentFolder$/, () => {
         }
       })
   })
-  cy.wait(5000)
+  cy.wait(600)
 })
 
 When(/^User send request for upload file without parentFolder$/, () => {
@@ -119,7 +119,7 @@ When(/^User send request for upload file without parentFolder$/, () => {
         }
       })
   })
-  cy.wait(5000)
+  cy.wait(600)
 })
 
 When(/^User send request for upload file with incorrect token$/, () => {
@@ -144,7 +144,7 @@ When(/^User send request for upload file with incorrect token$/, () => {
         }
       })
   })
-  cy.wait(5000)
+  cy.wait(600)
 })
 When(/^User send request for upload file without file name$/, () => {
   let token = Cypress.env('token')
@@ -171,7 +171,7 @@ When(/^User send request for upload file without file name$/, () => {
         }
       })
   })
-  cy.wait(5000)
+  cy.wait(600)
 })
 
 When(/^User send request for upload file without file$/, async () => {
@@ -192,5 +192,5 @@ When(/^User send request for upload file without file$/, async () => {
   if (expect(400).to.eq(resp.status)) {
     Cypress.env('respStatus', resp.status)
   }
-  cy.wait(4000)
+  cy.wait(600)
 })

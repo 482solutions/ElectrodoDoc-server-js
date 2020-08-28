@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    container_name: backends
+    container_name: backend
     build: .
     depends_on:
       - postgres
@@ -30,20 +30,20 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: postgress
+    container_name: postgres
     restart: always
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - DATABASE_HOST=${DB_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DATABASE_HOST=${DATABASE_HOST}
     ports:
       - 1823:1823
       - '5432:5432'
     volumes:
       - database_postgres:/var/lib/postgresql
     networks:
-      - woden
+      - front_default
 
   #  pgadmin:
   #    image: dpage/pgadmin4
@@ -61,20 +61,17 @@ services:
 
   redis:
     image: redis
-    container_name: rediss
+    container_name: redis
     network_mode: service:backend
     volumes:
       - ./storage/redis:/data
     entrypoint: redis-server --appendonly yes
-
 
   ipfs:
     image: ipfs/go-ipfs:v0.4.22
     container_name: ipfs
     depends_on:
       - redis
-    #    networks:
-    #      - woden
     network_mode: service:backend
     volumes:
       - $HOME/ipfs/staging:/export
@@ -92,11 +89,6 @@ volumes:
   database_postgres:
   conf:
 
-#configs:
-#  my_config:
-#    file: ./networkConnection.yaml
-
-# Networks to be created to facilitate communication between containers
 networks:
-  woden:
-    driver: bridge
+  front_default:
+    external: true

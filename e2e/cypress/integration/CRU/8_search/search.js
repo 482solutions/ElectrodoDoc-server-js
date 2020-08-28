@@ -24,7 +24,7 @@ When(/^User send request for create folder "([^"]*)" in root folder$/, (folderNa
 })
 
 When(/^The user send request for upload new file to testFolder with name "([^"]*)"$/, (fileName) => {
-  cy.wait(2000)
+  cy.wait(400)
   cy.readFile(`cypress/fixtures/${fileName}`).then(async (str) => {
     let blob = new Blob([str], { type: 'text/plain' })
 

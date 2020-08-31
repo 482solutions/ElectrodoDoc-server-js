@@ -1,5 +1,6 @@
 ### Troubleshooting
-#####```Error: listen EADDRINUSE 0.0.0.0:1823```
+
+```Error: listen EADDRINUSE 0.0.0.0:1823```
 
 It seems port '1823' was already in use in your environment.
 

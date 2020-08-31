@@ -11,7 +11,7 @@ exports.sendToFabric = async (username, method, props) => {
   let response;
   let i = 1;
   const certsList = await DB.getCerts(conn, username);
-  while (response === undefined || (response === null && i < 10)) {
+  while (response === undefined || (response === null && i < 50)) {
     console.log('send to fabric ', method, i);
     // eslint-disable-next-line no-await-in-loop
     response = await validator.sendTransaction({

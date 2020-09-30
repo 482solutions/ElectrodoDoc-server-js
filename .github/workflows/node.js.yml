@@ -24,7 +24,7 @@ jobs:
       - run: npm run lint:js
       - run: sudo docker volume prune -f
       - run: sudo docker system prune -a -f
-      - run: git clone https://andrii482:${{ secrets.PASSWORD }}@github.com/482solutions/woden-network.git
+      - run: git clone https://andrii482:${{ secrets.PASSWORD_WODEN_SERVER_JS }}@github.com/482solutions/woden-network.git
       - run: cd woden-network && sudo chmod 777 ./deploy.sh && sudo ./deploy.sh
       - run: cd ..
       #  - sudo docker-compose -f docker-compose-test.yaml up --build --abort-on-container-exit

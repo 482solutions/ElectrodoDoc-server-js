@@ -19,3 +19,8 @@ For example, in case you want to run server with port 11823:
 ```node node_modules/http-server/bin/http-server -p 11823 dist/```
 
 #### If you find a case that is not described in this document, please let us know
+
+
+-----------------------------------------------------------------------
+#### Also check this issue, before you re-run `backend` : 
+https://github.com/482solutions/woden-server-js/issues/87

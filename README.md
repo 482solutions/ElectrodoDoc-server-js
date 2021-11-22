@@ -9,7 +9,13 @@ To run the server, run:
 ```
 docker-compose up --build
 ```
+-----------------------------------------------------------------------
 
+#### Also check this issue, before you re-run `backend` : 
+
+https://github.com/482solutions/woden-server-js/issues/87
+
+-----------------------------------------------------------------------
 To run the tests, run:
 
 ```

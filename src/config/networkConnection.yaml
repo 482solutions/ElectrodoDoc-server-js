@@ -39,7 +39,7 @@ channels:
     # operational decisions to share loads from applications among the orderers.  The values must
     # be "names" of orgs defined under "organizations/peers"
     orderers:
-      - orderer_n1
+      - orderer.example.com
 
     # Required. list of peers from participating orgs
     peers:
@@ -68,10 +68,10 @@ channels:
 #
 organizations:
   482solutions:
-    mspid: 482solutions
+    mspid: Org1MSP
 
     peers:
-      - peer1
+      - peer0.org1.example.com
 
 #
 # List of orderers to send transaction and channel create/update requests to. For the time
@@ -85,7 +85,7 @@ orderers:
     # these are standard properties defined by the gRPC library
     # they will be passed in as-is to gRPC client constructor
     grpcOptions:
-      ssl-target-name-override: orderer_n1
+      ssl-target-name-override: orderer.example.com
 
 #
 # List of peers to send various requests to, including endorsement, query
@@ -94,10 +94,10 @@ orderers:
 peers:
   peer1:
     # this URL is used to send endorsement and query requests
-    url: grpc://172.28.0.4:7051
+    url: grpc://peer0.org1.example.com:7051
 
     grpcOptions:
-      ssl-target-name-override: peer1
+      ssl-target-name-override: peer0.org1.example.com
       request-timeout: 120001
 
 # Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
@@ -106,7 +106,7 @@ peers:
 #
 certificateAuthorities:
   ca-org1:
-    url: http://172.28.0.3:7054
+    url: http://ca-org1:7054
     # the properties specified under this object are passed to the 'http' client verbatim when
     # making the request to the Fabric-CA server
     httpOptions:

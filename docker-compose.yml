@@ -43,7 +43,8 @@ services:
     volumes:
       - database_postgres:/var/lib/postgresql
     networks:
-      - front_default
+#      - front_default
+      - fabric_test
 
   #  pgadmin:
   #    image: dpage/pgadmin4
@@ -89,5 +90,6 @@ volumes:
   conf:
 
 networks:
-  front_default:
+#  front_default:
+  fabric_test:
     external: true

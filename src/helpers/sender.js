@@ -22,7 +22,7 @@ exports.sendToFabric = async (username, method, props) => {
         mspId: '482solutions',
       },
       network: {
-        channel: 'testchannel',
+        channel: 'mychannel',
         chaincode: 'wodencc',
         contract: 'org.fabric.wodencontract',
       },

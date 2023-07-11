@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Gateway, InMemoryWallet, X509WalletMixin } from 'fabric-network';
+import { Gateway, Wallets } from 'fabric-network';
 import jwt from 'jsonwebtoken';
 import yaml from 'js-yaml';
 import path from 'path';
@@ -61,16 +61,20 @@ exports.getUserFromToken = async (token) => {
 };
 
 exports.sendTransaction = async ({ identity, transaction, network: networkOptions }) => {
-  const wallet = new InMemoryWallet();
-  const mixin = X509WalletMixin.createIdentity(
-    identity.mspId,
-    identity.certificate,
-    identity.privateKey,
-  );
-  await wallet.import(identity.label, mixin);
+  const wallet = await Wallets.newInMemoryWallet();
+  const mixin = {
+    credentials: {
+        certificate: identity.certificate,
+        privateKey: identity.privateKey,
+    },
+    mspId: identity.mspId,
+    type: 'X.509',
+  }
+  await wallet.put(identity.label, mixin)
+  
   const gateway = new Gateway();
   try {
-    const connectionProfile = yaml.safeLoad(
+    const connectionProfile = yaml.load(
       fs.readFileSync(path.resolve(__dirname, process.env.FABRIC_CONFIG_FILE), 'utf8'),
     );
     const connectionOptions = {
@@ -80,7 +84,7 @@ exports.sendTransaction = async ({ identity, transaction, network: networkOption
     };
     await gateway.connect(connectionProfile, connectionOptions);
     const network = await gateway.getNetwork(networkOptions.channel);
-    const contract = await network.getContract(networkOptions.chaincode, networkOptions.contract);
+    const contract = network.getContract(networkOptions.chaincode) // , networkOptions.contract);
     const issueResponse = await contract.submitTransaction(transaction.name, ...transaction.props);
     gateway.disconnect();
     return JSON.parse(issueResponse.toString());

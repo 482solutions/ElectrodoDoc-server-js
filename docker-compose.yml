@@ -1,33 +1,5 @@
 version: '3'
 services:
-  backend:
-    container_name: backend
-    build: .
-    depends_on:
-      - postgres
-    #    ports:
-    #      - 8080:8080
-    network_mode: "service:postgres"
-    environment:
-      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}:5432/${DB_NAME}
-      NODE_ENV: development
-      PORT: 1823
-      FABRIC_HOST: ${FABRIC_HOST}
-      FABRIC_PORT: ${FABRIC_PORT}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      DATABASE_HOST: ${DB_HOST}
-      DATABASE_PORT: ${DB_PORT}
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
-      WODEN_JWT_SECRET: ${JWT_SECRET}
-      FABRIC_CONFIG_FILE: ${CONFIG_FILE}
-    command: sh -c "sleep 5 && npm start"
-    volumes:
-      - .:/app/
-      - /app/node_modules
-
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -38,13 +10,14 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - DATABASE_HOST=${DATABASE_HOST}
     ports:
-      - 1823:1823
-      - '5432:5432'
+      # - 1823:1823
+      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:6379:6379'
+      - "127.0.0.1:5001:5001"
+      - "127.0.0.1:4001:4001"
+      - "127.0.0.1:8081:8080"
     volumes:
       - database_postgres:/var/lib/postgresql
-    networks:
-#      - front_default
-      - fabric_test
 
   #  pgadmin:
   #    image: dpage/pgadmin4
@@ -63,7 +36,7 @@ services:
   redis:
     image: redis
     container_name: redis
-    network_mode: service:backend
+    network_mode: service:postgres
     volumes:
       - ./storage/redis:/data
     entrypoint: redis-server --appendonly yes
@@ -73,7 +46,7 @@ services:
     container_name: ipfs
     depends_on:
       - redis
-    network_mode: service:backend
+    network_mode: service:postgres
     volumes:
       - $HOME/ipfs/staging:/export
       - $HOME/ipfs/data:/ipfs/data
@@ -85,11 +58,4 @@ services:
 #      - "8081:8080"
 
 volumes:
-  api:
   database_postgres:
-  conf:
-
-networks:
-#  front_default:
-  fabric_test:
-    external: true

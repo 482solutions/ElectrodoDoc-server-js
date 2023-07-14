@@ -111,7 +111,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
    * @type {FabricCAServices.IEnrollResponse}
    */
 
-  
+
   const adminData = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
   const identity = {
     label: 'client',
@@ -169,7 +169,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
 		}
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
 		const admin = await provider.getUserContext(adminIdentity, 'admin');
-    
+
     const secret = await ca.register({
       enrollmentID: login,
       enrollmentSecret: password,
@@ -188,7 +188,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         label: login,
         certificate: userData.certificate,
         privateKey,
-        mspId: '482solutions',
+        mspId: 'Org1MSP',
       },
       network: {
         channel: 'mychannel',
@@ -251,7 +251,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
       label: user.username,
       certificate,
       privateKey,
-      mspId: '482solutions',
+      mspId: 'Org1MSP',
     },
     network: {
       channel: 'mychannel',
@@ -261,7 +261,7 @@ export const logIn = async (login, password, certificate, privateKey) => {
     transaction: {
       name: 'getFolder',
       props: [user.folder],
-    },           
+    },
   });
   if (response === null
     || response.folder.ownerId !== user.username) {

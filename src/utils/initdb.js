@@ -4,7 +4,7 @@ const query = require('../database/query');
 
 import configDB from '../database/configDB';
 
-async function initdb() {
+async function initDB() {
   const conn = await connection(configDB);
   await dbrequestor.query(conn, 'SET default_tablespace = \'\';');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS certs');
@@ -42,5 +42,7 @@ async function checkDBInit() {
     }
 }
 
-module.exports = initdb;
-module.exports = checkDBInit
+module.exports = {
+    initDB,
+    checkDBInit
+};

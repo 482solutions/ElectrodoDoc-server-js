@@ -106,24 +106,20 @@ export const createUser = async (login, email, password, privateKey, csr) => {
   }
 
   const folder = sha256(login);
+
   /**
    *
    * @type {FabricCAServices.IEnrollResponse}
+   * 
    */
 
-  
   const adminData = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
   const identity = {
-    label: 'client',
-    certificate: adminData.certificate,
+    label: 'client',  //role ?
+    certificate: adminData.certificate, //credentials: {]
     privateKey: adminData.key.toBytes(),
     mspId: 'Org1MSP',
   };
-  // const wallet = new InMemoryWallet();
-  // const mixin = X509WalletMixin.createIdentity(identity.mspId,
-  //   identity.certificate,
-  //   identity.privateKey);
-  // await wallet.import(identity.label, mixin);
 
   const wallet = await Wallets.newInMemoryWallet();
 
@@ -145,8 +141,11 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     mspId: identity.mspId,
     type: 'X.509',
   };
-  await wallet.put(identity.label, mixin);
+
+  await wallet.put(identity.label, mixin); // useless bullshit, why 'client' not 'login'
+
   const gateway = new Gateway();
+
   try {
     const connectionProfile = yaml.load(
       fs.readFileSync(path.resolve(__dirname, process.env.FABRIC_CONFIG_FILE), 'utf8'),
@@ -172,8 +171,8 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     
     const secret = await ca.register({
       enrollmentID: login,
-      enrollmentSecret: password,
-      role: 'peer',
+      enrollmentSecret: password, // ? 
+      role: 'peer', // CLIENT!!!
       affiliation: 'org1.department1',
       maxEnrollments: -1,
     }, admin);
@@ -181,14 +180,16 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     const userData = await ca.enroll({
       enrollmentID: login,
       enrollmentSecret: secret,
-      csr,
+      csr, // ???
     });
+
+    // SRP (*S*OLID)
     await validator.sendTransaction({
       identity: {
         label: login,
         certificate: userData.certificate,
-        privateKey,
-        mspId: '482solutions',
+        privateKey, // userData.key.toBytes() !!!!!
+        mspId: '482solutions', // Org1MSP
       },
       network: {
         channel: 'mychannel',
@@ -200,7 +201,7 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         props: [login, folder, 'root'],
       },
     });
-    gateway.disconnect();
+    gateway.disconnect(); // move to finally 
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };

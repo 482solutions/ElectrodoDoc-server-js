@@ -70,7 +70,7 @@ exports.sendTransaction = async ({ identity, transaction, network: networkOption
     mspId: identity.mspId,
     type: 'X.509',
   }
-  await wallet.put(identity.label, mixin)
+  await wallet.put(identity.label, mixin) // label == userid/login
   
   const gateway = new Gateway();
   try {

@@ -1,4 +1,4 @@
-import initDB from './utils/initdb';
+import { initDB } from './utils/initdb';
 
 initDB().then(() => {
   console.log('DB successfully initiated');

@@ -64,14 +64,14 @@ exports.sendTransaction = async ({ identity, transaction, network: networkOption
   const wallet = await Wallets.newInMemoryWallet();
   const mixin = {
     credentials: {
-        certificate: identity.certificate,
-        privateKey: identity.privateKey,
+      certificate: identity.certificate,
+      privateKey: identity.privateKey,
     },
     mspId: identity.mspId,
     type: 'X.509',
-  }
-  await wallet.put(identity.label, mixin) // label == userid/login
-  
+  };
+  await wallet.put(identity.label, mixin); // label == userid/login
+
   const gateway = new Gateway();
   try {
     const connectionProfile = yaml.load(
@@ -80,7 +80,7 @@ exports.sendTransaction = async ({ identity, transaction, network: networkOption
     const connectionOptions = {
       identity: identity.label,
       wallet,
-      discovery: { enabled: false, asLocalhost: true },
+      discovery: { enabled: true, asLocalhost: true },
     };
     await gateway.connect(connectionProfile, connectionOptions);
     const network = await gateway.getNetwork(networkOptions.channel);

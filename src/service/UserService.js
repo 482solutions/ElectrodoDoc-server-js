@@ -110,12 +110,12 @@ export const createUser = async (login, email, password, privateKey, csr) => {
   /**
    *
    * @type {FabricCAServices.IEnrollResponse}
-   * 
+   *
    */
   const adminData = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
   const identity = {
-    label: 'client',  //role ?
-    certificate: adminData.certificate, //credentials: {]
+    label: 'admin',
+    certificate: adminData.certificate,
     privateKey: adminData.key.toBytes(),
     mspId: 'Org1MSP',
   };
@@ -131,17 +131,6 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     type: 'X.509',
   };
   await wallet.put('admin', x509Identity);
-
-  const mixin = {
-    credentials: {
-        certificate: identity.certificate,
-        privateKey: identity.privateKey,
-    },
-    mspId: identity.mspId,
-    type: 'X.509',
-  };
-
-  await wallet.put(identity.label, mixin); // useless bullshit, why 'client' not 'login'
 
   const gateway = new Gateway();
 
@@ -160,18 +149,18 @@ export const createUser = async (login, email, password, privateKey, csr) => {
 
     const adminIdentity = await wallet.get('admin');
     if (!adminIdentity) {
-			throw {
-				status: 401,
-				message: 'An identity for the admin user does not exist in the wallet. Enroll the admin user before retrying'
-			};
-		}
+      throw {
+        status: 401,
+        message: 'An identity for the admin user does not exist in the wallet. Enroll the admin user before retrying',
+      };
+    }
     const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-		const admin = await provider.getUserContext(adminIdentity, 'admin');
+    const admin = await provider.getUserContext(adminIdentity, 'admin');
 
     const secret = await ca.register({
       enrollmentID: login,
-      enrollmentSecret: password, // ? 
-      role: 'peer', // CLIENT!!!
+      enrollmentSecret: password,
+      role: 'client',
       affiliation: 'org1.department1',
       maxEnrollments: -1,
     }, admin);
@@ -187,8 +176,8 @@ export const createUser = async (login, email, password, privateKey, csr) => {
       identity: {
         label: login,
         certificate: userData.certificate,
-        privateKey, // userData.key.toBytes() !!!!!
-        mspId: 'Org1MSP', // Org1MSP
+        privateKey, // userData.key.toBytes() if CSR is not used
+        mspId: 'Org1MSP',
       },
       network: {
         channel: 'mychannel',
@@ -200,14 +189,13 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         props: [login, folder, 'root'],
       },
     });
-    gateway.disconnect(); // move to finally 
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
   } catch (error) {
-    // Disconnect from the gateway
-    gateway.disconnect();
     return { code: 400, payload: { message: error } };
+  } finally {
+    gateway.disconnect();
   }
 };
 

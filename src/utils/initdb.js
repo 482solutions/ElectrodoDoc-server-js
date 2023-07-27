@@ -1,9 +1,11 @@
-import connection from '../database/connect';
-import dbrequestor from '../database/utils';
+const connection = require('../database/connect');
+const dbrequestor = require('../database/utils');
+const query = require('../database/query');
+
 import configDB from '../database/configDB';
 
-async function initdb() {
-  const conn = connection(configDB);
+async function initDB() {
+  const conn = await connection(configDB);
   await dbrequestor.query(conn, 'SET default_tablespace = \'\';');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS certs');
   await dbrequestor.query(conn, 'DROP TABLE IF EXISTS users');
@@ -29,4 +31,18 @@ async function initdb() {
   await dbrequestor.query(conn, 'ALTER TABLE ONLY public.certs ADD CONSTRAINT certs_name_fkey FOREIGN KEY (username) REFERENCES public.users(username);');
   await dbrequestor.query(conn, "INSERT INTO public.users VALUES ('user1', 'password', 'email@mail.com')");
 }
-module.exports = initdb;
+
+async function checkDBInit() {
+    try {
+        const conn = await connection(configDB);
+        await query(conn, `SELECT * FROM public.Users`);
+        return true;
+    } catch (e) {
+        return false
+    }
+}
+
+module.exports = {
+    initDB,
+    checkDBInit
+};

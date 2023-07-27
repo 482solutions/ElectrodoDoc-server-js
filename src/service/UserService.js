@@ -2,11 +2,12 @@ import fs from 'fs';
 import sha256 from 'sha256';
 import path from 'path';
 import jwt from 'jsonwebtoken';
-import FabricCAService from 'fabric-ca-client';
+import FabricCAServices from 'fabric-ca-client';
+// import hfc, { User } from 'fabric-client'
 import { promisify } from 'util';
 import dotenv from 'dotenv';
 
-import { Gateway, InMemoryWallet, X509WalletMixin } from 'fabric-network';
+import { Gateway, Wallets } from 'fabric-network';
 
 import yaml from 'js-yaml';
 import validator from '../helpers/auth';
@@ -15,14 +16,19 @@ import connection from '../database/connect';
 import DB from '../database/utils';
 import { redisClient } from '../adapter/redis';
 
+// "fabric-ca-client": "^2.2.18",
+//     "fabric-client": "^1.4.20",
+//     "fabric-network": "^2.2.18",
+
 dotenv.config();
 
 const HOST = process.env.FABRIC_HOST || '172.28.0.3';
 const PORT = process.env.FABRIC_PORT || 7054;
 
-const ca = new FabricCAService(`http://${HOST}:${PORT}`);
+const ca = new FabricCAServices(`https://${HOST}:${PORT}`);
 const conn = connection(configDB);
 const redisGet = promisify(redisClient.get).bind(redisClient);
+// const client = new hfc()
 /**
  * Update user password
  * Changing user credentials
@@ -100,25 +106,36 @@ export const createUser = async (login, email, password, privateKey, csr) => {
   }
 
   const folder = sha256(login);
+
   /**
    *
    * @type {FabricCAServices.IEnrollResponse}
+   *
    */
-  const adminData = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'password' });
+  const adminData = await ca.enroll({ enrollmentID: 'admin', enrollmentSecret: 'adminpw' });
   const identity = {
-    label: 'client',
+    label: 'admin',
     certificate: adminData.certificate,
     privateKey: adminData.key.toBytes(),
-    mspId: '482solutions',
+    mspId: 'Org1MSP',
   };
-  const wallet = new InMemoryWallet();
-  const mixin = X509WalletMixin.createIdentity(identity.mspId,
-    identity.certificate,
-    identity.privateKey);
-  await wallet.import(identity.label, mixin);
+
+  const wallet = await Wallets.newInMemoryWallet();
+
+  const x509Identity = {
+    credentials: {
+      certificate: adminData.certificate,
+      privateKey: adminData.key.toBytes(),
+    },
+    mspId: identity.mspId,
+    type: 'X.509',
+  };
+  await wallet.put('admin', x509Identity);
+
   const gateway = new Gateway();
+
   try {
-    const connectionProfile = yaml.safeLoad(
+    const connectionProfile = yaml.load(
       fs.readFileSync(path.resolve(__dirname, process.env.FABRIC_CONFIG_FILE), 'utf8'),
     );
     const connectionOptions = {
@@ -128,29 +145,42 @@ export const createUser = async (login, email, password, privateKey, csr) => {
     };
 
     await gateway.connect(connectionProfile, connectionOptions);
-    const admin = await gateway.getCurrentIdentity();
+    // const admin = await gateway.getCurrentIdentity();
+
+    const adminIdentity = await wallet.get('admin');
+    if (!adminIdentity) {
+      throw {
+        status: 401,
+        message: 'An identity for the admin user does not exist in the wallet. Enroll the admin user before retrying',
+      };
+    }
+    const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
+    const admin = await provider.getUserContext(adminIdentity, 'admin');
+
     const secret = await ca.register({
       enrollmentID: login,
       enrollmentSecret: password,
-      role: 'peer',
-      affiliation: '482solutions.prj-fabric',
+      role: 'client',
+      affiliation: 'org1.department1',
       maxEnrollments: -1,
     }, admin);
 
     const userData = await ca.enroll({
       enrollmentID: login,
       enrollmentSecret: secret,
-      csr,
+      csr, // ???
     });
+
+    // SRP (*S*OLID)
     await validator.sendTransaction({
       identity: {
         label: login,
         certificate: userData.certificate,
-        privateKey,
-        mspId: '482solutions',
+        privateKey, // userData.key.toBytes() if CSR is not used
+        mspId: 'Org1MSP',
       },
       network: {
-        channel: 'testchannel',
+        channel: 'mychannel',
         chaincode: 'wodencc',
         contract: 'org.fabric.wodencontract',
       },
@@ -159,14 +189,13 @@ export const createUser = async (login, email, password, privateKey, csr) => {
         props: [login, folder, 'root'],
       },
     });
-    gateway.disconnect();
     await DB.insertUser(conn, login, password, email, folder);
     await DB.insertCertData(conn, login, userData.certificate, privateKey);
     return { code: 201, payload: { cert: userData.certificate } };
   } catch (error) {
-    // Disconnect from the gateway
-    gateway.disconnect();
     return { code: 400, payload: { message: error } };
+  } finally {
+    gateway.disconnect();
   }
 };
 
@@ -193,7 +222,6 @@ export const logIn = async (login, password, certificate, privateKey) => {
   if (!validator.validationPrivateKey(privateKey)) {
     return { code: 422, payload: { message: 'Private Key is not correct' } };
   }
-
   let users = await DB.getUser(conn, login);
   if (users.length === 0) {
     users = await DB.getUserByEmail(conn, login);
@@ -206,16 +234,15 @@ export const logIn = async (login, password, certificate, privateKey) => {
   if (user.password !== password) {
     return { code: 400, payload: { message: 'Invalid password supplied.' } };
   }
-
   const response = await validator.sendTransaction({
     identity: {
       label: user.username,
       certificate,
       privateKey,
-      mspId: '482solutions',
+      mspId: 'Org1MSP',
     },
     network: {
-      channel: 'testchannel',
+      channel: 'mychannel',
       chaincode: 'wodencc',
       contract: 'org.fabric.wodencontract',
     },

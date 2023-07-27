@@ -19,10 +19,10 @@ exports.sendToFabric = async (username, method, props) => {
         label: username,
         certificate: certsList[0].cert,
         privateKey: certsList[0].privatekey,
-        mspId: '482solutions',
+        mspId: 'Org1MSP',
       },
       network: {
-        channel: 'testchannel',
+        channel: 'mychannel',
         chaincode: 'wodencc',
         contract: 'org.fabric.wodencontract',
       },

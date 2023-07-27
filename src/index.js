@@ -7,19 +7,19 @@ import swaggerTools from 'swagger-tools';
 import jsyaml from 'js-yaml';
 import dotenv from 'dotenv';
 import auth from './helpers/auth';
-import initDB from './utils/initdb';
+import {checkDBInit} from './utils/initdb';
 
 const app = connect();
 const serverPort = 1823;
 dotenv.config();
-// in debug just comment this code
-initDB().then(() => {
-  console.log('DB successfully initiated');
-}).catch(
-  () => {
-    console.log('Failed to initiate db');
-  },
-);
+
+checkDBInit().then(isInit => {
+  if(!isInit) {
+    console.log('DB in not inited')
+    process.exit()
+  }
+})
+
 // swaggerRouter configuration
 const options = {
   swaggerUi: path.join(__dirname, '/swagger.json'),
@@ -28,7 +28,9 @@ const options = {
 app.use(cors());
 // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
 const spec = fs.readFileSync(path.join(__dirname, 'api/swagger.yaml'), 'utf8');
-const swaggerDoc = jsyaml.safeLoad(spec);
+const swaggerDoc = jsyaml.load(spec);
+
+
 swaggerTools.initializeMiddleware(swaggerDoc, (middleware) => {
   app.use(middleware.swaggerMetadata());
   app.use(middleware.swaggerValidator());

@@ -1,7 +1,7 @@
 {
-  "name": "woden-server",
+  "name": "ElectrodoDoc-server",
   "version": "1.0.0",
-  "description": "Specification for Wooden REST API",
+  "description": "Specification for ElectrodoDoc REST API",
   "main": "index.js",
   "directories": {
     "doc": "../docs"
@@ -46,12 +46,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/482solutions/woden-server.git"
+    "url": "git+https://github.com/482solutions/ElectrodoDoc-server-js.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/482solutions/woden-server/issues"
+    "url": "https://github.com/482solutions/ElectrodoDoc-server-js"
   },
-  "homepage": "https://github.com/482solutions/woden-server#readme"
+  "homepage": "https://github.com/482solutions/ElectrodoDoc-server-js#readme"
 }

@@ -23,4 +23,4 @@ For example, in case you want to run server with port 11823:
 
 -----------------------------------------------------------------------
 #### Also check this issue, before you re-run `backend` : 
-https://github.com/482solutions/woden-server-js/issues/87
+https://github.com/482solutions/ElectrodoDoc-server-js/issues/87

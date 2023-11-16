@@ -1,9 +1,9 @@
 ---
 swagger: "2.0"
 info:
-  description: "Specification for Woden REST API"
+  description: "Specification for ElectrodoDoc REST API"
   version: "1.0.0"
-  title: "Woden"
+  title: "ElectrodoDoc"
 host: "localhost:1823"
 basePath: "/api/v1"
 schemes:

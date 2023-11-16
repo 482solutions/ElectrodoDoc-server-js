@@ -22,7 +22,7 @@ DEPRECATED
 
 #### Also check this issue, before you re-run `backend` : 
 
-https://github.com/482solutions/woden-server-js/issues/87
+https://github.com/482solutions/ElectrodoDoc-server-js/issues/87
 
 -----------------------------------------------------------------------
 To run the tests, run:
@@ -39,7 +39,7 @@ To run the debug mode, run:
 3) npm run debug
 ```
 
-To view the Woden UI interface:
+To view the ElectrodoDoc UI interface:
 
 ```
 open:8080/docs
